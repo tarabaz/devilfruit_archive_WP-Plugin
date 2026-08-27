@@ -127,21 +127,43 @@ body.dfa-archive-page {
  * riaggancerebbe un position:fixed a quell'antenato invece che al
  * viewport, rompendo il posizionamento.
  */
+/*
+ * Come per lo sfondo dell'archivio: larghezza 100% e altezza AUTO, così
+ * l'immagine si adatta alla risoluzione orizzontale seguendo le proprie
+ * proporzioni, invece di restare di dimensione fissa e venire ritagliata
+ * da object-fit:cover. Sotto l'immagine prosegue il fondo scuro del
+ * frame, raccordato dalla dissolvenza .dfa-single__bg::after.
+ */
 .dfa-single__bg {
 	position: absolute !important;
-	inset: 0 !important;
+	top: 0 !important;
+	left: 0 !important;
+	right: 0 !important;
+	bottom: auto !important;
+	height: auto !important;
 	z-index: 0 !important;
-	display: flex;
+	display: block !important;
+	line-height: 0;
 }
 
 .dfa-single__bg img {
-	position: absolute !important;
-	inset: 0 !important;
+	position: static !important;
 	width: 100% !important;
-	height: 100% !important;
-	object-fit: cover !important;
-	object-position: center !important;
+	height: auto !important;
+	max-width: 100% !important;
+	object-fit: initial !important;
 	display: block !important;
+}
+
+/* Raccordo morbido tra la base dell'immagine e il fondo della pagina. */
+.dfa-single__bg::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 45%;
+	background: linear-gradient(180deg, transparent 0%, var(--bg) 100%);
 }
 
 .dfa-single__overlay {
@@ -409,10 +431,13 @@ body.dfa-archive-page {
 }
 
 /*
- * Immagine di sfondo decorativa in alto (impostazioni plugin): altezza
- * controllata (non "height:auto") in modo che la sovrapposizione sotto
- * sia prevedibile qualunque sia il formato dell'immagine caricata, a
- * piena larghezza, object-fit:cover per riempirla senza deformarla.
+ * Immagine di sfondo decorativa in alto (impostazioni plugin).
+ *
+ * Altezza AUTO, non fissa: l'immagine occupa sempre il 100% della
+ * larghezza disponibile e la sua altezza segue le proporzioni reali del
+ * file. Così si adatta davvero alla risoluzione orizzontale (si
+ * rimpicciolisce su schermi stretti, cresce su schermi larghi) invece di
+ * restare di dimensione fissa e venire ritagliata da object-fit:cover.
  *
  * !important sulle regole di layout: queste pagine sono documenti
  * HTML autonomi che, per admin bar/SEO/analytics, caricano comunque
@@ -423,23 +448,31 @@ body.dfa-archive-page {
  * ricadono nel flusso normale). !important isola questa UI dal tema.
  */
 .dfa-archive__bg {
-	position: absolute !important;
-	top: 0 !important;
-	left: 0 !important;
-	right: 0 !important;
-	height: 56vh !important;
-	max-height: 640px;
-	min-height: 320px;
+	/*
+	 * NEL FLUSSO (non absolute): così l'immagine occupa spazio reale e
+	 * il contenuto sottostante può risalirle sopra con un margin-top
+	 * negativo (slider) senza uscire dal contenitore e venire tagliato
+	 * da overflow:hidden — cosa che accadeva con l'immagine assoluta.
+	 * I margini negativi annullano il padding di .dfa-archive per
+	 * ottenere comunque un'immagine a piena larghezza (full-bleed).
+	 */
+	position: relative !important;
+	margin: -50px -24px 0 !important;
+	height: auto !important;
+	/* Spazio minimo garantito: lo slider è limitato a 300px, quindi il
+	   contenuto non può mai essere trascinato sopra il bordo superiore
+	   e venire tagliato, nemmeno con un'immagine molto bassa. */
+	min-height: 320px !important;
 	z-index: 0 !important;
 	overflow: hidden !important;
+	line-height: 0;
 }
 .dfa-archive__bg img {
-	position: absolute !important;
-	inset: 0 !important;
+	position: static !important;
 	width: 100% !important;
-	height: 100% !important;
-	object-fit: cover !important;
-	object-position: center top !important;
+	height: auto !important;
+	max-width: 100% !important;
+	object-fit: initial !important;
 	display: block !important;
 }
 .dfa-archive__bg::after {
@@ -449,11 +482,6 @@ body.dfa-archive-page {
 	background: linear-gradient(180deg, rgba(8, 9, 10, .25) 0%, rgba(8, 9, 10, .6) 60%, var(--bg) 100%);
 }
 
-/* Quanto intestazione/griglia "risalgono" sopra l'immagine di sfondo,
-   invece di seguirla in cascata più in basso (slider nelle impostazioni). */
-.dfa-archive__header--overlap {
-	margin-top: calc(-1 * var(--dfa-archive-overlap, 0px));
-}
 
 .dfa-archive--shortcode {
 	padding: 20px 0;
@@ -478,6 +506,21 @@ body.dfa-archive-page {
 	text-align: center;
 	max-width: 1400px;
 	margin: 0 auto;
+}
+
+/*
+ * Quanto intestazione/griglia "risalgono" sopra l'immagine di sfondo,
+ * invece di seguirla in cascata più in basso (slider nelle impostazioni).
+ *
+ * DEVE stare DOPO la regola .dfa-archive__header qui sopra: quella usa
+ * la scorciatoia "margin: 0 auto", che riazzera anche margin-top. A
+ * parità di specificità (una classe ciascuna) vince l'ultima nel file,
+ * quindi se questa regola venisse prima il margin-top verrebbe
+ * silenziosamente annullato e lo slider non avrebbe alcun effetto.
+ * !important rende la cosa robusta anche a un futuro riordino.
+ */
+.dfa-archive__header--overlap {
+	margin-top: calc(-1 * var(--dfa-archive-overlap, 0px)) !important;
 }
 
 .dfa-archive__title {

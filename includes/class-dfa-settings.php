@@ -173,7 +173,7 @@ class DFA_Settings {
 		$output['archive_background_image'] = isset( $input['archive_background_image'] ) ? absint( $input['archive_background_image'] ) : 0;
 
 		$overlap                        = isset( $input['archive_bg_overlap'] ) ? absint( $input['archive_bg_overlap'] ) : 150;
-		$output['archive_bg_overlap']   = min( 400, max( 0, $overlap ) );
+		$output['archive_bg_overlap']   = min( 300, max( 0, $overlap ) );
 
 		$output['single_background_image'] = isset( $input['single_background_image'] ) ? absint( $input['single_background_image'] ) : 0;
 
@@ -263,7 +263,7 @@ class DFA_Settings {
 		$settings = get_option( self::OPTION_NAME, array() );
 		$overlap  = isset( $settings['archive_bg_overlap'] ) ? (int) $settings['archive_bg_overlap'] : 150;
 		?>
-		<input type="range" id="dfa_archive_bg_overlap" name="<?php echo esc_attr( self::OPTION_NAME ); ?>[archive_bg_overlap]" min="0" max="400" step="10" value="<?php echo esc_attr( $overlap ); ?>" oninput="document.getElementById('dfa_archive_bg_overlap_value').textContent = this.value + 'px'">
+		<input type="range" id="dfa_archive_bg_overlap" name="<?php echo esc_attr( self::OPTION_NAME ); ?>[archive_bg_overlap]" min="0" max="300" step="10" value="<?php echo esc_attr( $overlap ); ?>" oninput="document.getElementById('dfa_archive_bg_overlap_value').textContent = this.value + 'px'">
 		<span id="dfa_archive_bg_overlap_value"><?php echo esc_html( $overlap ); ?>px</span>
 		<p class="description"><?php esc_html_e( '0 = nessuna sovrapposizione (il contenuto inizia sotto l\'immagine). Valori più alti fanno "risalire" intestazione e griglia sopra l\'immagine di sfondo.', 'devil-fruit-archive' ); ?></p>
 		<?php
