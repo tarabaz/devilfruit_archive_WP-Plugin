@@ -1,0 +1,19 @@
+/**
+ * Devil Fruit Archive — stile minimo per i meta box in wp-admin.
+ */
+
+.dfa-metabox-table th {
+	width: 220px;
+}
+
+.dfa-image-field__preview {
+	margin-bottom: 8px;
+}
+
+.dfa-image-field__preview img {
+	max-width: 150px;
+	height: auto;
+	display: block;
+	border: 1px solid #dcdcde;
+	border-radius: 2px;
+}
