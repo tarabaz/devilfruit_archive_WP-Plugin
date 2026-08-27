@@ -566,20 +566,22 @@ body.dfa-archive-page {
 
 /*
  * Composizione di sfondo della card, dal basso verso l'alto:
- *  1. card-bg-character — foto proprietario, zoomata e ancorata a
- *     sinistra (livello sotto).
- *  2. card-veil — velo nero piatto al 50% sopra al solo personaggio,
- *     per scurirlo.
- *  3. card-bg-fruit — immagine frutto dedicata, in sovraimpressione
- *     in basso a destra, NON scurita dal velo (sta sopra di esso).
- *  4. card-overlay — leggera dissolvenza verso il basso, solo per
- *     mantenere leggibile il testo (id/nome/badge) senza spegnere il
- *     frutto.
- * Tutti position:absolute: non influenzano mai la forma/altezza della
- * card. !important per isolare dal CSS del tema (vedi nota sopra
- * .dfa-archive__bg): senza, un reset del tema su position/width può
- * far "ricadere" questi livelli nel flusso normale, impilandoli come
- * blocchi invece di sovrapporli.
+ *  1. card-bg-character — foto proprietario attuale, zoomata e
+ *     ancorata a sinistra, in bianco e nero (a colori solo in hover
+ *     della card).
+ *  2. card-veil — velo nero piatto al 50% sopra il personaggio, per
+ *     scurirlo.
+ *  3. card-overlay — leggera dissolvenza verso il basso, solo per
+ *     mantenere leggibile il testo (id/nome/badge).
+ * Sopra a tutto, il riquadro card-image è ora TRASPARENTE: mostra
+ * esclusivamente "Immagine frutto" (mai la featured image del post) e,
+ * se non caricata, lascia vedere lo sfondo sottostante invece di un
+ * riquadro nero.
+ * Tutti i livelli sono position:absolute: non influenzano mai la
+ * forma/altezza della card. !important per isolare dal CSS del tema
+ * (vedi nota sopra .dfa-archive__bg): senza, un reset del tema su
+ * position/width può far "ricadere" questi livelli nel flusso normale,
+ * impilandoli come blocchi invece di sovrapporli.
  */
 .dfa-archive__card-bg {
 	position: absolute !important;
@@ -602,6 +604,12 @@ body.dfa-archive-page {
 	display: block !important;
 	transform: scale(1.2);
 	transform-origin: left center;
+	filter: grayscale(100%);
+	transition: filter .3s ease;
+}
+.dfa-archive__card:hover .dfa-archive__card-bg-character img,
+.dfa-archive__card:focus-within .dfa-archive__card-bg-character img {
+	filter: grayscale(0%);
 }
 
 .dfa-archive__card-veil {
@@ -609,27 +617,6 @@ body.dfa-archive-page {
 	inset: 0 !important;
 	z-index: 0 !important;
 	background: rgba(0, 0, 0, .5);
-}
-
-.dfa-archive__card-bg-fruit {
-	position: absolute !important;
-	right: 0 !important;
-	bottom: 0 !important;
-	left: auto !important;
-	top: auto !important;
-	width: 58% !important;
-	height: 58% !important;
-	z-index: 0 !important;
-}
-.dfa-archive__card-bg-fruit img {
-	position: absolute !important;
-	inset: 0 !important;
-	width: 100% !important;
-	height: 100% !important;
-	object-fit: contain !important;
-	object-position: bottom right !important;
-	display: block !important;
-	filter: drop-shadow(0 10px 16px rgba(0, 0, 0, .6));
 }
 
 .dfa-archive__card-overlay {
@@ -644,7 +631,7 @@ body.dfa-archive-page {
 	z-index: 1 !important;
 	width: 100%;
 	height: 220px;
-	background: #0b0d0e;
+	background: transparent;
 	overflow: hidden;
 	display: flex;
 	align-items: center;

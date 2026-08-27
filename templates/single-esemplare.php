@@ -29,10 +29,10 @@ while ( have_posts() ) :
 	$owner_current         = DFA_Meta::get( $post_id, 'owner_current' );
 	$owner_former          = DFA_Meta::get( $post_id, 'owner_former' );
 	$lore                  = DFA_Meta::get( $post_id, 'lore' );
-	$owner_current_image   = (int) DFA_Meta::get( $post_id, 'owner_current_image' );
 	$cta_url                = DFA_Settings::get_cta_url();
-	// Sfondo: sempre e solo la foto del proprietario attuale.
-	$background_image_id    = $owner_current_image;
+	// Sfondo: sempre e solo "Immagine frutto" (non la foto proprietario,
+	// riservata allo sfondo della card nella griglia archivio).
+	$background_image_id    = (int) DFA_Meta::get( $post_id, 'fruit_image' );
 	?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
