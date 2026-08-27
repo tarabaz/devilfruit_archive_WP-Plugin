@@ -231,7 +231,7 @@ class DFA_Settings {
 	 * Testo introduttivo della sezione "Aspetto scheda singola".
 	 */
 	public static function render_single_section() {
-		echo '<p>' . esc_html__( 'Ogni esemplare usa come sfondo la propria "Immagine frutto". Questa immagine viene usata solo come riserva, sugli esemplari che non ne hanno ancora una caricata.', 'devil-fruit-archive' ) . '</p>';
+		echo '<p>' . esc_html__( 'Ogni esemplare usa come sfondo la propria "Foto proprietario attuale". Questa immagine viene usata solo come riserva, sugli esemplari che non ne hanno ancora una caricata.', 'devil-fruit-archive' ) . '</p>';
 	}
 
 	/**
