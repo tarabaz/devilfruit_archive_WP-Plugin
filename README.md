@@ -60,7 +60,7 @@ Brand: **FrancyStore3D**.
    - `Ex proprietario` (opzionale): solo testo, popola la riga "EX
      PROPRIETARIO" nella targa. Nessuna immagine dedicata.
 6. Compila il meta box **"Research Note / Osservazioni"** con il testo di
-   lore (mostrato in corsivo nella scheda).
+   lore (mostrato accanto alla targa nella scheda, stesso font della targa).
 7. Pubblica. L'esemplare è subito visibile su `/archivio/nome-esemplare/`
    e nella griglia `/archivio/`.
 
@@ -78,13 +78,10 @@ sull'intestazione.
   lampada. Il campo resta disponibile per riattivare in futuro una CTA
   di contatto senza doverla riconfigurare.
 - **Immagine di sfondo archivio**: immagine decorativa mostrata a piena
-  larghezza in alto nella pagina archivio pubblica (`/archivio/`), dietro
-  l'intestazione, con una dissolvenza verso il basso. Facoltativa; non
-  compare nello shortcode `[devil_fruit_archive]` usato dentro una pagina
-  del tema.
-- **Sovrapposizione contenuto/immagine**: slider (0-300px) che definisce
-  quanto intestazione e griglia "risalgono" sopra l'immagine di sfondo
-  invece di iniziare sotto di essa in cascata.
+  larghezza in cima alla pagina archivio pubblica (`/archivio/`), dietro
+  al contenuto, che le scorre sopra partendo a 50px dal bordo superiore.
+  Facoltativa; non compare nello shortcode `[devil_fruit_archive]` usato
+  dentro una pagina del tema.
 - **Sfondo di riserva scheda singola**: usato come sfondo sulle schede
   degli esemplari che non hanno ancora una `Foto proprietario attuale`
   caricata.
