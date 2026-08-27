@@ -29,6 +29,47 @@ class DFA_Settings {
 		add_action( 'admin_menu', array( __CLASS__, 'register_settings_page' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_assets' ) );
+		add_action( 'update_option_' . self::OPTION_NAME, array( __CLASS__, 'flush_page_caches' ) );
+	}
+
+	/**
+	 * Svuota la cache di pagina dopo il salvataggio delle impostazioni.
+	 *
+	 * Alcune impostazioni (in particolare la sovrapposizione dello
+	 * sfondo archivio) finiscono nell'HTML della pagina come variabile
+	 * CSS inline, non nel file .css. Con un plugin di cache attivo la
+	 * pagina già salvata continuerebbe quindi a essere servita con il
+	 * valore vecchio, facendo sembrare che l'impostazione "non funzioni"
+	 * anche quando è stata salvata correttamente. Qui si invitano i
+	 * principali plugin di cache a rigenerare, se presenti: ogni
+	 * chiamata è protetta da function_exists/class_exists, quindi su un
+	 * sito senza cache non succede nulla.
+	 */
+	public static function flush_page_caches() {
+		if ( function_exists( 'rocket_clean_domain' ) ) {          // WP Rocket
+			rocket_clean_domain();
+		}
+		if ( function_exists( 'w3tc_flush_all' ) ) {               // W3 Total Cache
+			w3tc_flush_all();
+		}
+		if ( function_exists( 'wp_cache_clear_cache' ) ) {         // WP Super Cache
+			wp_cache_clear_cache();
+		}
+		if ( function_exists( 'ccfm_clear_all_cache' ) ) {         // Cache Enabler / vari
+			ccfm_clear_all_cache();
+		}
+		if ( class_exists( 'LiteSpeed\Purge' ) ) {                 // LiteSpeed Cache
+			do_action( 'litespeed_purge_all' );
+		}
+		if ( class_exists( 'autoptimizeCache' ) ) {                // Autoptimize
+			autoptimizeCache::clearall();
+		}
+		if ( function_exists( 'sg_cachepress_purge_cache' ) ) {    // SiteGround Optimizer
+			sg_cachepress_purge_cache();
+		}
+
+		// Cache oggetti (Redis/Memcached) e transient del core.
+		wp_cache_flush();
 	}
 
 	/**

@@ -3,7 +3,7 @@
  * Plugin Name:       Devil Fruit Archive
  * Plugin URI:        https://francystore3d.com
  * Description:       Archivio/dossier classificato in stile "Vegapunk Research Division" per esemplari di Devil Fruit. Nessun e-commerce: solo catalogo con CTA di contatto.
- * Version:           1.9
+ * Version:           2.0
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            FrancyStore3D
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * mostrata in fondo alla pagina impostazioni, per verificare a colpo
  * d'occhio che un aggiornamento sia stato effettivamente caricato.
  */
-define( 'DFA_VERSION', '1.9' );
+define( 'DFA_VERSION', '2.0' );
 
 /** Percorso assoluto della cartella del plugin, con trailing slash. */
 define( 'DFA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
