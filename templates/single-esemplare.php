@@ -72,51 +72,57 @@ while ( have_posts() ) :
 			<div>SEC. LEVEL: 04</div>
 		</div>
 
-		<div class="dfa-single__specimen-wrap">
-			<div class="dfa-single__specimen">
-				<?php if ( has_post_thumbnail() ) : ?>
-					<?php the_post_thumbnail( 'large' ); ?>
-				<?php endif; ?>
+		<div class="dfa-single__content">
+
+			<div class="dfa-single__specimen-wrap">
+				<div class="dfa-single__specimen">
+					<?php if ( has_post_thumbnail() ) : ?>
+						<?php the_post_thumbnail( 'large' ); ?>
+					<?php endif; ?>
+				</div>
+				<div class="dfa-single__specimen-floor"></div>
+
+				<div class="dfa-single__dogtag">
+					<div class="dfa-single__dogtag-chain"></div>
+					<div class="dfa-single__dogtag-body">CLASSIFIED SPECIMEN<br>STATUS: ARCHIVED</div>
+				</div>
 			</div>
-			<div class="dfa-single__specimen-floor"></div>
-		</div>
 
-		<div class="dfa-single__dogtag">
-			<div class="dfa-single__dogtag-chain"></div>
-			<div class="dfa-single__dogtag-body">CLASSIFIED SPECIMEN<br>STATUS: ARCHIVED</div>
-		</div>
+			<div class="dfa-single__panel-col">
+				<section class="dfa-single__panel">
+					<span class="dfa-single__panel-screw dfa-single__panel-screw--tl"></span>
+					<span class="dfa-single__panel-screw dfa-single__panel-screw--tr"></span>
+					<span class="dfa-single__panel-screw dfa-single__panel-screw--bl"></span>
+					<span class="dfa-single__panel-screw dfa-single__panel-screw--br"></span>
 
-		<section class="dfa-single__panel">
-			<span class="dfa-single__panel-screw dfa-single__panel-screw--tl"></span>
-			<span class="dfa-single__panel-screw dfa-single__panel-screw--tr"></span>
-			<span class="dfa-single__panel-screw dfa-single__panel-screw--bl"></span>
-			<span class="dfa-single__panel-screw dfa-single__panel-screw--br"></span>
+					<div class="dfa-single__panel-id">
+						<div>CATALOG ID: <?php echo esc_html( $catalog_id ); ?></div>
+						<div>TYPE: <?php echo esc_html( $fruit_type_label ); ?></div>
+					</div>
+					<div class="dfa-single__panel-rule"></div>
+					<div class="dfa-single__panel-name dfa-display"><?php echo esc_html( $romaji_name ); ?></div>
+					<?php if ( $katakana_name ) : ?>
+						<div class="dfa-single__panel-kana dfa-jp"><?php echo esc_html( $katakana_name ); ?></div>
+					<?php endif; ?>
+					<div class="dfa-single__panel-rule"></div>
+					<div class="dfa-single__panel-details">
+						<?php if ( $special_note ) : ?>
+							<div><span class="label">SPECIAL NOTE:</span> <?php echo esc_html( $special_note ); ?></div>
+						<?php endif; ?>
+						<?php if ( $owner_current ) : ?>
+							<div><span class="label">PROPRIETARIO:</span> <?php echo esc_html( $owner_current ); ?></div>
+						<?php endif; ?>
+						<?php if ( $owner_former ) : ?>
+							<div><span class="label">EX PROPRIETARIO:</span> <?php echo esc_html( $owner_former ); ?></div>
+						<?php endif; ?>
+					</div>
+				</section>
 
-			<div class="dfa-single__panel-id">
-				<div>CATALOG ID: <?php echo esc_html( $catalog_id ); ?></div>
-				<div>TYPE: <?php echo esc_html( $fruit_type_label ); ?></div>
+				<div class="dfa-single__cta-wrap">
+					<a href="<?php echo esc_url( $cta_url ); ?>" class="dfa-single__cta" target="_blank" rel="noopener noreferrer">RICHIEDI QUESTO ESEMPLARE</a>
+				</div>
 			</div>
-			<div class="dfa-single__panel-rule"></div>
-			<div class="dfa-single__panel-name dfa-display"><?php echo esc_html( $romaji_name ); ?></div>
-			<?php if ( $katakana_name ) : ?>
-				<div class="dfa-single__panel-kana dfa-jp"><?php echo esc_html( $katakana_name ); ?></div>
-			<?php endif; ?>
-			<div class="dfa-single__panel-rule"></div>
-			<div class="dfa-single__panel-details">
-				<?php if ( $special_note ) : ?>
-					<div><span class="label">SPECIAL NOTE:</span> <?php echo esc_html( $special_note ); ?></div>
-				<?php endif; ?>
-				<?php if ( $owner_current ) : ?>
-					<div><span class="label">PROPRIETARIO:</span> <?php echo esc_html( $owner_current ); ?></div>
-				<?php endif; ?>
-				<?php if ( $owner_former ) : ?>
-					<div><span class="label">EX PROPRIETARIO:</span> <?php echo esc_html( $owner_former ); ?></div>
-				<?php endif; ?>
-			</div>
-		</section>
 
-		<div class="dfa-single__cta-wrap">
-			<a href="<?php echo esc_url( $cta_url ); ?>" class="dfa-single__cta" target="_blank" rel="noopener noreferrer">RICHIEDI QUESTO ESEMPLARE</a>
 		</div>
 
 		<?php if ( $lore ) : ?>

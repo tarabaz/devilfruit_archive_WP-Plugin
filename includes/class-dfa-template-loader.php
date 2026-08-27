@@ -77,9 +77,16 @@ class DFA_Template_Loader {
 		}
 
 		wp_enqueue_style(
+			'dfa-fonts',
+			'https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Noto+Sans+JP:wght@400;500&display=swap',
+			array(),
+			null
+		);
+
+		wp_enqueue_style(
 			'dfa-frontend',
 			DFA_PLUGIN_URL . 'assets/css/devil-fruit-archive.css',
-			array(),
+			array( 'dfa-fonts' ),
 			DFA_VERSION
 		);
 
