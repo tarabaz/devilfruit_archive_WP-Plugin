@@ -61,25 +61,30 @@ body.dfa-archive-page {
 	position: relative;
 	z-index: 2;
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
-	justify-content: space-between;
-	gap: 16px;
-	padding: 14px 24px;
-	background: rgba(8, 9, 10, .85);
-	border-bottom: 1px solid rgba(216, 219, 222, .14);
-	font: 400 11px/1 'IBM Plex Mono', ui-monospace, monospace;
-	letter-spacing: .16em;
+	justify-content: center;
+	gap: 14px;
+	margin-top: 6px;
 }
 
 .dfa-topbar__link {
-	color: rgba(216, 219, 222, .6);
+	display: inline-block;
+	padding: 11px 22px;
+	background: rgba(14, 16, 18, .9);
+	border: 1px solid rgba(216, 219, 222, .5);
+	font: 400 11px/1 'IBM Plex Mono', ui-monospace, monospace;
+	letter-spacing: .18em;
+	color: #e8ebee;
 	text-decoration: none;
 	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	cursor: pointer;
+	transition: background .15s ease, border-color .15s ease, color .15s ease;
 }
 .dfa-topbar__link:hover,
 .dfa-topbar__link:focus-visible {
+	background: rgba(216, 219, 222, .1);
+	border-color: rgba(216, 219, 222, .85);
 	color: #fff;
 }
 
@@ -89,12 +94,23 @@ body.dfa-archive-page {
 
 .dfa-single__frame {
 	position: relative;
+	overflow: hidden;
 	min-height: 100vh;
 	padding-bottom: 100px;
 }
 
+/*
+ * position:absolute ancorato a .dfa-single__frame (non position:fixed
+ * ancorato al viewport): un tema o plugin che applica transform,
+ * filter, contain o will-change a un antenato (body, wrapper, ecc. —
+ * cosa comunissima per header sticky o effetti pagina) trasforma
+ * silenziosamente un discendente position:fixed nel contesto di
+ * quell'antenato invece che del viewport, facendolo sparire o
+ * posizionare male. Con absolute + un contenitore position:relative
+ * dedicato (qui sopra) il risultato non dipende dal tema.
+ */
 .dfa-single__bg {
-	position: fixed;
+	position: absolute;
 	inset: 0;
 	z-index: -2;
 	display: flex;
@@ -109,7 +125,7 @@ body.dfa-archive-page {
 }
 
 .dfa-single__overlay {
-	position: fixed;
+	position: absolute;
 	inset: 0;
 	z-index: -1;
 	pointer-events: none;
@@ -117,7 +133,7 @@ body.dfa-archive-page {
 }
 
 .dfa-single__vignette {
-	position: fixed;
+	position: absolute;
 	inset: 0;
 	z-index: -1;
 	pointer-events: none;
@@ -125,7 +141,7 @@ body.dfa-archive-page {
 }
 
 .dfa-single__scanlines {
-	position: fixed;
+	position: absolute;
 	inset: 0;
 	z-index: -1;
 	pointer-events: none;
