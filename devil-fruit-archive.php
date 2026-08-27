@@ -45,6 +45,7 @@ require_once DFA_PLUGIN_DIR . 'includes/class-dfa-admin-columns.php';
 require_once DFA_PLUGIN_DIR . 'includes/class-dfa-shortcode.php';
 require_once DFA_PLUGIN_DIR . 'includes/class-dfa-settings.php';
 require_once DFA_PLUGIN_DIR . 'includes/class-dfa-seed.php';
+require_once DFA_PLUGIN_DIR . 'includes/class-dfa-template-loader.php';
 
 /**
  * Inizializza tutte le componenti del plugin.
@@ -57,6 +58,7 @@ function dfa_init_plugin() {
 	DFA_Shortcode::init();
 	DFA_Settings::init();
 	DFA_Seed::init();
+	DFA_Template_Loader::init();
 }
 add_action( 'plugins_loaded', 'dfa_init_plugin' );
 
