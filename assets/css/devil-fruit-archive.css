@@ -52,6 +52,38 @@ body.dfa-archive-page {
 .dfa-jp { font-family: 'Noto Sans JP', sans-serif; }
 
 /* --------------------------------------------------------------------
+   TOP BAR (torna al sito / torna all'archivio) — condivisa tra scheda
+   singola e archivio, fuori da .dfa-single__frame/.dfa-archive quindi
+   con stile autonomo (non eredita le regole scope-ate qui sopra).
+   -------------------------------------------------------------------- */
+
+.dfa-topbar {
+	position: relative;
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 16px;
+	padding: 14px 24px;
+	background: rgba(8, 9, 10, .85);
+	border-bottom: 1px solid rgba(216, 219, 222, .14);
+	font: 400 11px/1 'IBM Plex Mono', ui-monospace, monospace;
+	letter-spacing: .16em;
+}
+
+.dfa-topbar__link {
+	color: rgba(216, 219, 222, .6);
+	text-decoration: none;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.dfa-topbar__link:hover,
+.dfa-topbar__link:focus-visible {
+	color: #fff;
+}
+
+/* --------------------------------------------------------------------
    SCHEDA SINGOLA
    -------------------------------------------------------------------- */
 
@@ -75,9 +107,6 @@ body.dfa-archive-page {
 	object-position: center;
 	display: block;
 }
-
-/* Composizione a due personaggi: attuale + ex proprietario affiancati */
-.dfa-single--dual .dfa-single__bg img { width: 50%; }
 
 .dfa-single__overlay {
 	position: fixed;
@@ -195,35 +224,6 @@ body.dfa-archive-page {
 	height: 44px;
 	margin-top: -8px;
 	background: radial-gradient(50% 100% at 50% 0%, rgba(216, 219, 222, .13), transparent 72%);
-}
-
-.dfa-single__dogtag {
-	position: absolute;
-	right: 4%;
-	top: 30%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	transform: rotate(4deg);
-}
-
-.dfa-single__dogtag-chain {
-	width: 1px;
-	height: 30px;
-	background: rgba(216, 219, 222, .35);
-}
-
-.dfa-single__dogtag-body {
-	padding: 12px 10px;
-	background: linear-gradient(160deg, #1c1f22, #0d0f11);
-	border: 1px solid rgba(216, 219, 222, .34);
-	border-radius: 24px;
-	box-shadow: 0 8px 18px rgba(0, 0, 0, .6);
-	writing-mode: vertical-rl;
-	font: 500 9px/1.9 'IBM Plex Mono';
-	letter-spacing: .24em;
-	color: rgba(226, 229, 232, .86);
-	text-align: center;
 }
 
 .dfa-single__panel-col {

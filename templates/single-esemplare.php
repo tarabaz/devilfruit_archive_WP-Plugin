@@ -32,7 +32,9 @@ while ( have_posts() ) :
 	$owner_current_image   = (int) DFA_Meta::get( $post_id, 'owner_current_image' );
 	$owner_former_image    = (int) DFA_Meta::get( $post_id, 'owner_former_image' );
 	$cta_url                = DFA_Settings::get_cta_url();
-	$has_two_owners         = $owner_former_image > 0;
+	// Un'unica immagine di sfondo: quella del proprietario attuale,
+	// con quella dell'ex proprietario solo come riserva.
+	$background_image_id    = $owner_current_image ? $owner_current_image : $owner_former_image;
 	?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
@@ -42,18 +44,15 @@ while ( have_posts() ) :
 	<title><?php echo esc_html( wp_get_document_title() ); ?></title>
 	<?php wp_head(); ?>
 </head>
-<body <?php body_class( 'dfa-single' . ( $has_two_owners ? ' dfa-single--dual' : '' ) ); ?>>
+<body <?php body_class( 'dfa-single' ); ?>>
+
+	<?php require DFA_PLUGIN_DIR . 'templates/parts/topbar.php'; ?>
 
 	<article class="dfa-single__frame">
 
-		<?php if ( $owner_current_image || $has_two_owners ) : ?>
+		<?php if ( $background_image_id ) : ?>
 		<div class="dfa-single__bg">
-			<?php if ( $owner_current_image ) : ?>
-				<?php echo wp_get_attachment_image( $owner_current_image, 'full' ); ?>
-			<?php endif; ?>
-			<?php if ( $has_two_owners ) : ?>
-				<?php echo wp_get_attachment_image( $owner_former_image, 'full' ); ?>
-			<?php endif; ?>
+			<?php echo wp_get_attachment_image( $background_image_id, 'full' ); ?>
 		</div>
 		<?php endif; ?>
 
@@ -81,11 +80,6 @@ while ( have_posts() ) :
 					<?php endif; ?>
 				</div>
 				<div class="dfa-single__specimen-floor"></div>
-
-				<div class="dfa-single__dogtag">
-					<div class="dfa-single__dogtag-chain"></div>
-					<div class="dfa-single__dogtag-body">CLASSIFIED SPECIMEN<br>STATUS: ARCHIVED</div>
-				</div>
 			</div>
 
 			<div class="dfa-single__panel-col">
