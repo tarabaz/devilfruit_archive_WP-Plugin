@@ -16,6 +16,8 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+$dfa_archive_bg_id = DFA_Settings::get_archive_background_image_id();
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
@@ -27,9 +29,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 </head>
 <body <?php body_class( 'dfa-archive-page' ); ?>>
 
-	<?php require DFA_PLUGIN_DIR . 'templates/parts/topbar.php'; ?>
-
 	<div class="dfa-archive">
+		<?php if ( $dfa_archive_bg_id ) : ?>
+			<div class="dfa-archive__bg">
+				<?php echo wp_get_attachment_image( $dfa_archive_bg_id, 'full' ); ?>
+				<div class="dfa-archive__bg-fade"></div>
+			</div>
+		<?php endif; ?>
+
 		<div class="dfa-archive__scanlines" aria-hidden="true"></div>
 
 		<header class="dfa-archive__header">
@@ -37,6 +44,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<div class="dfa-archive__subtitle">— DEVIL FRUIT ARCHIVE —</div>
 			<div class="dfa-archive__tag">CLASSIFIED SPECIMENS</div>
 			<div class="dfa-archive__rule"></div>
+			<?php require DFA_PLUGIN_DIR . 'templates/parts/topbar.php'; ?>
 			<div class="dfa-archive__brandbar">
 				<div class="dfa-archive__nav">
 					<span>CATALOGO</span><span>TIPOLOGIE</span><span>ARCHIVIO</span><span>CONTATTI</span>

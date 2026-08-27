@@ -46,8 +46,6 @@ while ( have_posts() ) :
 </head>
 <body <?php body_class( 'dfa-single' ); ?>>
 
-	<?php require DFA_PLUGIN_DIR . 'templates/parts/topbar.php'; ?>
-
 	<article class="dfa-single__frame">
 
 		<?php if ( $background_image_id ) : ?>
@@ -63,6 +61,7 @@ while ( have_posts() ) :
 		<header class="dfa-single__header">
 			<div class="dfa-single__header-title">VEGAPUNK RESEARCH DIVISION — DEVIL FRUIT ARCHIVE</div>
 			<div class="dfa-single__header-rule"></div>
+			<?php require DFA_PLUGIN_DIR . 'templates/parts/topbar.php'; ?>
 		</header>
 
 		<div class="dfa-single__meta">

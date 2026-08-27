@@ -29,16 +29,25 @@ if ( 'LOGIA' === $dfa_fruit_type ) {
 	$dfa_badge_icon_class .= ' dfa-archive__badge-icon--mythical';
 }
 
-// Una sola immagine di sfondo per card: il proprietario attuale, con
-// quello dell'ex proprietario solo come riserva se manca la prima.
+// Sfondo della card: foto del proprietario attuale (quello dell'ex
+// proprietario solo come riserva se manca la prima), con l'immagine
+// frutto dedicata in sovraimpressione in basso a destra.
 $dfa_owner_current_image = (int) DFA_Meta::get( $dfa_post_id, 'owner_current_image' );
 $dfa_owner_former_image  = (int) DFA_Meta::get( $dfa_post_id, 'owner_former_image' );
 $dfa_card_bg_image       = $dfa_owner_current_image ? $dfa_owner_current_image : $dfa_owner_former_image;
+$dfa_fruit_image         = (int) DFA_Meta::get( $dfa_post_id, 'fruit_image' );
 ?>
 <article class="dfa-archive__card">
 	<a class="dfa-archive__card-link" href="<?php the_permalink(); ?>" aria-label="<?php echo esc_attr( $dfa_romaji_name ? $dfa_romaji_name : get_the_title() ); ?>">
-		<?php if ( $dfa_card_bg_image ) : ?>
-			<div class="dfa-archive__card-bg"><?php echo wp_get_attachment_image( $dfa_card_bg_image, 'medium_large' ); ?></div>
+		<?php if ( $dfa_card_bg_image || $dfa_fruit_image ) : ?>
+			<div class="dfa-archive__card-bg">
+				<?php if ( $dfa_card_bg_image ) : ?>
+					<div class="dfa-archive__card-bg-character"><?php echo wp_get_attachment_image( $dfa_card_bg_image, 'medium_large' ); ?></div>
+				<?php endif; ?>
+				<?php if ( $dfa_fruit_image ) : ?>
+					<div class="dfa-archive__card-bg-fruit"><?php echo wp_get_attachment_image( $dfa_fruit_image, 'medium' ); ?></div>
+				<?php endif; ?>
+			</div>
 			<div class="dfa-archive__card-overlay"></div>
 		<?php endif; ?>
 

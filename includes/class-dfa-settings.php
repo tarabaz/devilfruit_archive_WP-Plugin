@@ -22,16 +22,59 @@ class DFA_Settings {
 	/**
 	 * Aggancia la registrazione della pagina e delle opzioni.
 	 */
+	/** Hook suffix della pagina impostazioni, valorizzato dopo la registrazione. */
+	private static $page_hook = '';
+
 	public static function init() {
 		add_action( 'admin_menu', array( __CLASS__, 'register_settings_page' ) );
 		add_action( 'admin_init', array( __CLASS__, 'register_settings' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_assets' ) );
+	}
+
+	/**
+	 * Carica wp.media e lo script del media uploader (stesso usato dai
+	 * meta box) solo nella pagina impostazioni, per il campo "Immagine
+	 * di sfondo archivio".
+	 *
+	 * @param string $hook Hook della pagina admin corrente.
+	 */
+	public static function enqueue_admin_assets( $hook ) {
+		if ( $hook !== self::$page_hook ) {
+			return;
+		}
+
+		wp_enqueue_media();
+
+		wp_enqueue_style(
+			'dfa-admin-metabox',
+			DFA_PLUGIN_URL . 'assets/css/admin-metabox.css',
+			array(),
+			DFA_VERSION
+		);
+
+		wp_enqueue_script(
+			'dfa-admin-metabox',
+			DFA_PLUGIN_URL . 'assets/js/admin-metabox.js',
+			array( 'jquery' ),
+			DFA_VERSION,
+			true
+		);
+
+		wp_localize_script(
+			'dfa-admin-metabox',
+			'dfaMetabox',
+			array(
+				'mediaTitle'  => __( 'Seleziona un\'immagine', 'devil-fruit-archive' ),
+				'mediaButton' => __( 'Usa questa immagine', 'devil-fruit-archive' ),
+			)
+		);
 	}
 
 	/**
 	 * Aggiunge la voce "Impostazioni" come sottomenu del CPT esemplare.
 	 */
 	public static function register_settings_page() {
-		add_submenu_page(
+		self::$page_hook = add_submenu_page(
 			'edit.php?post_type=' . DFA_CPT::POST_TYPE,
 			__( 'Impostazioni Devil Fruit Archive', 'devil-fruit-archive' ),
 			__( 'Impostazioni', 'devil-fruit-archive' ),
@@ -51,7 +94,10 @@ class DFA_Settings {
 			array(
 				'type'              => 'array',
 				'sanitize_callback' => array( __CLASS__, 'sanitize_settings' ),
-				'default'           => array( 'cta_url' => '#' ),
+				'default'           => array(
+					'cta_url'                  => '#',
+					'archive_background_image' => 0,
+				),
 			)
 		);
 
@@ -69,6 +115,21 @@ class DFA_Settings {
 			self::PAGE_SLUG,
 			'dfa_settings_main'
 		);
+
+		add_settings_section(
+			'dfa_settings_archive',
+			__( 'Aspetto pagina archivio', 'devil-fruit-archive' ),
+			array( __CLASS__, 'render_archive_section' ),
+			self::PAGE_SLUG
+		);
+
+		add_settings_field(
+			'dfa_archive_background_image',
+			__( 'Immagine di sfondo archivio', 'devil-fruit-archive' ),
+			array( __CLASS__, 'render_archive_background_field' ),
+			self::PAGE_SLUG,
+			'dfa_settings_archive'
+		);
 	}
 
 	/**
@@ -84,6 +145,8 @@ class DFA_Settings {
 		if ( '' === $output['cta_url'] ) {
 			$output['cta_url'] = '#';
 		}
+
+		$output['archive_background_image'] = isset( $input['archive_background_image'] ) ? absint( $input['archive_background_image'] ) : 0;
 
 		return $output;
 	}
@@ -103,6 +166,35 @@ class DFA_Settings {
 		$cta_url  = ! empty( $settings['cta_url'] ) ? $settings['cta_url'] : '#';
 		?>
 		<input type="url" name="<?php echo esc_attr( self::OPTION_NAME ); ?>[cta_url]" value="<?php echo esc_attr( $cta_url ); ?>" class="regular-text" placeholder="https://instagram.com/direct/t/...">
+		<?php
+	}
+
+	/**
+	 * Testo introduttivo della sezione "Aspetto pagina archivio".
+	 */
+	public static function render_archive_section() {
+		echo '<p>' . esc_html__( 'Immagine decorativa mostrata in alto nella pagina archivio (/archivio/), a piena larghezza, dietro l\'intestazione e la parte superiore della griglia.', 'devil-fruit-archive' ) . '</p>';
+	}
+
+	/**
+	 * Campo media uploader per l'immagine di sfondo dell'archivio.
+	 * Stessa struttura (.dfa-image-field) usata nei meta box, così
+	 * assets/js/admin-metabox.js la gestisce senza bisogno di JS dedicato.
+	 */
+	public static function render_archive_background_field() {
+		$settings = get_option( self::OPTION_NAME, array() );
+		$image_id = ! empty( $settings['archive_background_image'] ) ? (int) $settings['archive_background_image'] : 0;
+		$input_id = 'dfa_archive_background_image';
+		$preview  = $image_id ? wp_get_attachment_image( $image_id, 'medium' ) : '';
+		?>
+		<div class="dfa-image-field" data-target="<?php echo esc_attr( $input_id ); ?>">
+			<div class="dfa-image-field__preview"><?php echo wp_kses_post( $preview ); ?></div>
+			<input type="hidden" id="<?php echo esc_attr( $input_id ); ?>" name="<?php echo esc_attr( self::OPTION_NAME ); ?>[archive_background_image]" value="<?php echo esc_attr( $image_id ); ?>">
+			<p>
+				<button type="button" class="button dfa-image-field__select"><?php esc_html_e( 'Seleziona immagine', 'devil-fruit-archive' ); ?></button>
+				<button type="button" class="button dfa-image-field__remove" <?php echo $image_id ? '' : 'style="display:none"'; ?>><?php esc_html_e( 'Rimuovi immagine', 'devil-fruit-archive' ); ?></button>
+			</p>
+		</div>
 		<?php
 	}
 
@@ -149,5 +241,15 @@ class DFA_Settings {
 	public static function get_cta_url() {
 		$settings = get_option( self::OPTION_NAME, array() );
 		return ! empty( $settings['cta_url'] ) ? $settings['cta_url'] : '#';
+	}
+
+	/**
+	 * Ritorna l'ID dell'immagine di sfondo della pagina archivio.
+	 *
+	 * @return int ID allegato, 0 se non impostata.
+	 */
+	public static function get_archive_background_image_id() {
+		$settings = get_option( self::OPTION_NAME, array() );
+		return ! empty( $settings['archive_background_image'] ) ? (int) $settings['archive_background_image'] : 0;
 	}
 }
