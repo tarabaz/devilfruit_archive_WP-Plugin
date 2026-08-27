@@ -120,6 +120,7 @@ class DFA_Metabox {
 		$romaji_name   = DFA_Meta::get( $post->ID, 'romaji_name' );
 		$katakana_name = DFA_Meta::get( $post->ID, 'katakana_name' );
 		$special_note  = DFA_Meta::get( $post->ID, 'special_note' );
+		$fruit_image   = (int) DFA_Meta::get( $post->ID, 'fruit_image' );
 
 		if ( '' === $fruit_type ) {
 			$fruit_type = 'PARAMECIA';
@@ -158,6 +159,13 @@ class DFA_Metabox {
 				<th><label for="dfa_special_note"><?php esc_html_e( 'Special Note', 'devil-fruit-archive' ); ?></label></th>
 				<td>
 					<input type="text" id="dfa_special_note" name="dfa_special_note" class="large-text" value="<?php echo esc_attr( $special_note ); ?>">
+				</td>
+			</tr>
+			<tr>
+				<th><?php esc_html_e( 'Immagine frutto', 'devil-fruit-archive' ); ?></th>
+				<td>
+					<?php self::render_image_field( 'fruit_image', $fruit_image ); ?>
+					<p class="description"><?php esc_html_e( 'Immagine dedicata del frutto, usata in sovraimpressione sulla card della griglia archivio.', 'devil-fruit-archive' ); ?></p>
 				</td>
 			</tr>
 		</table>
@@ -278,7 +286,7 @@ class DFA_Metabox {
 			update_post_meta( $post_id, DFA_Meta::PREFIX . 'lore', $lore );
 		}
 
-		foreach ( array( 'owner_current_image', 'owner_former_image' ) as $key ) {
+		foreach ( array( 'owner_current_image', 'owner_former_image', 'fruit_image' ) as $key ) {
 			$field_name = 'dfa_' . $key;
 			$value      = isset( $_POST[ $field_name ] ) ? absint( $_POST[ $field_name ] ) : 0;
 			update_post_meta( $post_id, DFA_Meta::PREFIX . $key, $value );

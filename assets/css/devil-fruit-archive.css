@@ -90,7 +90,7 @@ body.dfa-archive-page {
 .dfa-single__frame {
 	position: relative;
 	min-height: 100vh;
-	padding-bottom: 40px;
+	padding-bottom: 100px;
 }
 
 .dfa-single__bg {
@@ -322,7 +322,7 @@ body.dfa-archive-page {
 .dfa-single__note {
 	position: relative;
 	margin-top: 60px;
-	padding: 26px 24px;
+	padding: 26px 24px 10px;
 	border-top: 1px solid rgba(216, 219, 222, .2);
 	background: linear-gradient(180deg, rgba(8, 9, 10, .4), rgba(8, 9, 10, .94) 60%);
 }
@@ -367,6 +367,31 @@ body.dfa-archive-page {
 	overflow: hidden;
 }
 
+/* Immagine di sfondo decorativa in alto (impostazioni plugin): a piena
+   larghezza, dietro l'header e il resto del contenuto (position/z-index
+   espliciti su header/griglia sotto garantiscono che restino leggibili). */
+.dfa-archive__bg {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 0;
+	line-height: 0;
+}
+.dfa-archive__bg img {
+	width: 100%;
+	height: auto;
+	display: block;
+}
+.dfa-archive__bg-fade {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	height: 240px;
+	background: linear-gradient(180deg, transparent 0%, var(--bg) 100%);
+}
+
 .dfa-archive--shortcode {
 	padding: 20px 0;
 	overflow: visible;
@@ -382,6 +407,7 @@ body.dfa-archive-page {
 
 .dfa-archive__header {
 	position: relative;
+	z-index: 1;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -441,6 +467,7 @@ body.dfa-archive-page {
 
 .dfa-archive__grid {
 	position: relative;
+	z-index: 1;
 	display: grid;
 	grid-template-columns: 1fr;
 	gap: 24px;
@@ -498,14 +525,40 @@ body.dfa-archive-page {
 	position: absolute;
 	inset: 0;
 	z-index: 0;
+	overflow: hidden;
 }
-.dfa-archive__card-bg img {
+
+/* Livello 1: sfondo personaggio, zoomato e ancorato a sinistra */
+.dfa-archive__card-bg-character {
+	position: absolute;
+	inset: 0;
+}
+.dfa-archive__card-bg-character img {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
-	object-position: center top;
+	object-position: left center;
 	display: block;
-	opacity: .5;
+	opacity: .55;
+	transform: scale(1.2);
+	transform-origin: left center;
+}
+
+/* Livello 2: immagine frutto dedicata, in sovraimpressione in basso a destra */
+.dfa-archive__card-bg-fruit {
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	width: 58%;
+	height: 58%;
+}
+.dfa-archive__card-bg-fruit img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	object-position: bottom right;
+	display: block;
+	filter: drop-shadow(0 10px 16px rgba(0, 0, 0, .6));
 }
 
 .dfa-archive__card-overlay {
@@ -577,6 +630,8 @@ body.dfa-archive-page {
 .dfa-archive__badge-icon--mythical { border-radius: 50%; box-shadow: 0 0 0 3px rgba(226, 229, 232, .18); }
 
 .dfa-archive__empty {
+	position: relative;
+	z-index: 1;
 	padding: 60px 20px;
 	text-align: center;
 	color: rgba(216, 219, 222, .5);

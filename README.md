@@ -42,13 +42,17 @@ Brand: **FrancyStore3D**.
    - `Romaji` (es. `JIKI JIKI NO MI`)
    - `Katakana` (es. `ジキジキの実`)
    - `Special Note`
+   - `Immagine frutto` (opzionale): immagine dedicata del frutto, mostrata
+     in sovraimpressione in basso a destra sulla card della griglia
+     archivio, sopra alla foto del proprietario usata come sfondo.
 5. Compila il meta box **"Proprietari"**:
-   - `Proprietario attuale` (testo) + foto proprietario attuale (bottone
-     "Seleziona immagine", media uploader nativo di WordPress)
-   - `Ex proprietario` (opzionale) + relativa foto (opzionale). Se
-     valorizzato, la scheda singola mostra la composizione a due
-     personaggi come nel mockup; se lasci vuoto solo il proprietario
-     attuale, la scheda usa un unico sfondo.
+   - `Proprietario attuale` (testo) + relativa foto (bottone "Seleziona
+     immagine", media uploader nativo di WordPress). Questa foto è
+     usata come sfondo sia nella scheda singola sia nella card della
+     griglia archivio.
+   - `Ex proprietario` (opzionale) + relativa foto (opzionale), usata
+     solo come riserva se la foto del proprietario attuale non è stata
+     caricata.
 6. Compila il meta box **"Research Note / Osservazioni"** con il testo di
    lore (mostrato in corsivo nella scheda).
 7. Pubblica. L'esemplare è subito visibile su `/archivio/nome-esemplare/`
@@ -66,6 +70,11 @@ sull'intestazione.
   "RICHIEDI QUESTO ESEMPLARE" su ogni scheda (es. un link a un DM
   Instagram, un modulo di contatto, un canale Discord). Se non impostato,
   il bottone punta a `#`.
+- **Immagine di sfondo archivio**: immagine decorativa mostrata a piena
+  larghezza in alto nella pagina archivio pubblica (`/archivio/`), dietro
+  l'intestazione, con una dissolvenza verso il basso. Facoltativa; non
+  compare nello shortcode `[devil_fruit_archive]` usato dentro una pagina
+  del tema.
 - **Seed del catalogo**: vedi sotto.
 
 ## Seed del catalogo (17 esemplari di esempio)
