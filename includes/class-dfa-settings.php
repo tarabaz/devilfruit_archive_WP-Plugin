@@ -139,6 +139,21 @@ class DFA_Settings {
 			self::PAGE_SLUG,
 			'dfa_settings_archive'
 		);
+
+		add_settings_section(
+			'dfa_settings_single',
+			__( 'Aspetto scheda singola', 'devil-fruit-archive' ),
+			array( __CLASS__, 'render_single_section' ),
+			self::PAGE_SLUG
+		);
+
+		add_settings_field(
+			'dfa_single_background_image',
+			__( 'Sfondo di riserva scheda singola', 'devil-fruit-archive' ),
+			array( __CLASS__, 'render_single_background_field' ),
+			self::PAGE_SLUG,
+			'dfa_settings_single'
+		);
 	}
 
 	/**
@@ -159,6 +174,8 @@ class DFA_Settings {
 
 		$overlap                        = isset( $input['archive_bg_overlap'] ) ? absint( $input['archive_bg_overlap'] ) : 150;
 		$output['archive_bg_overlap']   = min( 400, max( 0, $overlap ) );
+
+		$output['single_background_image'] = isset( $input['single_background_image'] ) ? absint( $input['single_background_image'] ) : 0;
 
 		return $output;
 	}
@@ -202,6 +219,33 @@ class DFA_Settings {
 		<div class="dfa-image-field" data-target="<?php echo esc_attr( $input_id ); ?>">
 			<div class="dfa-image-field__preview"><?php echo wp_kses_post( $preview ); ?></div>
 			<input type="hidden" id="<?php echo esc_attr( $input_id ); ?>" name="<?php echo esc_attr( self::OPTION_NAME ); ?>[archive_background_image]" value="<?php echo esc_attr( $image_id ); ?>">
+			<p>
+				<button type="button" class="button dfa-image-field__select"><?php esc_html_e( 'Seleziona immagine', 'devil-fruit-archive' ); ?></button>
+				<button type="button" class="button dfa-image-field__remove" <?php echo $image_id ? '' : 'style="display:none"'; ?>><?php esc_html_e( 'Rimuovi immagine', 'devil-fruit-archive' ); ?></button>
+			</p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Testo introduttivo della sezione "Aspetto scheda singola".
+	 */
+	public static function render_single_section() {
+		echo '<p>' . esc_html__( 'Ogni esemplare usa come sfondo la propria "Immagine frutto". Questa immagine viene usata solo come riserva, sugli esemplari che non ne hanno ancora una caricata.', 'devil-fruit-archive' ) . '</p>';
+	}
+
+	/**
+	 * Campo media uploader per lo sfondo di riserva della scheda singola.
+	 */
+	public static function render_single_background_field() {
+		$settings = get_option( self::OPTION_NAME, array() );
+		$image_id = ! empty( $settings['single_background_image'] ) ? (int) $settings['single_background_image'] : 0;
+		$input_id = 'dfa_single_background_image';
+		$preview  = $image_id ? wp_get_attachment_image( $image_id, 'medium' ) : '';
+		?>
+		<div class="dfa-image-field" data-target="<?php echo esc_attr( $input_id ); ?>">
+			<div class="dfa-image-field__preview"><?php echo wp_kses_post( $preview ); ?></div>
+			<input type="hidden" id="<?php echo esc_attr( $input_id ); ?>" name="<?php echo esc_attr( self::OPTION_NAME ); ?>[single_background_image]" value="<?php echo esc_attr( $image_id ); ?>">
 			<p>
 				<button type="button" class="button dfa-image-field__select"><?php esc_html_e( 'Seleziona immagine', 'devil-fruit-archive' ); ?></button>
 				<button type="button" class="button dfa-image-field__remove" <?php echo $image_id ? '' : 'style="display:none"'; ?>><?php esc_html_e( 'Rimuovi immagine', 'devil-fruit-archive' ); ?></button>
@@ -299,5 +343,16 @@ class DFA_Settings {
 	public static function get_archive_background_overlap() {
 		$settings = get_option( self::OPTION_NAME, array() );
 		return isset( $settings['archive_bg_overlap'] ) ? (int) $settings['archive_bg_overlap'] : 150;
+	}
+
+	/**
+	 * Ritorna l'ID dello sfondo di riserva per la scheda singola, usato
+	 * sugli esemplari senza "Immagine frutto" caricata.
+	 *
+	 * @return int ID allegato, 0 se non impostato.
+	 */
+	public static function get_single_background_image_id() {
+		$settings = get_option( self::OPTION_NAME, array() );
+		return ! empty( $settings['single_background_image'] ) ? (int) $settings['single_background_image'] : 0;
 	}
 }

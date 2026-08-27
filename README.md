@@ -79,6 +79,8 @@ sull'intestazione.
 - **Sovrapposizione contenuto/immagine**: slider (0-400px) che definisce
   quanto intestazione e griglia "risalgono" sopra l'immagine di sfondo
   invece di iniziare sotto di essa in cascata.
+- **Sfondo di riserva scheda singola**: usato come sfondo sulle schede
+  degli esemplari che non hanno ancora una `Immagine frutto` caricata.
 - **Seed del catalogo**: vedi sotto.
 
 Il numero di versione del plugin (bump ad ogni modifica) è mostrato in
