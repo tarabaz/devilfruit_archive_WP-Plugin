@@ -43,6 +43,7 @@ $dfa_fruit_image         = (int) DFA_Meta::get( $dfa_post_id, 'fruit_image' );
 			<div class="dfa-archive__card-bg">
 				<?php if ( $dfa_card_bg_image ) : ?>
 					<div class="dfa-archive__card-bg-character"><?php echo wp_get_attachment_image( $dfa_card_bg_image, 'medium_large' ); ?></div>
+					<div class="dfa-archive__card-veil"></div>
 				<?php endif; ?>
 				<?php if ( $dfa_fruit_image ) : ?>
 					<div class="dfa-archive__card-bg-fruit"><?php echo wp_get_attachment_image( $dfa_fruit_image, 'medium' ); ?></div>

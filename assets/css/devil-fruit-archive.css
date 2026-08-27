@@ -93,7 +93,7 @@ body.dfa-archive-page {
    -------------------------------------------------------------------- */
 
 .dfa-single__frame {
-	position: relative;
+	position: relative !important;
 	overflow: hidden;
 	min-height: 100vh;
 	padding-bottom: 100px;
@@ -110,40 +110,42 @@ body.dfa-archive-page {
  * dedicato (qui sopra) il risultato non dipende dal tema.
  */
 .dfa-single__bg {
-	position: absolute;
-	inset: 0;
-	z-index: -2;
+	position: absolute !important;
+	inset: 0 !important;
+	z-index: -2 !important;
 	display: flex;
 }
 
 .dfa-single__bg img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	object-position: center;
-	display: block;
+	position: absolute !important;
+	inset: 0 !important;
+	width: 100% !important;
+	height: 100% !important;
+	object-fit: cover !important;
+	object-position: center !important;
+	display: block !important;
 }
 
 .dfa-single__overlay {
-	position: absolute;
-	inset: 0;
-	z-index: -1;
+	position: absolute !important;
+	inset: 0 !important;
+	z-index: -1 !important;
 	pointer-events: none;
 	background: linear-gradient(180deg, rgba(8, 9, 10, .86) 0%, rgba(8, 9, 10, .62) 38%, rgba(8, 9, 10, .9) 100%);
 }
 
 .dfa-single__vignette {
-	position: absolute;
-	inset: 0;
-	z-index: -1;
+	position: absolute !important;
+	inset: 0 !important;
+	z-index: -1 !important;
 	pointer-events: none;
 	box-shadow: inset 0 0 260px 90px rgba(0, 0, 0, .92);
 }
 
 .dfa-single__scanlines {
-	position: absolute;
-	inset: 0;
-	z-index: -1;
+	position: absolute !important;
+	inset: 0 !important;
+	z-index: -1 !important;
 	pointer-events: none;
 	opacity: .35;
 	background: repeating-linear-gradient(180deg, rgba(255, 255, 255, .045) 0 1px, transparent 1px 3px);
@@ -378,34 +380,56 @@ body.dfa-archive-page {
    -------------------------------------------------------------------- */
 
 .dfa-archive {
-	position: relative;
+	position: relative !important;
 	padding: 50px 24px 70px;
 	overflow: hidden;
 }
 
-/* Immagine di sfondo decorativa in alto (impostazioni plugin): a piena
-   larghezza, dietro l'header e il resto del contenuto (position/z-index
-   espliciti su header/griglia sotto garantiscono che restino leggibili). */
+/*
+ * Immagine di sfondo decorativa in alto (impostazioni plugin): altezza
+ * controllata (non "height:auto") in modo che la sovrapposizione sotto
+ * sia prevedibile qualunque sia il formato dell'immagine caricata, a
+ * piena larghezza, object-fit:cover per riempirla senza deformarla.
+ *
+ * !important sulle regole di layout: queste pagine sono documenti
+ * HTML autonomi che, per admin bar/SEO/analytics, caricano comunque
+ * wp_head()/wp_footer() e quindi anche il CSS del tema attivo. Temi
+ * come WoodMart applicano reset globali (es. su img, position) che
+ * altrimenti vincono per ordine di caricamento e rompono silenziosamente
+ * il layout (immagine non a piena larghezza, elementi assoluti che
+ * ricadono nel flusso normale). !important isola questa UI dal tema.
+ */
 .dfa-archive__bg {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	z-index: 0;
-	line-height: 0;
+	position: absolute !important;
+	top: 0 !important;
+	left: 0 !important;
+	right: 0 !important;
+	height: 56vh !important;
+	max-height: 640px;
+	min-height: 320px;
+	z-index: 0 !important;
+	overflow: hidden !important;
 }
 .dfa-archive__bg img {
-	width: 100%;
-	height: auto;
-	display: block;
+	position: absolute !important;
+	inset: 0 !important;
+	width: 100% !important;
+	height: 100% !important;
+	object-fit: cover !important;
+	object-position: center top !important;
+	display: block !important;
 }
-.dfa-archive__bg-fade {
+.dfa-archive__bg::after {
+	content: "";
 	position: absolute;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	height: 240px;
-	background: linear-gradient(180deg, transparent 0%, var(--bg) 100%);
+	inset: 0;
+	background: linear-gradient(180deg, rgba(8, 9, 10, .25) 0%, rgba(8, 9, 10, .6) 60%, var(--bg) 100%);
+}
+
+/* Quanto intestazione/griglia "risalgono" sopra l'immagine di sfondo,
+   invece di seguirla in cascata più in basso (slider nelle impostazioni). */
+.dfa-archive__header--overlap {
+	margin-top: calc(-1 * var(--dfa-archive-overlap, 0px));
 }
 
 .dfa-archive--shortcode {
@@ -422,8 +446,8 @@ body.dfa-archive-page {
 }
 
 .dfa-archive__header {
-	position: relative;
-	z-index: 1;
+	position: relative !important;
+	z-index: 1 !important;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -482,8 +506,8 @@ body.dfa-archive-page {
 }
 
 .dfa-archive__grid {
-	position: relative;
-	z-index: 1;
+	position: relative !important;
+	z-index: 1 !important;
 	display: grid;
 	grid-template-columns: 1fr;
 	gap: 24px;
@@ -504,8 +528,11 @@ body.dfa-archive-page {
 }
 
 .dfa-archive__card {
-	position: relative;
-	overflow: hidden;
+	position: relative !important;
+	overflow: hidden !important;
+	/* Altezza fissa: la card ha sempre la stessa forma, sia con
+	   sfondo/frutto/entrambi/nessuno dei due (i livelli sotto sono
+	   tutti position:absolute e non influenzano il flusso). */
 	background: linear-gradient(170deg, #131618, #0c0e10);
 	border: 1px solid rgba(216, 219, 222, .16);
 	transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
@@ -520,7 +547,7 @@ body.dfa-archive-page {
 
 .dfa-archive__card-link {
 	display: block;
-	position: relative;
+	position: relative !important;
 	padding: 18px;
 }
 .dfa-archive__card-link:hover,
@@ -537,56 +564,84 @@ body.dfa-archive-page {
 .dfa-archive__card-corner--bl { left: 6px; bottom: 6px; border-left: 1px solid; border-bottom: 1px solid; }
 .dfa-archive__card-corner--br { right: 6px; bottom: 6px; border-right: 1px solid; border-bottom: 1px solid; }
 
+/*
+ * Composizione di sfondo della card, dal basso verso l'alto:
+ *  1. card-bg-character — foto proprietario, zoomata e ancorata a
+ *     sinistra (livello sotto).
+ *  2. card-veil — velo nero piatto al 50% sopra al solo personaggio,
+ *     per scurirlo.
+ *  3. card-bg-fruit — immagine frutto dedicata, in sovraimpressione
+ *     in basso a destra, NON scurita dal velo (sta sopra di esso).
+ *  4. card-overlay — leggera dissolvenza verso il basso, solo per
+ *     mantenere leggibile il testo (id/nome/badge) senza spegnere il
+ *     frutto.
+ * Tutti position:absolute: non influenzano mai la forma/altezza della
+ * card. !important per isolare dal CSS del tema (vedi nota sopra
+ * .dfa-archive__bg): senza, un reset del tema su position/width può
+ * far "ricadere" questi livelli nel flusso normale, impilandoli come
+ * blocchi invece di sovrapporli.
+ */
 .dfa-archive__card-bg {
-	position: absolute;
-	inset: 0;
-	z-index: 0;
-	overflow: hidden;
+	position: absolute !important;
+	inset: 0 !important;
+	z-index: 0 !important;
+	overflow: hidden !important;
 }
 
-/* Livello 1: sfondo personaggio, zoomato e ancorato a sinistra */
 .dfa-archive__card-bg-character {
-	position: absolute;
-	inset: 0;
+	position: absolute !important;
+	inset: 0 !important;
 }
 .dfa-archive__card-bg-character img {
-	width: 100%;
-	height: 100%;
-	object-fit: cover;
-	object-position: left center;
-	display: block;
-	opacity: .55;
+	position: absolute !important;
+	inset: 0 !important;
+	width: 100% !important;
+	height: 100% !important;
+	object-fit: cover !important;
+	object-position: left center !important;
+	display: block !important;
 	transform: scale(1.2);
 	transform-origin: left center;
 }
 
-/* Livello 2: immagine frutto dedicata, in sovraimpressione in basso a destra */
+.dfa-archive__card-veil {
+	position: absolute !important;
+	inset: 0 !important;
+	z-index: 0 !important;
+	background: rgba(0, 0, 0, .5);
+}
+
 .dfa-archive__card-bg-fruit {
-	position: absolute;
-	right: 0;
-	bottom: 0;
-	width: 58%;
-	height: 58%;
+	position: absolute !important;
+	right: 0 !important;
+	bottom: 0 !important;
+	left: auto !important;
+	top: auto !important;
+	width: 58% !important;
+	height: 58% !important;
+	z-index: 0 !important;
 }
 .dfa-archive__card-bg-fruit img {
-	width: 100%;
-	height: 100%;
-	object-fit: contain;
-	object-position: bottom right;
-	display: block;
+	position: absolute !important;
+	inset: 0 !important;
+	width: 100% !important;
+	height: 100% !important;
+	object-fit: contain !important;
+	object-position: bottom right !important;
+	display: block !important;
 	filter: drop-shadow(0 10px 16px rgba(0, 0, 0, .6));
 }
 
 .dfa-archive__card-overlay {
-	position: absolute;
-	inset: 0;
-	z-index: 0;
-	background: linear-gradient(180deg, rgba(10, 11, 12, .55) 0%, rgba(10, 11, 12, .8) 55%, rgba(10, 11, 12, .96) 100%);
+	position: absolute !important;
+	inset: 0 !important;
+	z-index: 0 !important;
+	background: linear-gradient(180deg, transparent 0%, transparent 45%, rgba(10, 11, 12, .55) 72%, rgba(10, 11, 12, .95) 100%);
 }
 
 .dfa-archive__card-image {
-	position: relative;
-	z-index: 1;
+	position: relative !important;
+	z-index: 1 !important;
 	width: 100%;
 	height: 220px;
 	background: #0b0d0e;
@@ -597,9 +652,9 @@ body.dfa-archive-page {
 }
 
 .dfa-archive__card-image img {
-	width: 100%;
-	height: 100%;
-	object-fit: contain;
+	width: 100% !important;
+	height: 100% !important;
+	object-fit: contain !important;
 }
 
 .dfa-archive__card-id {

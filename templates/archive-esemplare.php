@@ -17,7 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$dfa_archive_bg_id = DFA_Settings::get_archive_background_image_id();
+$dfa_archive_bg_id      = DFA_Settings::get_archive_background_image_id();
+$dfa_archive_bg_overlap = DFA_Settings::get_archive_background_overlap();
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
@@ -29,17 +30,16 @@ $dfa_archive_bg_id = DFA_Settings::get_archive_background_image_id();
 </head>
 <body <?php body_class( 'dfa-archive-page' ); ?>>
 
-	<div class="dfa-archive">
+	<div class="dfa-archive"<?php echo $dfa_archive_bg_id ? ' style="--dfa-archive-overlap:' . esc_attr( $dfa_archive_bg_overlap ) . 'px"' : ''; ?>>
 		<?php if ( $dfa_archive_bg_id ) : ?>
 			<div class="dfa-archive__bg">
 				<?php echo wp_get_attachment_image( $dfa_archive_bg_id, 'full' ); ?>
-				<div class="dfa-archive__bg-fade"></div>
 			</div>
 		<?php endif; ?>
 
 		<div class="dfa-archive__scanlines" aria-hidden="true"></div>
 
-		<header class="dfa-archive__header">
+		<header class="dfa-archive__header<?php echo $dfa_archive_bg_id ? ' dfa-archive__header--overlap' : ''; ?>">
 			<div class="dfa-archive__title dfa-display">VEGAPUNK RESEARCH DIVISION</div>
 			<div class="dfa-archive__subtitle">— DEVIL FRUIT ARCHIVE —</div>
 			<div class="dfa-archive__tag">CLASSIFIED SPECIMENS</div>
