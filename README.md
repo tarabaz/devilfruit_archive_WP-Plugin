@@ -34,25 +34,26 @@ Brand: **FrancyStore3D**.
 2. Inserisci un **Titolo** (uso interno/admin; il nome mostrato in scheda
    è il campo "Romaji").
 3. Imposta l'**immagine in evidenza** (featured image): è la foto
-   dell'esemplare nel barattolo, mostrata in primo piano nella scheda e
-   nella card della griglia.
+   dell'esemplare nel barattolo, mostrata in primo piano al centro
+   della scheda singola. Non compare nella griglia archivio.
 4. Compila il meta box **"Dati dell'esemplare (targa)"**:
    - `Catalog ID` (es. `DF-007`)
    - `Type` (LOGIA / PARAMECIA / ZOAN / ZOAN (MYTHICAL))
    - `Romaji` (es. `JIKI JIKI NO MI`)
    - `Katakana` (es. `ジキジキの実`)
    - `Special Note`
-   - `Immagine frutto` (opzionale): immagine dedicata del frutto, mostrata
-     in sovraimpressione in basso a destra sulla card della griglia
-     archivio, sopra alla foto del proprietario usata come sfondo.
+   - `Immagine frutto`: usata in **due punti** — come sfondo a piena
+     pagina della scheda singola, e come immagine "prodotto" nella card
+     della griglia archivio (al posto della featured image; se non
+     caricata quel riquadro resta trasparente, mostra lo sfondo dietro
+     invece di un blocco nero).
 5. Compila il meta box **"Proprietari"**:
    - `Proprietario attuale` (testo) + relativa foto (bottone "Seleziona
      immagine", media uploader nativo di WordPress). Questa foto è
-     usata come sfondo sia nella scheda singola sia nella card della
-     griglia archivio.
+     usata **solo** come sfondo della card nella griglia archivio, in
+     bianco e nero (torna a colori al passaggio del mouse sulla card).
    - `Ex proprietario` (opzionale): solo testo, popola la riga "EX
-     PROPRIETARIO" nella targa. Nessuna immagine dedicata: lo sfondo
-     usa sempre e solo la foto del proprietario attuale.
+     PROPRIETARIO" nella targa. Nessuna immagine dedicata.
 6. Compila il meta box **"Research Note / Osservazioni"** con il testo di
    lore (mostrato in corsivo nella scheda).
 7. Pubblica. L'esemplare è subito visibile su `/archivio/nome-esemplare/`

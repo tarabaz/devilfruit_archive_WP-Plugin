@@ -29,22 +29,19 @@ if ( 'LOGIA' === $dfa_fruit_type ) {
 	$dfa_badge_icon_class .= ' dfa-archive__badge-icon--mythical';
 }
 
-// Sfondo della card: sempre e solo la foto del proprietario attuale,
-// con l'immagine frutto dedicata in sovraimpressione in basso a destra.
+// Sfondo della card: foto del proprietario attuale (in bianco e nero,
+// a colori solo in hover). Immagine "prodotto" nel riquadro: SOLO
+// l'immagine frutto dedicata, mai la featured image del post — se non
+// caricata il riquadro resta trasparente e mostra lo sfondo dietro.
 $dfa_card_bg_image = (int) DFA_Meta::get( $dfa_post_id, 'owner_current_image' );
 $dfa_fruit_image   = (int) DFA_Meta::get( $dfa_post_id, 'fruit_image' );
 ?>
 <article class="dfa-archive__card">
 	<a class="dfa-archive__card-link" href="<?php the_permalink(); ?>" aria-label="<?php echo esc_attr( $dfa_romaji_name ? $dfa_romaji_name : get_the_title() ); ?>">
-		<?php if ( $dfa_card_bg_image || $dfa_fruit_image ) : ?>
+		<?php if ( $dfa_card_bg_image ) : ?>
 			<div class="dfa-archive__card-bg">
-				<?php if ( $dfa_card_bg_image ) : ?>
-					<div class="dfa-archive__card-bg-character"><?php echo wp_get_attachment_image( $dfa_card_bg_image, 'medium_large' ); ?></div>
-					<div class="dfa-archive__card-veil"></div>
-				<?php endif; ?>
-				<?php if ( $dfa_fruit_image ) : ?>
-					<div class="dfa-archive__card-bg-fruit"><?php echo wp_get_attachment_image( $dfa_fruit_image, 'medium' ); ?></div>
-				<?php endif; ?>
+				<div class="dfa-archive__card-bg-character"><?php echo wp_get_attachment_image( $dfa_card_bg_image, 'medium_large' ); ?></div>
+				<div class="dfa-archive__card-veil"></div>
 			</div>
 			<div class="dfa-archive__card-overlay"></div>
 		<?php endif; ?>
@@ -55,8 +52,8 @@ $dfa_fruit_image   = (int) DFA_Meta::get( $dfa_post_id, 'fruit_image' );
 		<span class="dfa-archive__card-corner dfa-archive__card-corner--br"></span>
 
 		<div class="dfa-archive__card-image">
-			<?php if ( has_post_thumbnail() ) : ?>
-				<?php the_post_thumbnail( 'medium' ); ?>
+			<?php if ( $dfa_fruit_image ) : ?>
+				<?php echo wp_get_attachment_image( $dfa_fruit_image, 'medium' ); ?>
 			<?php endif; ?>
 		</div>
 
