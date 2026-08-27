@@ -123,6 +123,20 @@ class DFA_Settings {
 				submit_button( __( 'Salva impostazioni', 'devil-fruit-archive' ) );
 				?>
 			</form>
+
+			<hr>
+
+			<h2><?php esc_html_e( 'Seed del catalogo', 'devil-fruit-archive' ); ?></h2>
+			<p>
+				<?php esc_html_e( 'Crea i 17 esemplari di partenza leggendo i dati testuali da _seed/Devil_Fruit_Archive_Catalogo.md. L\'operazione è idempotente: un esemplare con lo stesso Catalog ID già presente viene saltato, non duplicato.', 'devil-fruit-archive' ); ?>
+				<br>
+				<?php esc_html_e( 'Le immagini (featured image e foto proprietari) non vengono importate: vanno caricate a mano dopo il seed.', 'devil-fruit-archive' ); ?>
+			</p>
+			<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
+				<?php wp_nonce_field( DFA_Seed::NONCE_ACTION ); ?>
+				<input type="hidden" name="action" value="<?php echo esc_attr( DFA_Seed::ACTION ); ?>">
+				<?php submit_button( __( 'Lancia il seed del catalogo', 'devil-fruit-archive' ), 'secondary' ); ?>
+			</form>
 		</div>
 		<?php
 	}
