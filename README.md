@@ -50,9 +50,9 @@ Brand: **FrancyStore3D**.
      immagine", media uploader nativo di WordPress). Questa foto è
      usata come sfondo sia nella scheda singola sia nella card della
      griglia archivio.
-   - `Ex proprietario` (opzionale) + relativa foto (opzionale), usata
-     solo come riserva se la foto del proprietario attuale non è stata
-     caricata.
+   - `Ex proprietario` (opzionale): solo testo, popola la riga "EX
+     PROPRIETARIO" nella targa. Nessuna immagine dedicata: lo sfondo
+     usa sempre e solo la foto del proprietario attuale.
 6. Compila il meta box **"Research Note / Osservazioni"** con il testo di
    lore (mostrato in corsivo nella scheda).
 7. Pubblica. L'esemplare è subito visibile su `/archivio/nome-esemplare/`

@@ -182,7 +182,6 @@ class DFA_Metabox {
 		$owner_current       = DFA_Meta::get( $post->ID, 'owner_current' );
 		$owner_former        = DFA_Meta::get( $post->ID, 'owner_former' );
 		$owner_current_image = (int) DFA_Meta::get( $post->ID, 'owner_current_image' );
-		$owner_former_image  = (int) DFA_Meta::get( $post->ID, 'owner_former_image' );
 		?>
 		<table class="form-table dfa-metabox-table">
 			<tr>
@@ -193,17 +192,17 @@ class DFA_Metabox {
 			</tr>
 			<tr>
 				<th><?php esc_html_e( 'Foto proprietario attuale', 'devil-fruit-archive' ); ?></th>
-				<td><?php self::render_image_field( 'owner_current_image', $owner_current_image ); ?></td>
+				<td>
+					<?php self::render_image_field( 'owner_current_image', $owner_current_image ); ?>
+					<p class="description"><?php esc_html_e( 'Usata come sfondo sia nella scheda singola sia nella card della griglia archivio.', 'devil-fruit-archive' ); ?></p>
+				</td>
 			</tr>
 			<tr>
 				<th><label for="dfa_owner_former"><?php esc_html_e( 'Ex proprietario (opzionale)', 'devil-fruit-archive' ); ?></label></th>
 				<td>
 					<input type="text" id="dfa_owner_former" name="dfa_owner_former" class="regular-text" value="<?php echo esc_attr( $owner_former ); ?>">
+					<p class="description"><?php esc_html_e( 'Solo testo (riga "EX PROPRIETARIO" nella targa). Nessuna immagine di sfondo dedicata: lo sfondo usa sempre la foto del proprietario attuale.', 'devil-fruit-archive' ); ?></p>
 				</td>
-			</tr>
-			<tr>
-				<th><?php esc_html_e( 'Foto ex proprietario', 'devil-fruit-archive' ); ?></th>
-				<td><?php self::render_image_field( 'owner_former_image', $owner_former_image ); ?></td>
 			</tr>
 		</table>
 		<?php
@@ -286,7 +285,7 @@ class DFA_Metabox {
 			update_post_meta( $post_id, DFA_Meta::PREFIX . 'lore', $lore );
 		}
 
-		foreach ( array( 'owner_current_image', 'owner_former_image', 'fruit_image' ) as $key ) {
+		foreach ( array( 'owner_current_image', 'fruit_image' ) as $key ) {
 			$field_name = 'dfa_' . $key;
 			$value      = isset( $_POST[ $field_name ] ) ? absint( $_POST[ $field_name ] ) : 0;
 			update_post_meta( $post_id, DFA_Meta::PREFIX . $key, $value );
