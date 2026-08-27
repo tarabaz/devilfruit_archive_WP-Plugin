@@ -30,11 +30,10 @@ while ( have_posts() ) :
 	$owner_former          = DFA_Meta::get( $post_id, 'owner_former' );
 	$lore                  = DFA_Meta::get( $post_id, 'lore' );
 	$cta_url                = DFA_Settings::get_cta_url();
-	// Sfondo: "Immagine frutto" dell'esemplare (non la foto proprietario,
-	// riservata allo sfondo della card nella griglia archivio). Se
-	// l'esemplare non ne ha ancora una, si usa lo sfondo di riserva
-	// impostato a livello di plugin.
-	$background_image_id    = (int) DFA_Meta::get( $post_id, 'fruit_image' );
+	// Sfondo: "Foto proprietario attuale" dell'esemplare. Se l'esemplare
+	// non ne ha ancora una, si usa lo sfondo di riserva impostato a
+	// livello di plugin.
+	$background_image_id    = (int) DFA_Meta::get( $post_id, 'owner_current_image' );
 	if ( ! $background_image_id ) {
 		$background_image_id = DFA_Settings::get_single_background_image_id();
 	}

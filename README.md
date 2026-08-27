@@ -42,16 +42,16 @@ Brand: **FrancyStore3D**.
    - `Romaji` (es. `JIKI JIKI NO MI`)
    - `Katakana` (es. `ジキジキの実`)
    - `Special Note`
-   - `Immagine frutto`: usata in **due punti** — come sfondo a piena
-     pagina della scheda singola, e come immagine "prodotto" nella card
-     della griglia archivio (al posto della featured image; se non
-     caricata quel riquadro resta trasparente, mostra lo sfondo dietro
+   - `Immagine frutto`: immagine "prodotto" mostrata nel riquadro della
+     card nella griglia archivio (al posto della featured image; se non
+     caricata quel riquadro resta trasparente e mostra lo sfondo dietro,
      invece di un blocco nero).
 5. Compila il meta box **"Proprietari"**:
    - `Proprietario attuale` (testo) + relativa foto (bottone "Seleziona
-     immagine", media uploader nativo di WordPress). Questa foto è
-     usata **solo** come sfondo della card nella griglia archivio, in
-     bianco e nero (torna a colori al passaggio del mouse sulla card).
+     immagine", media uploader nativo di WordPress). Questa foto è usata
+     come **sfondo a piena pagina della scheda singola** e come sfondo
+     della card nella griglia archivio, lì in bianco e nero (torna a
+     colori al passaggio del mouse sulla card).
    - `Ex proprietario` (opzionale): solo testo, popola la riga "EX
      PROPRIETARIO" nella targa. Nessuna immagine dedicata.
 6. Compila il meta box **"Research Note / Osservazioni"** con il testo di
@@ -80,7 +80,8 @@ sull'intestazione.
   quanto intestazione e griglia "risalgono" sopra l'immagine di sfondo
   invece di iniziare sotto di essa in cascata.
 - **Sfondo di riserva scheda singola**: usato come sfondo sulle schede
-  degli esemplari che non hanno ancora una `Immagine frutto` caricata.
+  degli esemplari che non hanno ancora una `Foto proprietario attuale`
+  caricata.
 - **Seed del catalogo**: vedi sotto.
 
 Il numero di versione del plugin (bump ad ogni modifica) è mostrato in
