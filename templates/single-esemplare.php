@@ -29,7 +29,9 @@ while ( have_posts() ) :
 	$owner_current         = DFA_Meta::get( $post_id, 'owner_current' );
 	$owner_former          = DFA_Meta::get( $post_id, 'owner_former' );
 	$lore                  = DFA_Meta::get( $post_id, 'lore' );
-	$cta_url                = DFA_Settings::get_cta_url();
+	// Versione "a lampada accesa" dell'esemplare: se presente, la scheda
+	// mostra un bottone che alterna le due immagini in dissolvenza.
+	$lit_image_id           = (int) DFA_Meta::get( $post_id, 'specimen_lit_image' );
 	// Sfondo: "Foto proprietario attuale" dell'esemplare. Se l'esemplare
 	// non ne ha ancora una, si usa lo sfondo di riserva impostato a
 	// livello di plugin.
@@ -77,11 +79,25 @@ while ( have_posts() ) :
 			<div class="dfa-single__specimen-wrap">
 				<div class="dfa-single__specimen">
 					<?php if ( has_post_thumbnail() ) : ?>
-						<?php the_post_thumbnail( 'large' ); ?>
+						<div class="dfa-single__specimen-layer dfa-single__specimen-layer--off"><?php the_post_thumbnail( 'large' ); ?></div>
+					<?php endif; ?>
+					<?php if ( $lit_image_id ) : ?>
+						<div class="dfa-single__specimen-layer dfa-single__specimen-layer--on"><?php echo wp_get_attachment_image( $lit_image_id, 'large' ); ?></div>
 					<?php endif; ?>
 				</div>
-				<div class="dfa-single__specimen-floor"></div>
+
+				<?php if ( $lit_image_id ) : ?>
+					<button type="button"
+						class="dfa-single__lamp-btn"
+						data-label-on="ACCENDI LA LAMPADA"
+						data-label-off="SPEGNI LA LAMPADA"
+						aria-pressed="false">ACCENDI LA LAMPADA</button>
+				<?php endif; ?>
 			</div>
+
+		</div>
+
+		<div class="dfa-single__cols">
 
 			<div class="dfa-single__panel-col">
 				<section class="dfa-single__panel">
@@ -112,24 +128,22 @@ while ( have_posts() ) :
 						<?php endif; ?>
 					</div>
 				</section>
-
-				<div class="dfa-single__cta-wrap">
-					<a href="<?php echo esc_url( $cta_url ); ?>" class="dfa-single__cta" target="_blank" rel="noopener noreferrer">RICHIEDI QUESTO ESEMPLARE</a>
-				</div>
 			</div>
+
+			<?php if ( $lore ) : ?>
+			<div class="dfa-single__note-col">
+				<footer class="dfa-single__note">
+					<div class="dfa-single__note-head">
+						RESEARCH NOTE / OSSERVAZIONI
+						<span class="dfa-single__note-rule"></span>
+						<span><?php echo esc_html( $catalog_id ); ?></span>
+					</div>
+					<div class="dfa-single__note-text">&ldquo;<?php echo esc_html( $lore ); ?>&rdquo;</div>
+				</footer>
+			</div>
+			<?php endif; ?>
 
 		</div>
-
-		<?php if ( $lore ) : ?>
-		<footer class="dfa-single__note">
-			<div class="dfa-single__note-head">
-				RESEARCH NOTE / OSSERVAZIONI
-				<span class="dfa-single__note-rule"></span>
-				<span><?php echo esc_html( $catalog_id ); ?></span>
-			</div>
-			<div class="dfa-single__note-text">&ldquo;<?php echo esc_html( $lore ); ?>&rdquo;</div>
-		</footer>
-		<?php endif; ?>
 
 	</article>
 

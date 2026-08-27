@@ -3,8 +3,7 @@
 Plugin WordPress auto-contenuto (nessuna dipendenza esterna, nessun ACF)
 per gestire un archivio/dossier in stile "Vegapunk Research Division" di
 esemplari di Devil Fruit. **Non è un e-commerce**: niente carrello, niente
-prezzo, niente "acquista" — solo un catalogo consultabile con un'unica CTA
-("Richiedi questo esemplare") verso un contatto/DM esterno configurabile.
+prezzo, niente "acquista" — solo un catalogo consultabile.
 
 Brand: **FrancyStore3D**.
 
@@ -46,6 +45,12 @@ Brand: **FrancyStore3D**.
      card nella griglia archivio (al posto della featured image; se non
      caricata quel riquadro resta trasparente e mostra lo sfondo dietro,
      invece di un blocco nero).
+   - `Immagine esemplare acceso` (opzionale): stessa inquadratura
+     dell'immagine in evidenza ma con la lampada del barattolo accesa.
+     Se valorizzata, nella scheda singola compare accanto all'esemplare
+     un bottone `ACCENDI LA LAMPADA` / `SPEGNI LA LAMPADA` che alterna
+     le due immagini con una dissolvenza di 1 secondo. Se il campo è
+     vuoto il bottone non viene mostrato.
 5. Compila il meta box **"Proprietari"**:
    - `Proprietario attuale` (testo) + relativa foto (bottone "Seleziona
      immagine", media uploader nativo di WordPress). Questa foto è usata
@@ -67,16 +72,17 @@ sull'intestazione.
 
 **Devil Fruit Archive → Impostazioni**:
 
-- **URL della CTA (DM / contatti)**: il link a cui punta il bottone
-  "RICHIEDI QUESTO ESEMPLARE" su ogni scheda (es. un link a un DM
-  Instagram, un modulo di contatto, un canale Discord). Se non impostato,
-  il bottone punta a `#`.
+- **URL della CTA (DM / contatti)**: impostazione al momento **non
+  utilizzata**. Il bottone "RICHIEDI QUESTO ESEMPLARE" è stato rimosso
+  dalla scheda singola, dove al suo posto c'è l'interruttore della
+  lampada. Il campo resta disponibile per riattivare in futuro una CTA
+  di contatto senza doverla riconfigurare.
 - **Immagine di sfondo archivio**: immagine decorativa mostrata a piena
   larghezza in alto nella pagina archivio pubblica (`/archivio/`), dietro
   l'intestazione, con una dissolvenza verso il basso. Facoltativa; non
   compare nello shortcode `[devil_fruit_archive]` usato dentro una pagina
   del tema.
-- **Sovrapposizione contenuto/immagine**: slider (0-400px) che definisce
+- **Sovrapposizione contenuto/immagine**: slider (0-300px) che definisce
   quanto intestazione e griglia "risalgono" sopra l'immagine di sfondo
   invece di iniziare sotto di essa in cascata.
 - **Sfondo di riserva scheda singola**: usato come sfondo sulle schede

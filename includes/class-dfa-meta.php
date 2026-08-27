@@ -86,7 +86,7 @@ class DFA_Meta {
 			)
 		);
 
-		foreach ( array( 'owner_current_image', 'fruit_image' ) as $key ) {
+		foreach ( array( 'owner_current_image', 'fruit_image', 'specimen_lit_image' ) as $key ) {
 			register_post_meta(
 				DFA_CPT::POST_TYPE,
 				self::PREFIX . $key,
