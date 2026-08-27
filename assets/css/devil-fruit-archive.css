@@ -462,6 +462,7 @@ body.dfa-archive-page {
 
 .dfa-archive__card {
 	position: relative;
+	overflow: hidden;
 	background: linear-gradient(170deg, #131618, #0c0e10);
 	border: 1px solid rgba(216, 219, 222, .16);
 	transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
@@ -493,7 +494,30 @@ body.dfa-archive-page {
 .dfa-archive__card-corner--bl { left: 6px; bottom: 6px; border-left: 1px solid; border-bottom: 1px solid; }
 .dfa-archive__card-corner--br { right: 6px; bottom: 6px; border-right: 1px solid; border-bottom: 1px solid; }
 
+.dfa-archive__card-bg {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+}
+.dfa-archive__card-bg img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center top;
+	display: block;
+	opacity: .5;
+}
+
+.dfa-archive__card-overlay {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	background: linear-gradient(180deg, rgba(10, 11, 12, .55) 0%, rgba(10, 11, 12, .8) 55%, rgba(10, 11, 12, .96) 100%);
+}
+
 .dfa-archive__card-image {
+	position: relative;
+	z-index: 1;
 	width: 100%;
 	height: 220px;
 	background: #0b0d0e;
@@ -510,6 +534,8 @@ body.dfa-archive-page {
 }
 
 .dfa-archive__card-id {
+	position: relative;
+	z-index: 1;
 	margin-top: 16px;
 	font: 400 11px/1 'IBM Plex Mono';
 	letter-spacing: .22em;
@@ -517,6 +543,8 @@ body.dfa-archive-page {
 }
 
 .dfa-archive__card-name {
+	position: relative;
+	z-index: 1;
 	margin-top: 9px;
 	font: 600 25px/1.1 'Saira Condensed';
 	letter-spacing: .02em;
@@ -524,6 +552,8 @@ body.dfa-archive-page {
 }
 
 .dfa-archive__badge {
+	position: relative;
+	z-index: 1;
 	margin-top: 14px;
 	display: inline-flex;
 	align-items: center;
