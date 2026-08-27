@@ -27,6 +27,41 @@ class DFA_CPT {
 	 */
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
+		add_action( 'after_setup_theme', array( __CLASS__, 'ensure_thumbnail_support' ) );
+		add_action( 'pre_get_posts', array( __CLASS__, 'order_archive_query' ) );
+	}
+
+	/**
+	 * Ordina l'archivio pubblico per Catalog ID crescente (DF-001,
+	 * DF-002, ...) e mostra tutti gli esemplari su un'unica pagina,
+	 * senza paginazione.
+	 *
+	 * @param WP_Query $query Query in corso.
+	 */
+	public static function order_archive_query( $query ) {
+		if ( is_admin() || ! $query->is_main_query() ) {
+			return;
+		}
+
+		if ( ! $query->is_post_type_archive( self::POST_TYPE ) ) {
+			return;
+		}
+
+		$query->set( 'posts_per_page', -1 );
+		$query->set( 'meta_key', DFA_Meta::PREFIX . 'catalog_id' ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
+		$query->set( 'orderby', 'meta_value' );
+		$query->set( 'order', 'ASC' );
+	}
+
+	/**
+	 * Il box "Immagine in evidenza" compare in wp-admin solo se il TEMA
+	 * attivo dichiara add_theme_support('post-thumbnails'): il
+	 * 'supports' => array('thumbnail') del post type da solo non
+	 * basta. Il plugin è auto-contenuto e non deve dipendere dal tema:
+	 * forziamo qui il supporto, solo per il CPT "esemplare".
+	 */
+	public static function ensure_thumbnail_support() {
+		add_theme_support( 'post-thumbnails', array( self::POST_TYPE ) );
 	}
 
 	/**

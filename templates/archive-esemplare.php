@@ -27,6 +27,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 </head>
 <body <?php body_class( 'dfa-archive-page' ); ?>>
 
+	<?php require DFA_PLUGIN_DIR . 'templates/parts/topbar.php'; ?>
+
 	<div class="dfa-archive">
 		<div class="dfa-archive__scanlines" aria-hidden="true"></div>
 
@@ -53,8 +55,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 				endwhile;
 				?>
 			</div>
-
-			<?php the_posts_pagination( array( 'mid_size' => 2 ) ); ?>
 
 		<?php else : ?>
 
