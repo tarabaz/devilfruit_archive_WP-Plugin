@@ -27,6 +27,18 @@ class DFA_CPT {
 	 */
 	public static function init() {
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
+		add_action( 'after_setup_theme', array( __CLASS__, 'ensure_thumbnail_support' ) );
+	}
+
+	/**
+	 * Il box "Immagine in evidenza" compare in wp-admin solo se il TEMA
+	 * attivo dichiara add_theme_support('post-thumbnails'): il
+	 * 'supports' => array('thumbnail') del post type da solo non
+	 * basta. Il plugin è auto-contenuto e non deve dipendere dal tema:
+	 * forziamo qui il supporto, solo per il CPT "esemplare".
+	 */
+	public static function ensure_thumbnail_support() {
+		add_theme_support( 'post-thumbnails', array( self::POST_TYPE ) );
 	}
 
 	/**
