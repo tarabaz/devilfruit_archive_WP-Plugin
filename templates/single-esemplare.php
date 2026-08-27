@@ -30,11 +30,9 @@ while ( have_posts() ) :
 	$owner_former          = DFA_Meta::get( $post_id, 'owner_former' );
 	$lore                  = DFA_Meta::get( $post_id, 'lore' );
 	$owner_current_image   = (int) DFA_Meta::get( $post_id, 'owner_current_image' );
-	$owner_former_image    = (int) DFA_Meta::get( $post_id, 'owner_former_image' );
 	$cta_url                = DFA_Settings::get_cta_url();
-	// Un'unica immagine di sfondo: quella del proprietario attuale,
-	// con quella dell'ex proprietario solo come riserva.
-	$background_image_id    = $owner_current_image ? $owner_current_image : $owner_former_image;
+	// Sfondo: sempre e solo la foto del proprietario attuale.
+	$background_image_id    = $owner_current_image;
 	?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
