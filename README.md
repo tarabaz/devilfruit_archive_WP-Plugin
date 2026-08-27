@@ -75,7 +75,14 @@ sull'intestazione.
   l'intestazione, con una dissolvenza verso il basso. Facoltativa; non
   compare nello shortcode `[devil_fruit_archive]` usato dentro una pagina
   del tema.
+- **Sovrapposizione contenuto/immagine**: slider (0-400px) che definisce
+  quanto intestazione e griglia "risalgono" sopra l'immagine di sfondo
+  invece di iniziare sotto di essa in cascata.
 - **Seed del catalogo**: vedi sotto.
+
+Il numero di versione del plugin (bump ad ogni modifica) è mostrato in
+fondo a questa pagina — utile per verificare a colpo d'occhio che un
+aggiornamento sia stato effettivamente caricato sul sito.
 
 ## Seed del catalogo (17 esemplari di esempio)
 

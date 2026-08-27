@@ -97,6 +97,7 @@ class DFA_Settings {
 				'default'           => array(
 					'cta_url'                  => '#',
 					'archive_background_image' => 0,
+					'archive_bg_overlap'       => 150,
 				),
 			)
 		);
@@ -130,6 +131,14 @@ class DFA_Settings {
 			self::PAGE_SLUG,
 			'dfa_settings_archive'
 		);
+
+		add_settings_field(
+			'dfa_archive_bg_overlap',
+			__( 'Sovrapposizione contenuto/immagine', 'devil-fruit-archive' ),
+			array( __CLASS__, 'render_archive_overlap_field' ),
+			self::PAGE_SLUG,
+			'dfa_settings_archive'
+		);
 	}
 
 	/**
@@ -147,6 +156,9 @@ class DFA_Settings {
 		}
 
 		$output['archive_background_image'] = isset( $input['archive_background_image'] ) ? absint( $input['archive_background_image'] ) : 0;
+
+		$overlap                        = isset( $input['archive_bg_overlap'] ) ? absint( $input['archive_bg_overlap'] ) : 150;
+		$output['archive_bg_overlap']   = min( 400, max( 0, $overlap ) );
 
 		return $output;
 	}
@@ -199,6 +211,21 @@ class DFA_Settings {
 	}
 
 	/**
+	 * Slider che definisce di quanti pixel l'intestazione/griglia
+	 * dell'archivio si sovrappone all'immagine di sfondo, invece di
+	 * seguirla "in cascata" più in basso.
+	 */
+	public static function render_archive_overlap_field() {
+		$settings = get_option( self::OPTION_NAME, array() );
+		$overlap  = isset( $settings['archive_bg_overlap'] ) ? (int) $settings['archive_bg_overlap'] : 150;
+		?>
+		<input type="range" id="dfa_archive_bg_overlap" name="<?php echo esc_attr( self::OPTION_NAME ); ?>[archive_bg_overlap]" min="0" max="400" step="10" value="<?php echo esc_attr( $overlap ); ?>" oninput="document.getElementById('dfa_archive_bg_overlap_value').textContent = this.value + 'px'">
+		<span id="dfa_archive_bg_overlap_value"><?php echo esc_html( $overlap ); ?>px</span>
+		<p class="description"><?php esc_html_e( '0 = nessuna sovrapposizione (il contenuto inizia sotto l\'immagine). Valori più alti fanno "risalire" intestazione e griglia sopra l\'immagine di sfondo.', 'devil-fruit-archive' ); ?></p>
+		<?php
+	}
+
+	/**
 	 * Renderizza la pagina impostazioni completa.
 	 */
 	public static function render_settings_page() {
@@ -229,6 +256,16 @@ class DFA_Settings {
 				<input type="hidden" name="action" value="<?php echo esc_attr( DFA_Seed::ACTION ); ?>">
 				<?php submit_button( __( 'Lancia il seed del catalogo', 'devil-fruit-archive' ), 'secondary' ); ?>
 			</form>
+
+			<p style="margin-top:24px;color:#787c82">
+				<?php
+				printf(
+					/* translators: %s: numero di versione del plugin. */
+					esc_html__( 'Devil Fruit Archive — versione %s', 'devil-fruit-archive' ),
+					esc_html( DFA_VERSION )
+				);
+				?>
+			</p>
 		</div>
 		<?php
 	}
@@ -251,5 +288,16 @@ class DFA_Settings {
 	public static function get_archive_background_image_id() {
 		$settings = get_option( self::OPTION_NAME, array() );
 		return ! empty( $settings['archive_background_image'] ) ? (int) $settings['archive_background_image'] : 0;
+	}
+
+	/**
+	 * Ritorna di quanti pixel intestazione e griglia dell'archivio si
+	 * sovrappongono all'immagine di sfondo.
+	 *
+	 * @return int Pixel di sovrapposizione (0-400), 150 come default.
+	 */
+	public static function get_archive_background_overlap() {
+		$settings = get_option( self::OPTION_NAME, array() );
+		return isset( $settings['archive_bg_overlap'] ) ? (int) $settings['archive_bg_overlap'] : 150;
 	}
 }
