@@ -761,12 +761,28 @@ body.dfa-archive-page {
 	pointer-events: none;
 }
 
+/*
+ * A riposo il frutto è scurito del 50%, come lo sfondo del personaggio
+ * (che è in bianco e nero); al passaggio del mouse entrambi tornano a
+ * piena luminosità e colore.
+ *
+ * Si usa filter: brightness() e non un riquadro nero sovrapposto perché
+ * le immagini frutto sono PNG con trasparenza: un velo rettangolare
+ * scurirebbe anche l'area vuota attorno al frutto, mentre il filtro
+ * agisce solo sui pixel effettivamente visibili.
+ */
 .dfa-archive__card-image img {
 	width: 100% !important;
 	height: 100% !important;
 	object-fit: contain !important;
 	object-position: bottom right !important;
-	filter: drop-shadow(0 8px 14px rgba(0, 0, 0, .55));
+	filter: brightness(.5) drop-shadow(0 8px 14px rgba(0, 0, 0, .55));
+	transition: filter .3s ease;
+}
+
+.dfa-archive__card:hover .dfa-archive__card-image img,
+.dfa-archive__card:focus-within .dfa-archive__card-image img {
+	filter: brightness(1) drop-shadow(0 8px 14px rgba(0, 0, 0, .55));
 }
 
 /* Il testo resta a sinistra: max-width lascia libera la colonna destra
