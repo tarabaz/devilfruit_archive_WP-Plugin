@@ -297,7 +297,16 @@ body.dfa-archive-page {
 @media (min-width: 900px) {
 	.dfa-single__specimen-wrap {
 		display: grid;
-		grid-template-columns: 1fr auto 1fr;
+		/*
+		 * La colonna centrale ha una larghezza ESPLICITA (450px), non
+		 * "auto": con "auto" la colonna si dimensiona sul contenuto
+		 * mentre .dfa-single__specimen dentro chiede width:100% della
+		 * colonna — riferimento circolare che il browser risolve a
+		 * ZERO, rendendo l'immagine invisibile (larghezza misurata:
+		 * 0.0px). Le due colonne 1fr laterali restano uguali fra loro,
+		 * quindi la centratura esatta è preservata.
+		 */
+		grid-template-columns: 1fr 450px 1fr;
 		align-items: end;
 		gap: 0;
 	}
