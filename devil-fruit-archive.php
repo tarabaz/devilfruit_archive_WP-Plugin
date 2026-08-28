@@ -3,7 +3,7 @@
  * Plugin Name:       Devil Fruit Archive
  * Plugin URI:        https://francystore3d.com
  * Description:       Archivio/dossier classificato in stile "Vegapunk Research Division" per esemplari di Devil Fruit. Nessun e-commerce: solo catalogo consultabile.
- * Version:           2.8
+ * Version:           2.9
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            FrancyStore3D
@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * mostrata in fondo alla pagina impostazioni, per verificare a colpo
  * d'occhio che un aggiornamento sia stato effettivamente caricato.
  */
-define( 'DFA_VERSION', '2.8' );
+define( 'DFA_VERSION', '2.9' );
 
 /** Percorso assoluto della cartella del plugin, con trailing slash. */
 define( 'DFA_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
@@ -51,6 +51,7 @@ require_once DFA_PLUGIN_DIR . 'includes/class-dfa-shortcode.php';
 require_once DFA_PLUGIN_DIR . 'includes/class-dfa-settings.php';
 require_once DFA_PLUGIN_DIR . 'includes/class-dfa-seed.php';
 require_once DFA_PLUGIN_DIR . 'includes/class-dfa-template-loader.php';
+require_once DFA_PLUGIN_DIR . 'includes/class-dfa-transfer.php';
 
 /**
  * Inizializza tutte le componenti del plugin.
@@ -64,6 +65,7 @@ function dfa_init_plugin() {
 	DFA_Settings::init();
 	DFA_Seed::init();
 	DFA_Template_Loader::init();
+	DFA_Transfer::init();
 }
 add_action( 'plugins_loaded', 'dfa_init_plugin' );
 

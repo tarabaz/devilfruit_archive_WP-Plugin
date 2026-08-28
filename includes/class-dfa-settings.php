@@ -316,6 +316,40 @@ class DFA_Settings {
 				<?php submit_button( __( 'Lancia il seed del catalogo', 'devil-fruit-archive' ), 'secondary' ); ?>
 			</form>
 
+			<hr>
+
+			<h2><?php esc_html_e( 'Esporta / Importa archivio', 'devil-fruit-archive' ); ?></h2>
+
+			<?php if ( ! DFA_Transfer::is_available() ) : ?>
+				<div class="notice notice-warning inline"><p>
+					<?php esc_html_e( 'L\'estensione PHP "zip" non è attiva su questo server, quindi esportazione e importazione non sono utilizzabili. Chiedi al tuo hosting di abilitare ZipArchive.', 'devil-fruit-archive' ); ?>
+				</p></div>
+			<?php else : ?>
+
+				<p>
+					<?php esc_html_e( 'Il pacchetto .zip contiene tutti gli esemplari con i loro campi, le impostazioni del plugin e i file immagine veri e propri (foto esemplare, versione accesa, immagine frutto, foto proprietario e sfondi). Serve sia da backup sia per spostare l\'archivio su un altro sito.', 'devil-fruit-archive' ); ?>
+				</p>
+
+				<h3><?php esc_html_e( 'Esporta', 'devil-fruit-archive' ); ?></h3>
+				<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
+					<?php wp_nonce_field( DFA_Transfer::EXPORT_ACTION ); ?>
+					<input type="hidden" name="action" value="<?php echo esc_attr( DFA_Transfer::EXPORT_ACTION ); ?>">
+					<?php submit_button( __( 'Scarica il pacchetto dell\'archivio', 'devil-fruit-archive' ), 'secondary', 'submit', false ); ?>
+				</form>
+
+				<h3 style="margin-top:24px"><?php esc_html_e( 'Importa', 'devil-fruit-archive' ); ?></h3>
+				<p class="description" style="max-width:640px">
+					<?php esc_html_e( 'L\'import è idempotente sul Catalog ID: un esemplare già presente viene aggiornato, non duplicato. Le immagini del pacchetto vengono caricate nella Libreria media di questo sito e ricollegate ai campi corretti. Le impostazioni del plugin presenti nel pacchetto sovrascrivono quelle attuali.', 'devil-fruit-archive' ); ?>
+				</p>
+				<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" enctype="multipart/form-data">
+					<?php wp_nonce_field( DFA_Transfer::IMPORT_ACTION ); ?>
+					<input type="hidden" name="action" value="<?php echo esc_attr( DFA_Transfer::IMPORT_ACTION ); ?>">
+					<p><input type="file" name="dfa_import_file" accept=".zip" required></p>
+					<?php submit_button( __( 'Importa dal pacchetto', 'devil-fruit-archive' ), 'secondary', 'submit', false ); ?>
+				</form>
+
+			<?php endif; ?>
+
 			<p style="margin-top:24px;color:#787c82">
 				<?php
 				printf(

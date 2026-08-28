@@ -127,6 +127,49 @@ apri ogni esemplare creato e carica manualmente dalla Libreria media
 l'immagine in evidenza (esemplare nel barattolo) e le foto dei
 proprietari.
 
+## Esporta / Importa l'archivio (backup e trasferimento)
+
+In **Devil Fruit Archive → Impostazioni**, sezione "Esporta / Importa
+archivio", trovi due pulsanti che gestiscono l'intero contenuto del
+plugin in un unico file `.zip`.
+
+**Cosa contiene il pacchetto**
+
+```
+archivio.json      tutti gli esemplari (titolo, stato e ogni campo)
+                   + le impostazioni del plugin
+images/…           i file immagine originali: foto esemplare (featured),
+                   versione accesa, immagine frutto, foto proprietario
+                   e le due immagini di sfondo delle impostazioni
+```
+
+**Esportare**: clicca "Scarica il pacchetto dell'archivio". Il file si
+chiama `devil-fruit-archive-AAAA-MM-GG-HHMMSS.zip`.
+
+**Importare**: seleziona un pacchetto e clicca "Importa dal pacchetto".
+
+- L'import è **idempotente sul Catalog ID**: un esemplare già presente
+  viene aggiornato, non duplicato. Puoi quindi reimportare lo stesso
+  pacchetto più volte in sicurezza.
+- Le immagini vengono **ricaricate nella Libreria media** del sito di
+  destinazione e ricollegate ai campi corretti: il pacchetto è
+  trasferibile fra siti diversi, dove gli ID allegato di origine non
+  avrebbero alcun significato. Un'immagine condivisa da più esemplari
+  viene caricata una volta sola.
+- Le impostazioni del plugin contenute nel pacchetto **sovrascrivono**
+  quelle attuali.
+- A fine operazione un messaggio riepiloga quanti esemplari sono stati
+  creati, quanti aggiornati e quante immagini caricate.
+
+**Requisito**: l'estensione PHP `zip` (ZipArchive) dev'essere attiva sul
+server. Se manca, la sezione lo segnala e i due pulsanti non vengono
+mostrati.
+
+**Nota sui limiti di upload**: se l'archivio contiene molte immagini, il
+pacchetto può superare la dimensione massima di caricamento del server
+(`upload_max_filesize` / `post_max_size`). In quel caso l'import segnala
+l'errore: chiedi all'hosting di alzare quei limiti.
+
 ## Griglia archivio e shortcode
 
 - L'**archivio pubblico** con la griglia di tutti gli esemplari
@@ -183,6 +226,7 @@ includes/
   class-dfa-shortcode.php          Shortcode [devil_fruit_archive]
   class-dfa-settings.php           Pagina impostazioni (URL CTA, bottone seed)
   class-dfa-seed.php               Parsing del markdown e creazione idempotente degli esemplari
+  class-dfa-transfer.php           Export/import completo in .zip (dati, impostazioni e file immagine)
   class-dfa-template-loader.php    Override dei template di frontend + enqueue asset
 templates/
   single-esemplare.php             Scheda singola
