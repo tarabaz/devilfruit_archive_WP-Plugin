@@ -45,9 +45,6 @@ $dfa_archive_bg_id = DFA_Settings::get_archive_background_image_id();
 			<div class="dfa-archive__rule"></div>
 			<?php require DFA_PLUGIN_DIR . 'templates/parts/topbar.php'; ?>
 			<div class="dfa-archive__brandbar">
-				<div class="dfa-archive__nav">
-					<span>CATALOGO</span><span>TIPOLOGIE</span><span>ARCHIVIO</span><span>CONTATTI</span>
-				</div>
 				<div>FRANCYSTORE3D</div>
 			</div>
 		</header>
