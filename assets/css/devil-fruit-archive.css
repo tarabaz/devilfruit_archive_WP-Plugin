@@ -609,16 +609,8 @@ body.dfa-archive-page {
 	color: rgba(216, 219, 222, .44);
 }
 
-.dfa-archive__nav {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: center;
-	gap: 20px;
-}
-
 @media (min-width: 700px) {
 	.dfa-archive__title { font-size: 60px; }
-	.dfa-archive__brandbar { justify-content: space-between; }
 }
 
 .dfa-archive__grid {
