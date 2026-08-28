@@ -58,7 +58,8 @@ $dfa_fruit_image   = (int) DFA_Meta::get( $dfa_post_id, 'fruit_image' );
 		</div>
 
 		<div class="dfa-archive__card-id"><?php echo esc_html( $dfa_catalog_id ); ?></div>
-		<div class="dfa-archive__card-name dfa-display"><?php echo esc_html( $dfa_romaji_name ? $dfa_romaji_name : get_the_title() ); ?></div>
+		<?php // format_fruit_name() restituisce HTML già escapato al suo interno. ?>
+		<div class="dfa-archive__card-name dfa-display"><?php echo wp_kses_post( DFA_Meta::format_fruit_name( $dfa_romaji_name ? $dfa_romaji_name : get_the_title() ) ); ?></div>
 
 		<?php if ( $dfa_type_label ) : ?>
 			<div class="dfa-archive__badge">

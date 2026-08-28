@@ -791,6 +791,17 @@ body.dfa-archive-page {
 	color: #e9ecee;
 }
 
+/* "NO MI" (ed eventuale specifica di modello) a capo sotto il nome, a
+   metà della dimensione: font-size in percentuale, così resta sempre
+   il 50% del corpo del nome anche se quest'ultimo cambia. */
+.dfa-archive__card-name-suffix {
+	display: block;
+	font-size: 50%;
+	line-height: 1.2;
+	letter-spacing: .06em;
+	color: rgba(233, 236, 238, .82);
+}
+
 .dfa-archive__badge {
 	position: relative;
 	z-index: 1;
