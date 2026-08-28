@@ -128,11 +128,13 @@ body.dfa-archive-page {
  * viewport, rompendo il posizionamento.
  */
 /*
- * Come per lo sfondo dell'archivio: larghezza 100% e altezza AUTO, così
- * l'immagine si adatta alla risoluzione orizzontale seguendo le proprie
- * proporzioni, invece di restare di dimensione fissa e venire ritagliata
- * da object-fit:cover. Sotto l'immagine prosegue il fondo scuro del
- * frame, raccordato dalla dissolvenza .dfa-single__bg::after.
+ * Sfondo della scheda: DIMENSIONE NATURALE, mai scalato. Ancorato in
+ * alto a SINISTRA, quindi restringendo la finestra sparisce
+ * progressivamente da destra invece di rimpicciolirsi.
+ *
+ * max-width:none è !important perché il reset globale dei temi
+ * ("img { max-width: 100% }", presente anche in WoodMart) rimetterebbe
+ * altrimenti l'immagine in scala, annullando l'effetto.
  */
 .dfa-single__bg {
 	position: absolute !important;
@@ -142,17 +144,39 @@ body.dfa-archive-page {
 	bottom: auto !important;
 	height: auto !important;
 	z-index: 0 !important;
-	display: block !important;
+	overflow: hidden !important;
+	display: flex !important;
+	justify-content: flex-start !important;
 	line-height: 0;
 }
 
 .dfa-single__bg img {
 	position: static !important;
-	width: 100% !important;
+	width: auto !important;
 	height: auto !important;
-	max-width: 100% !important;
+	max-width: none !important;
+	flex: none !important;
 	object-fit: initial !important;
 	display: block !important;
+}
+
+/*
+ * MOBILE: gli sfondi restano non-fluidi (stesso concetto: ancorati e
+ * tagliati, mai stirati), ma resi al 50% della dimensione naturale, così
+ * su schermo stretto si vede il doppio dell'immagine invece di un
+ * dettaglio ingrandito.
+ *
+ * Si usa "zoom" e non "transform: scale()" perché zoom incide anche sul
+ * layout: il contenitore si accorcia insieme all'immagine e la
+ * dissolvenza ::after resta agganciata alla base reale. Con transform
+ * l'altezza del contenitore sarebbe rimasta quella a grandezza piena,
+ * lasciando la sfumatura staccata dall'immagine.
+ */
+@media (max-width: 700px) {
+	.dfa-single__bg img,
+	.dfa-archive__bg img {
+		zoom: .5;
+	}
 }
 
 /* Raccordo morbido tra la base dell'immagine e il fondo della pagina. */
@@ -215,26 +239,8 @@ body.dfa-archive-page {
 	background: linear-gradient(90deg, transparent, rgba(216, 219, 222, .32) 12%, rgba(216, 219, 222, .32) 88%, transparent);
 }
 
-.dfa-single__meta {
-	position: relative !important;
-	z-index: 1 !important;
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-	padding: 20px 24px 0;
-	font: 400 10px/1.6 'IBM Plex Mono';
-	letter-spacing: .22em;
-	color: rgba(216, 219, 222, .34);
-}
-
-.dfa-single__meta-rule {
-	width: 26px;
-	height: 1px;
-	background: rgba(216, 219, 222, .3);
-}
-
-/* Fascia superiore: solo l'esemplare, centrato, col bottone lampada
-   affiancato a destra. Targa e research note stanno sotto, in
+/* Fascia superiore: l'esemplare centrato, col bottone lampada centrato
+   sotto di esso. Targa e research note stanno sotto, in
    .dfa-single__cols. */
 .dfa-single__content {
 	position: relative !important;
@@ -273,17 +279,10 @@ body.dfa-archive-page {
 }
 
 /*
- * L'esemplare deve restare ESATTAMENTE al centro della pagina, e non
- * spostarsi quando l'etichetta del bottone cambia da "ACCENDI" a
- * "SPEGNI LA LAMPADA" (lunghezze diverse).
- *
- * Con un semplice flex centrato, immagine e bottone sono due elementi
- * affiancati e il centro cade tra i due: cambiando la larghezza del
- * bottone si sposta anche l'immagine. Qui si usa invece una griglia a
- * tre colonne "1fr auto 1fr": le due colonne laterali sono per
- * definizione sempre della stessa larghezza, quindi la colonna centrale
- * (l'immagine) resta ancorata al centro esatto qualunque cosa ci sia a
- * destra. Il bottone sta nella terza colonna, allineato in basso.
+ * Esemplare centrato con il bottone lampada centrato SOTTO di esso.
+ * Essendo impilati in colonna, la larghezza del bottone non influenza
+ * più la posizione dell'immagine: cambiando l'etichetta da "ACCENDI" a
+ * "SPEGNI LA LAMPADA" l'immagine resta ferma.
  */
 .dfa-single__specimen-wrap {
 	position: relative;
@@ -292,31 +291,6 @@ body.dfa-archive-page {
 	align-items: center;
 	gap: 20px;
 	width: 100%;
-}
-
-@media (min-width: 900px) {
-	.dfa-single__specimen-wrap {
-		display: grid;
-		/*
-		 * La colonna centrale ha una larghezza ESPLICITA (450px), non
-		 * "auto": con "auto" la colonna si dimensiona sul contenuto
-		 * mentre .dfa-single__specimen dentro chiede width:100% della
-		 * colonna — riferimento circolare che il browser risolve a
-		 * ZERO, rendendo l'immagine invisibile (larghezza misurata:
-		 * 0.0px). Le due colonne 1fr laterali restano uguali fra loro,
-		 * quindi la centratura esatta è preservata.
-		 */
-		grid-template-columns: 1fr 450px 1fr;
-		align-items: end;
-		gap: 0;
-	}
-	.dfa-single__specimen { grid-column: 2; }
-	.dfa-single__lamp-btn {
-		grid-column: 3;
-		justify-self: start;
-		align-self: end;
-		margin-left: 28px;
-	}
 }
 
 /* +40% rispetto alla dimensione precedente (320x420 -> 450x590). */
@@ -392,13 +366,15 @@ body.dfa-archive-page {
 .dfa-single__panel-screw--bl { left: 10px; bottom: 10px; }
 .dfa-single__panel-screw--br { right: 10px; bottom: 10px; }
 
+/* Valore in chiaro come nelle righe SPECIAL NOTE / PROPRIETARIO; è
+   l'etichetta a restare smorzata (vedi .dfa-single__panel .label). */
 .dfa-single__panel-id {
 	display: flex;
 	flex-direction: column;
 	gap: 5px;
 	font: 400 12px/1.5 'IBM Plex Mono';
 	letter-spacing: .16em;
-	color: rgba(216, 219, 222, .44);
+	color: rgba(226, 229, 232, .88);
 }
 
 .dfa-single__panel-rule {
@@ -431,7 +407,10 @@ body.dfa-archive-page {
 	color: rgba(226, 229, 232, .88);
 }
 
-.dfa-single__panel-details .label { color: rgba(216, 219, 222, .44); }
+/* Regola unica per tutte le etichette della targa (CATALOG ID, TYPE,
+   SPECIAL NOTE, PROPRIETARIO, EX PROPRIETARIO): etichetta smorzata,
+   valore chiaro. */
+.dfa-single__panel .label { color: rgba(216, 219, 222, .44); }
 
 /*
  * Research note: sfumata sia sopra sia SOTTO, così si fonde col fondo
