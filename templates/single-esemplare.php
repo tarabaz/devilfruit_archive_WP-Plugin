@@ -39,22 +39,38 @@ while ( have_posts() ) :
 	if ( ! $background_image_id ) {
 		$background_image_id = DFA_Settings::get_single_background_image_id();
 	}
+
+	/*
+	 * URL diretto invece di wp_get_attachment_image(): quella funzione
+	 * aggiunge srcset/sizes, e con essi il browser su finestre strette
+	 * scarica una VARIANTE PIÙ PICCOLA del file. Siccome il CSS chiede di
+	 * usare la dimensione naturale, la "naturale" diventa quella della
+	 * variante ridotta e lo sfondo si rimpicciolisce invece di essere
+	 * tagliato. Con un <img> semplice il file servito è sempre l'originale.
+	 */
+	$background_image_url = $background_image_id ? wp_get_attachment_image_url( $background_image_id, 'full' ) : '';
+
+	// Titolo di pagina e intestazione riportano il Catalog ID.
+	$document_title = wp_get_document_title();
+	if ( $catalog_id ) {
+		$document_title .= ' - ' . $catalog_id;
+	}
 	?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
 <head>
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title><?php echo esc_html( wp_get_document_title() ); ?></title>
+	<title><?php echo esc_html( $document_title ); ?></title>
 	<?php wp_head(); ?>
 </head>
 <body <?php body_class( 'dfa-single' ); ?>>
 
 	<article class="dfa-single__frame">
 
-		<?php if ( $background_image_id ) : ?>
+		<?php if ( $background_image_url ) : ?>
 		<div class="dfa-single__bg">
-			<?php echo wp_get_attachment_image( $background_image_id, 'full' ); ?>
+			<img src="<?php echo esc_url( $background_image_url ); ?>" alt="" aria-hidden="true">
 		</div>
 		<?php endif; ?>
 
@@ -63,16 +79,10 @@ while ( have_posts() ) :
 		<div class="dfa-single__scanlines" aria-hidden="true"></div>
 
 		<header class="dfa-single__header">
-			<div class="dfa-single__header-title">VEGAPUNK RESEARCH DIVISION — DEVIL FRUIT ARCHIVE</div>
+			<div class="dfa-single__header-title">VEGAPUNK RESEARCH DIVISION — DEVIL FRUIT ARCHIVE<?php echo $catalog_id ? ' - ' . esc_html( $catalog_id ) : ''; ?></div>
 			<div class="dfa-single__header-rule"></div>
 			<?php require DFA_PLUGIN_DIR . 'templates/parts/topbar.php'; ?>
 		</header>
-
-		<div class="dfa-single__meta">
-			<div>ARCHIVIO / SCHEDA</div>
-			<div class="dfa-single__meta-rule"></div>
-			<div>SEC. LEVEL: 04</div>
-		</div>
 
 		<div class="dfa-single__content">
 
@@ -107,8 +117,7 @@ while ( have_posts() ) :
 					<span class="dfa-single__panel-screw dfa-single__panel-screw--br"></span>
 
 					<div class="dfa-single__panel-id">
-						<div>CATALOG ID: <?php echo esc_html( $catalog_id ); ?></div>
-						<div>TYPE: <?php echo esc_html( $fruit_type_label ); ?></div>
+						<div><span class="label">CATALOG ID:</span> <?php echo esc_html( $catalog_id ); ?></div>
 					</div>
 					<div class="dfa-single__panel-rule"></div>
 					<div class="dfa-single__panel-name dfa-display"><?php echo esc_html( $romaji_name ); ?></div>
@@ -117,6 +126,9 @@ while ( have_posts() ) :
 					<?php endif; ?>
 					<div class="dfa-single__panel-rule"></div>
 					<div class="dfa-single__panel-details">
+						<?php if ( $fruit_type_label ) : ?>
+							<div><span class="label">TYPE:</span> <?php echo esc_html( $fruit_type_label ); ?></div>
+						<?php endif; ?>
 						<?php if ( $special_note ) : ?>
 							<div><span class="label">SPECIAL NOTE:</span> <?php echo esc_html( $special_note ); ?></div>
 						<?php endif; ?>

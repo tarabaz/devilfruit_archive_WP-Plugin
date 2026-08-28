@@ -12,11 +12,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-$dfa_archive_link = get_post_type_archive_link( DFA_CPT::POST_TYPE );
+$dfa_archive_link  = get_post_type_archive_link( DFA_CPT::POST_TYPE );
+$dfa_is_archive    = is_post_type_archive( DFA_CPT::POST_TYPE );
 ?>
 <div class="dfa-topbar">
-	<a class="dfa-topbar__link" href="<?php echo esc_url( home_url( '/' ) ); ?>">&larr; TORNA AL SITO</a>
-	<?php if ( $dfa_archive_link && ! is_post_type_archive( DFA_CPT::POST_TYPE ) ) : ?>
+	<?php if ( $dfa_is_archive ) : ?>
+		<?php // Dall'archivio si torna al sito principale. ?>
+		<a class="dfa-topbar__link" href="<?php echo esc_url( home_url( '/' ) ); ?>">&larr; TORNA AL SITO</a>
+	<?php elseif ( $dfa_archive_link ) : ?>
+		<?php // Dalla scheda si torna all'archivio: unico bottone, per non disperdere il percorso. ?>
 		<a class="dfa-topbar__link" href="<?php echo esc_url( $dfa_archive_link ); ?>">&larr; ARCHIVIO</a>
 	<?php endif; ?>
 </div>

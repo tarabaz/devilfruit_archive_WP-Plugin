@@ -18,6 +18,17 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 $dfa_archive_bg_id = DFA_Settings::get_archive_background_image_id();
+
+/*
+ * URL diretto invece di wp_get_attachment_image(): quella funzione
+ * aggiunge srcset/sizes, e con essi il browser su finestre strette
+ * scarica una VARIANTE PIÙ PICCOLA del file. Siccome il CSS chiede di
+ * usare la dimensione naturale dell'immagine, la "naturale" diventa
+ * quella della variante ridotta e lo sfondo si rimpicciolisce invece di
+ * essere tagliato ai lati. Con un <img> semplice il file servito è
+ * sempre l'originale a piena risoluzione.
+ */
+$dfa_archive_bg_url = $dfa_archive_bg_id ? wp_get_attachment_image_url( $dfa_archive_bg_id, 'full' ) : '';
 ?>
 <!DOCTYPE html>
 <html <?php language_attributes(); ?>>
@@ -30,9 +41,9 @@ $dfa_archive_bg_id = DFA_Settings::get_archive_background_image_id();
 <body <?php body_class( 'dfa-archive-page' ); ?>>
 
 	<div class="dfa-archive">
-		<?php if ( $dfa_archive_bg_id ) : ?>
+		<?php if ( $dfa_archive_bg_url ) : ?>
 			<div class="dfa-archive__bg">
-				<?php echo wp_get_attachment_image( $dfa_archive_bg_id, 'full' ); ?>
+				<img src="<?php echo esc_url( $dfa_archive_bg_url ); ?>" alt="" aria-hidden="true">
 			</div>
 		<?php endif; ?>
 
