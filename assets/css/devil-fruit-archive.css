@@ -24,10 +24,22 @@
 	--line: rgba(216, 219, 222, .16);
 }
 
+/*
+ * Il fondo scuro va messo anche su html e body, non solo sui
+ * contenitori interni: senza, sotto le nostre pagine resta il colore di
+ * sfondo del TEMA attivo. Safari su iOS tinge le proprie barre (in alto
+ * lo stato, in basso la barra indirizzi) campionando lo sfondo della
+ * pagina, e finiva quindi per mostrarle color oro — il colore del tema —
+ * invece che scure. Vedi anche il <meta name="theme-color"> nei
+ * template, che lo dichiara in modo esplicito.
+ */
+html.dfa-single-html,
+html.dfa-archive-html,
 body.dfa-single,
 body.dfa-archive-page {
 	margin: 0;
 	padding: 0;
+	background: var(--bg);
 }
 
 .dfa-single__frame,
@@ -160,24 +172,6 @@ body.dfa-archive-page {
 	display: block !important;
 }
 
-/*
- * MOBILE: gli sfondi restano non-fluidi (stesso concetto: ancorati e
- * tagliati, mai stirati), ma resi al 50% della dimensione naturale, così
- * su schermo stretto si vede il doppio dell'immagine invece di un
- * dettaglio ingrandito.
- *
- * Si usa "zoom" e non "transform: scale()" perché zoom incide anche sul
- * layout: il contenitore si accorcia insieme all'immagine e la
- * dissolvenza ::after resta agganciata alla base reale. Con transform
- * l'altezza del contenitore sarebbe rimasta quella a grandezza piena,
- * lasciando la sfumatura staccata dall'immagine.
- */
-@media (max-width: 700px) {
-	.dfa-single__bg img,
-	.dfa-archive__bg img {
-		zoom: .5;
-	}
-}
 
 /* Raccordo morbido tra la base dell'immagine e il fondo della pagina. */
 .dfa-single__bg::after {
@@ -198,12 +192,23 @@ body.dfa-archive-page {
 	background: linear-gradient(180deg, rgba(8, 9, 10, .86) 0%, rgba(8, 9, 10, .62) 38%, rgba(8, 9, 10, .9) 100%);
 }
 
+/*
+ * Vignettatura PROPORZIONALE, non in pixel fissi.
+ *
+ * Prima era "box-shadow: inset 0 0 260px 90px": misure assolute, quindi
+ * su un telefono da 390px la fascia piena (90px per lato) occupava già
+ * il 46% della larghezza e la sfumatura da 260px copriva tutto il resto
+ * — nessun pixel restava non scurito, e l'immagine spariva. Su desktop
+ * lo stesso valore incide invece solo per il 13%.
+ * Con un gradiente radiale in percentuale l'effetto è identico a
+ * qualsiasi larghezza: il centro resta sempre leggibile.
+ */
 .dfa-single__vignette {
 	position: absolute !important;
 	inset: 0 !important;
 	z-index: 0 !important;
 	pointer-events: none;
-	box-shadow: inset 0 0 260px 90px rgba(0, 0, 0, .92);
+	background: radial-gradient(ellipse 80% 70% at 50% 38%, transparent 0%, rgba(0, 0, 0, .35) 55%, rgba(0, 0, 0, .85) 100%);
 }
 
 .dfa-single__scanlines {
@@ -214,6 +219,65 @@ body.dfa-archive-page {
 	opacity: .35;
 	background: repeating-linear-gradient(180deg, rgba(255, 255, 255, .045) 0 1px, transparent 1px 3px);
 }
+
+/*
+ * MOBILE: gli sfondi restano non-fluidi (stesso concetto: ancorati e
+ * tagliati, mai stirati), ma resi al 50% della dimensione naturale, così
+ * su schermo stretto si vede il doppio dell'immagine invece di un
+ * dettaglio ingrandito.
+ *
+ * Si usa "zoom" e non "transform: scale()" perché zoom incide anche sul
+ * layout: il contenitore si accorcia insieme all'immagine e la
+ * dissolvenza ::after resta agganciata alla base reale. Con transform
+ * l'altezza del contenitore sarebbe rimasta quella a grandezza piena,
+ * lasciando la sfumatura staccata dall'immagine.
+ */
+@media (max-width: 700px) {
+	.dfa-single__bg img,
+	.dfa-archive__bg img {
+		zoom: .5;
+	}
+
+	/*
+	 * Su mobile l'immagine di sfondo è dimezzata, quindi occupa solo la
+	 * fascia alta della pagina — cioè proprio dove il velo è più scuro
+	 * (.86 in cima). I due effetti si sommavano e la rendevano quasi
+	 * invisibile. Qui il velo parte molto più chiaro e la vignettatura è
+	 * più tenue, così la foto si legge.
+	 */
+	/*
+	 * Due livelli sovrapposti, con misure in PIXEL per la fascia alta.
+	 * Le percentuali qui non funzionerebbero: sono calcolate sull'intera
+	 * altezza della pagina (lunga, per via di targa e research note),
+	 * quindi la zona dell'immagine — che sta tutta in cima — ricadrebbe
+	 * comunque nella porzione più scura del gradiente.
+	 *   1. banda scura alta ~90px, solo dietro l'intestazione, per
+	 *      tenere leggibile il titolo;
+	 *   2. velo di base molto leggero sull'immagine, che poi scurisce
+	 *      verso il fondo pagina dove inizia il testo.
+	 */
+	.dfa-single__overlay {
+		background:
+			linear-gradient(180deg, rgba(8, 9, 10, .82) 0px, rgba(8, 9, 10, .5) 90px, rgba(8, 9, 10, 0) 200px),
+			linear-gradient(180deg, rgba(8, 9, 10, .12) 0%, rgba(8, 9, 10, .12) 45%, rgba(8, 9, 10, .88) 100%);
+	}
+
+	.dfa-single__vignette {
+		background: radial-gradient(ellipse 110% 90% at 50% 25%, transparent 0%, rgba(0, 0, 0, .1) 70%, rgba(0, 0, 0, .5) 100%);
+	}
+
+	/* La dissolvenza sotto l'immagine partiva al 45% della sua altezza:
+	   con l'immagine dimezzata iniziava troppo presto. */
+	.dfa-single__bg::after {
+		height: 30%;
+	}
+
+	/* Le scanline aggiungono un ulteriore velo: alleggerite. */
+	.dfa-single__scanlines {
+		opacity: .12;
+	}
+}
+
 
 .dfa-single__header {
 	position: relative !important;

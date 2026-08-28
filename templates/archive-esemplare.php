@@ -31,10 +31,12 @@ $dfa_archive_bg_id = DFA_Settings::get_archive_background_image_id();
 $dfa_archive_bg_url = $dfa_archive_bg_id ? wp_get_attachment_image_url( $dfa_archive_bg_id, 'full' ) : '';
 ?>
 <!DOCTYPE html>
-<html <?php language_attributes(); ?>>
+<html <?php language_attributes(); ?> class="dfa-archive-html">
 <head>
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<?php // Colore delle barre del browser su mobile (iOS/Android), altrimenti campionato dal tema. ?>
+	<meta name="theme-color" content="#08090a">
 	<title><?php echo esc_html( wp_get_document_title() ); ?></title>
 	<?php wp_head(); ?>
 </head>

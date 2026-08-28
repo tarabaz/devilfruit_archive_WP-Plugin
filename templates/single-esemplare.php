@@ -57,10 +57,12 @@ while ( have_posts() ) :
 	}
 	?>
 <!DOCTYPE html>
-<html <?php language_attributes(); ?>>
+<html <?php language_attributes(); ?> class="dfa-single-html">
 <head>
 	<meta charset="<?php bloginfo( 'charset' ); ?>">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<?php // Colore delle barre del browser su mobile (iOS/Android), altrimenti campionato dal tema. ?>
+	<meta name="theme-color" content="#08090a">
 	<title><?php echo esc_html( $document_title ); ?></title>
 	<?php wp_head(); ?>
 </head>
