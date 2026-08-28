@@ -132,4 +132,38 @@ class DFA_Meta {
 	public static function get( $post_id, $key ) {
 		return get_post_meta( $post_id, self::PREFIX . $key, true );
 	}
+
+	/**
+	 * Formatta il nome del frutto per la griglia archivio mandando la
+	 * parte "NO MI" a capo, in corpo ridotto:
+	 *
+	 *     JIKI JIKI
+	 *     NO MI
+	 *
+	 * Il taglio avviene alla prima occorrenza di "NO MI", quindi anche i
+	 * nomi con specifica di modello restano leggibili:
+	 *
+	 *     TORI TORI
+	 *     NO MI, MODEL: PHOENIX
+	 *
+	 * Se "NO MI" non compare, il nome viene restituito intero su una
+	 * riga sola.
+	 *
+	 * @param string $name Nome grezzo (romaji o titolo del post).
+	 * @return string HTML già escapato, pronto per l'output.
+	 */
+	public static function format_fruit_name( $name ) {
+		$name = trim( (string) $name );
+
+		if ( '' === $name ) {
+			return '';
+		}
+
+		if ( preg_match( '/^(.*?)\s+(NO\s+MI\b.*)$/iu', $name, $matches ) ) {
+			return esc_html( $matches[1] )
+				. '<span class="dfa-archive__card-name-suffix">' . esc_html( $matches[2] ) . '</span>';
+		}
+
+		return esc_html( $name );
+	}
 }
