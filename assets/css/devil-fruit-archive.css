@@ -501,28 +501,28 @@ body.dfa-archive-page {
 /*
  * Immagine di sfondo decorativa in alto (impostazioni plugin).
  *
- * Altezza AUTO, non fissa: l'immagine occupa sempre il 100% della
- * larghezza disponibile e la sua altezza segue le proporzioni reali del
- * file. Così si adatta davvero alla risoluzione orizzontale (si
- * rimpicciolisce su schermi stretti, cresce su schermi larghi) invece di
- * restare di dimensione fissa e venire ritagliata da object-fit:cover.
+ * DIMENSIONE NATURALE, non scalata: l'immagine mantiene i pixel del
+ * file originale ed è ancorata al centro in orizzontale e in alto in
+ * verticale. Su schermi più stretti dell'immagine viene ritagliata ai
+ * lati (overflow:hidden), su schermi più larghi resta della sua misura
+ * con il fondo scuro attorno — invece di rimpicciolirsi/ingrandirsi
+ * seguendo la larghezza della finestra.
+ *
+ * Il contenitore è fuori dal flusso, DIETRO al contenuto (z-index 0),
+ * che gli scorre sopra partendo a 50px dal bordo superiore. La
+ * centratura è ottenuta con flex + justify-content:center e l'immagine
+ * come flex item non comprimibile (flex:none), così non viene
+ * ristretta per stare nel contenitore.
  *
  * !important sulle regole di layout: queste pagine sono documenti
  * HTML autonomi che, per admin bar/SEO/analytics, caricano comunque
  * wp_head()/wp_footer() e quindi anche il CSS del tema attivo. Temi
- * come WoodMart applicano reset globali (es. su img, position) che
- * altrimenti vincono per ordine di caricamento e rompono silenziosamente
- * il layout (immagine non a piena larghezza, elementi assoluti che
- * ricadono nel flusso normale). !important isola questa UI dal tema.
+ * come WoodMart applicano reset globali (tipicamente
+ * "img { max-width: 100%; height: auto }") che altrimenti vincono per
+ * ordine di caricamento e rimetterebbero l'immagine in scala,
+ * annullando proprio l'effetto voluto qui.
  */
 .dfa-archive__bg {
-	/*
-	 * DIETRO al contenuto: ancorata in alto a piena larghezza, fuori dal
-	 * flusso, con il contenuto (z-index 1) che le scorre sopra partendo
-	 * a 50px dal bordo superiore della pagina. Sostituisce il vecchio
-	 * meccanismo a slider, che spostava il contenuto con un margine
-	 * negativo ed è stato rimosso.
-	 */
 	position: absolute !important;
 	top: 0 !important;
 	left: 0 !important;
@@ -530,13 +530,16 @@ body.dfa-archive-page {
 	height: auto !important;
 	z-index: 0 !important;
 	overflow: hidden !important;
+	display: flex !important;
+	justify-content: center !important;
 	line-height: 0;
 }
 .dfa-archive__bg img {
 	position: static !important;
-	width: 100% !important;
+	width: auto !important;
 	height: auto !important;
-	max-width: 100% !important;
+	max-width: none !important;
+	flex: none !important;
 	object-fit: initial !important;
 	display: block !important;
 }
