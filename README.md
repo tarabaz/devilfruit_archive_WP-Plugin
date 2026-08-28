@@ -77,11 +77,15 @@ sull'intestazione.
   dalla scheda singola, dove al suo posto c'è l'interruttore della
   lampada. Il campo resta disponibile per riattivare in futuro una CTA
   di contatto senza doverla riconfigurare.
-- **Immagine di sfondo archivio**: immagine decorativa mostrata a piena
-  larghezza in cima alla pagina archivio pubblica (`/archivio/`), dietro
-  al contenuto, che le scorre sopra partendo a 50px dal bordo superiore.
-  Facoltativa; non compare nello shortcode `[devil_fruit_archive]` usato
-  dentro una pagina del tema.
+- **Immagine di sfondo archivio**: immagine decorativa in cima alla
+  pagina archivio pubblica (`/archivio/`), dietro al contenuto, che le
+  scorre sopra partendo a 50px dal bordo superiore. È mostrata alla sua
+  **dimensione naturale**, ancorata al centro in orizzontale e in alto
+  in verticale: su schermi più stretti dell'immagine viene ritagliata ai
+  lati, su schermi più larghi resta della sua misura con il fondo scuro
+  attorno. Regola quindi la larghezza del file che carichi in base alla
+  risoluzione che ti interessa coprire. Facoltativa; non compare nello
+  shortcode `[devil_fruit_archive]` usato dentro una pagina del tema.
 - **Sfondo di riserva scheda singola**: usato come sfondo sulle schede
   degli esemplari che non hanno ancora una `Foto proprietario attuale`
   caricata.
