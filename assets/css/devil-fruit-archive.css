@@ -162,6 +162,16 @@ body.dfa-archive-page {
 	line-height: 0;
 }
 
+/*
+ * Dissolvenza sul bordo DESTRO dell'immagine (è ancorata a sinistra,
+ * quindi è lì che su monitor larghi finisce di netto). Si usa una
+ * maschera invece di un rettangolo sfumato sovrapposto: la maschera
+ * agisce sull'immagine stessa, quindi la dissolvenza parte esattamente
+ * dove finisce la foto qualunque sia la sua larghezza — cosa che un
+ * elemento sovrapposto non potrebbe sapere, dato che il contenitore è
+ * largo quanto la pagina mentre l'immagine no. Sotto resta il fondo
+ * scuro della pagina, quindi il raccordo è col colore dello sfondo.
+ */
 .dfa-single__bg img {
 	position: static !important;
 	width: auto !important;
@@ -170,6 +180,8 @@ body.dfa-archive-page {
 	flex: none !important;
 	object-fit: initial !important;
 	display: block !important;
+	-webkit-mask-image: linear-gradient(to right, #000 55%, transparent 100%);
+	mask-image: linear-gradient(to right, #000 55%, transparent 100%);
 }
 
 
@@ -259,7 +271,7 @@ body.dfa-archive-page {
 	.dfa-single__overlay {
 		background:
 			linear-gradient(180deg, rgba(8, 9, 10, .82) 0px, rgba(8, 9, 10, .5) 90px, rgba(8, 9, 10, 0) 200px),
-			linear-gradient(180deg, rgba(8, 9, 10, .12) 0%, rgba(8, 9, 10, .12) 45%, rgba(8, 9, 10, .88) 100%);
+			linear-gradient(180deg, rgba(8, 9, 10, .21) 0%, rgba(8, 9, 10, .21) 45%, rgba(8, 9, 10, .88) 100%);
 	}
 
 	.dfa-single__vignette {
@@ -289,11 +301,28 @@ body.dfa-archive-page {
 	gap: 14px;
 }
 
+/* Titolo identico a quello dell'archivio (.dfa-archive__title), così le
+   due pagine condividono la stessa testata. */
 .dfa-single__header-title {
-	font: 400 13px/1.4 'IBM Plex Mono';
-	letter-spacing: .28em;
-	color: rgba(226, 229, 232, .9);
+	font: 700 44px/1 'Saira Condensed';
+	letter-spacing: .04em;
+	color: #eef1f3;
 	text-align: center;
+}
+
+/* Catalog ID sotto al titolo, esattamente metà della sua dimensione:
+   il 50% si risolve sul font-size del genitore, quindi resta agganciato
+   al titolo anche quando questo cresce da 44px a 60px. */
+.dfa-single__header-id {
+	display: block;
+	margin-top: 10px;
+	font-size: 50%;
+	letter-spacing: .08em;
+	color: rgba(226, 229, 232, .78);
+}
+
+@media (min-width: 700px) {
+	.dfa-single__header-title { font-size: 60px; }
 }
 
 .dfa-single__header-rule {
@@ -577,6 +606,11 @@ body.dfa-archive-page {
 	justify-content: center !important;
 	line-height: 0;
 }
+/*
+ * Come nella scheda singola, ma qui l'immagine è CENTRATA: su monitor
+ * più larghi del file il taglio netto c'è da entrambi i lati, quindi la
+ * maschera sfuma sia a sinistra sia a destra verso il fondo pagina.
+ */
 .dfa-archive__bg img {
 	position: static !important;
 	width: auto !important;
@@ -585,6 +619,8 @@ body.dfa-archive-page {
 	flex: none !important;
 	object-fit: initial !important;
 	display: block !important;
+	-webkit-mask-image: linear-gradient(to right, transparent 0%, #000 15%, #000 85%, transparent 100%);
+	mask-image: linear-gradient(to right, transparent 0%, #000 15%, #000 85%, transparent 100%);
 }
 .dfa-archive__bg::after {
 	content: "";
