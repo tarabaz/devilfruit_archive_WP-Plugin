@@ -81,7 +81,10 @@ while ( have_posts() ) :
 		<div class="dfa-single__scanlines" aria-hidden="true"></div>
 
 		<header class="dfa-single__header">
-			<div class="dfa-single__header-title">VEGAPUNK RESEARCH DIVISION — DEVIL FRUIT ARCHIVE<?php echo $catalog_id ? ' - ' . esc_html( $catalog_id ) : ''; ?></div>
+			<?php // Stesso titolo dell'archivio; sotto, il Catalog ID a metà dimensione (font-size: 50% nel CSS). ?>
+			<div class="dfa-single__header-title dfa-display">VEGAPUNK RESEARCH DIVISION<?php
+				echo $catalog_id ? '<span class="dfa-single__header-id">' . esc_html( $catalog_id ) . '</span>' : '';
+			?></div>
 			<div class="dfa-single__header-rule"></div>
 			<?php require DFA_PLUGIN_DIR . 'templates/parts/topbar.php'; ?>
 		</header>
