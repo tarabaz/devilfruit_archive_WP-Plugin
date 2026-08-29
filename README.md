@@ -44,7 +44,8 @@ Brand: **FrancyStore3D**.
    - `Immagine frutto`: immagine "prodotto" mostrata nel riquadro della
      card nella griglia archivio (al posto della featured image; se non
      caricata quel riquadro resta trasparente e mostra lo sfondo dietro,
-     invece di un blocco nero).
+     invece di un blocco nero) e, nella scheda singola, nella targa a
+     destra del nome. Se non caricata, la targa resta come prima.
    - `Immagine esemplare acceso` (opzionale): stessa inquadratura
      dell'immagine in evidenza ma con la lampada del barattolo accesa.
      Se valorizzata, nella scheda singola compare accanto all'esemplare
