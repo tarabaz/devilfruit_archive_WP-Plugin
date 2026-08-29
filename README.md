@@ -65,9 +65,26 @@ Brand: **FrancyStore3D**.
 7. Pubblica. L'esemplare è subito visibile su `/archivio/nome-esemplare/`
    e nella griglia `/archivio/`.
 
-Nella lista **Devil Fruit Archive → Tutti gli esemplari** trovi le
-colonne **Catalog ID** e **Type**, entrambe ordinabili cliccando
-sull'intestazione.
+## La lista degli esemplari in wp-admin
+
+**Devil Fruit Archive → Tutti gli esemplari** mostra le colonne
+**Catalog ID**, **Type**, **Proprietario**, **Ex proprietario** e
+**Pubblicato**.
+
+- La lista è ordinata per **Catalog ID crescente** (DF-001, DF-002, ...)
+  senza dover cliccare nulla. Cliccando l'intestazione di Catalog ID,
+  Type, Titolo o Data si ordina come al solito per quella colonna.
+- La colonna **Pubblicato** è una spunta: cliccarla pubblica o
+  spubblica l'esemplare all'istante, senza aprire il post e senza
+  ricaricare la pagina. Se qualcosa va storto (permessi, sessione
+  scaduta) la spunta torna com'era e compare il motivo.
+- La stessa spunta è disponibile anche nelle **Modifiche rapide**, dove
+  è collegata al menu "Stato" nativo di WordPress: spuntarla equivale a
+  scegliere "Pubblicato", toglierla equivale a "Bozza".
+- Per gli stati che una spunta non sa rappresentare (in attesa di
+  revisione, programmato, cestino) la colonna mostra l'etichetta dello
+  stato invece della spunta, così un clic non può stravolgerlo. Lo
+  stesso vale per chi non ha i permessi di modifica su quell'esemplare.
 
 ## Impostazioni
 
@@ -223,7 +240,8 @@ includes/
   class-dfa-cpt.php                CPT "esemplare" (slug pubblico "archivio")
   class-dfa-meta.php               register_post_meta di tutti i campi
   class-dfa-metabox.php            Meta box admin + media uploader, salvataggio con nonce
-  class-dfa-admin-columns.php      Colonne "Catalog ID" / "Type" nella lista admin, ordinabili
+  class-dfa-admin-columns.php      Colonne della lista admin (Catalog ID, Type, proprietari,
+                                   spunta Pubblicato), ordine per Catalog ID, quick edit
   class-dfa-shortcode.php          Shortcode [devil_fruit_archive]
   class-dfa-settings.php           Pagina impostazioni (URL CTA, bottone seed)
   class-dfa-seed.php               Parsing del markdown e creazione idempotente degli esemplari
@@ -236,8 +254,10 @@ templates/
 assets/
   css/devil-fruit-archive.css      Stile di frontend (derivato da _design/)
   css/admin-metabox.css            Stile minimo per i meta box
+  css/admin-list.css               Stile della colonna "Pubblicato" nella lista admin
   js/devil-fruit-archive.js        JS minimo di frontend
   js/admin-metabox.js              Media uploader per le immagini owner nei meta box
+  js/admin-list.js                 Spunta "Pubblicato" (AJAX) e spunta nelle Modifiche rapide
 _design/                           Mockup approvati (HTML/CSS) usati come base dei template
 _seed/                             Catalogo dei 17 esemplari di esempio (sorgente del seed)
 ```
@@ -257,5 +277,11 @@ _seed/                             Catalogo dei 17 esemplari di esempio (sorgent
   capability `manage_options`.
 - Il bottone di seed richiede `manage_options` ed è protetto da nonce
   (`check_admin_referer`).
+- La spunta "Pubblicato" della lista admin passa da admin-ajax e prima
+  di cambiare stato verifica, in quest'ordine: nonce
+  (`check_ajax_referer`), esistenza del post e post type corretto,
+  `current_user_can( 'edit_post', ... )`, la capability di pubblicazione
+  del post type quando si pubblica, e che lo stato di partenza sia
+  "pubblicato" o "bozza".
 - Nessuno schema Product, nessun prezzo, nessun carrello: il plugin non
   introduce funzionalità di e-commerce.

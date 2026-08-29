@@ -1,0 +1,33 @@
+/**
+ * Lista admin degli esemplari: colonna "Pubblicato".
+ */
+
+.dfa-published__toggle {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	cursor: pointer;
+}
+
+.dfa-published__input {
+	margin: 0;
+}
+
+/* Mentre la richiesta è in volo la cella resta leggibile ma smorzata,
+   così si vede che il clic è stato preso in carico. */
+.dfa-published.is-busy {
+	opacity: .5;
+}
+
+/* Colonne strette: senza questo la tabella dà troppo spazio alle
+   colonne di testo brevi e schiaccia il titolo. */
+.column-dfa_catalog_id,
+.column-dfa_fruit_type,
+.column-dfa_published {
+	width: 10%;
+}
+
+.column-dfa_owner_current,
+.column-dfa_owner_former {
+	width: 14%;
+}
