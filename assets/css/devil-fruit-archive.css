@@ -476,6 +476,40 @@ body.dfa-archive-page {
 	background: rgba(216, 219, 222, .18);
 }
 
+/*
+ * Nome + katakana affiancati all'immagine del frutto, quando c'è.
+ * L'immagine sta a DESTRA per non spostare il nome: così CATALOG ID,
+ * nome, TYPE, SPECIAL NOTE e PROPRIETARIO restano tutti allineati sullo
+ * stesso margine sinistro. Per metterla a sinistra basta aggiungere qui
+ * flex-direction: row-reverse.
+ * Senza immagine il blocco resta identico a prima: un flex con un solo
+ * figlio.
+ */
+.dfa-single__panel-heading {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+}
+
+/* min-width: 0 lascia che il nome vada a capo dentro il flex invece di
+   forzare l'allargamento della targa. */
+.dfa-single__panel-heading-text {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.dfa-single__panel-thumb {
+	flex: 0 0 auto;
+	width: 72px;
+	line-height: 0;
+}
+
+.dfa-single__panel-thumb img {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
 .dfa-single__panel-name {
 	font: 700 46px/.98 'Saira Condensed';
 	letter-spacing: .02em;
@@ -558,6 +592,8 @@ body.dfa-archive-page {
 
 @media (min-width: 640px) {
 	.dfa-single__panel-name { font-size: 52px; }
+	/* Cresce col nome, così resta alta quanto il blocco nome + katakana. */
+	.dfa-single__panel-thumb { width: 96px; }
 }
 
 /* --------------------------------------------------------------------

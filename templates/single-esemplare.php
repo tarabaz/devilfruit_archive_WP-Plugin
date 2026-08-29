@@ -32,6 +32,9 @@ while ( have_posts() ) :
 	// Versione "a lampada accesa" dell'esemplare: se presente, la scheda
 	// mostra un bottone che alterna le due immagini in dissolvenza.
 	$lit_image_id           = (int) DFA_Meta::get( $post_id, 'specimen_lit_image' );
+	// Immagine del frutto (la stessa usata nelle card dell'archivio):
+	// se presente, viene mostrata nella targa a sinistra del nome.
+	$fruit_image_id         = (int) DFA_Meta::get( $post_id, 'fruit_image' );
 	// Sfondo: "Foto proprietario attuale" dell'esemplare. Se l'esemplare
 	// non ne ha ancora una, si usa lo sfondo di riserva impostato a
 	// livello di plugin.
@@ -125,10 +128,19 @@ while ( have_posts() ) :
 						<div><span class="label">CATALOG ID:</span> <?php echo esc_html( $catalog_id ); ?></div>
 					</div>
 					<div class="dfa-single__panel-rule"></div>
-					<div class="dfa-single__panel-name dfa-display"><?php echo esc_html( $romaji_name ); ?></div>
-					<?php if ( $katakana_name ) : ?>
-						<div class="dfa-single__panel-kana dfa-jp"><?php echo esc_html( $katakana_name ); ?></div>
-					<?php endif; ?>
+					<div class="dfa-single__panel-heading">
+						<div class="dfa-single__panel-heading-text">
+							<div class="dfa-single__panel-name dfa-display"><?php echo esc_html( $romaji_name ); ?></div>
+							<?php if ( $katakana_name ) : ?>
+								<div class="dfa-single__panel-kana dfa-jp"><?php echo esc_html( $katakana_name ); ?></div>
+							<?php endif; ?>
+						</div>
+						<?php if ( $fruit_image_id ) : ?>
+							<div class="dfa-single__panel-thumb">
+								<?php echo wp_get_attachment_image( $fruit_image_id, 'medium', false, array( 'alt' => '' ) ); ?>
+							</div>
+						<?php endif; ?>
+					</div>
 					<div class="dfa-single__panel-rule"></div>
 					<div class="dfa-single__panel-details">
 						<?php if ( $fruit_type_label ) : ?>
