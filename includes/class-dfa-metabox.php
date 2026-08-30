@@ -121,7 +121,8 @@ class DFA_Metabox {
 		$katakana_name = DFA_Meta::get( $post->ID, 'katakana_name' );
 		$special_note  = DFA_Meta::get( $post->ID, 'special_note' );
 		$fruit_image   = (int) DFA_Meta::get( $post->ID, 'fruit_image' );
-		$lit_image     = (int) DFA_Meta::get( $post->ID, 'specimen_lit_image' );
+		// Chiave meta storica: ora contiene lo scatto a lampada SPENTA.
+		$unlit_image   = (int) DFA_Meta::get( $post->ID, 'specimen_lit_image' );
 
 		if ( '' === $fruit_type ) {
 			$fruit_type = 'PARAMECIA';
@@ -170,10 +171,10 @@ class DFA_Metabox {
 				</td>
 			</tr>
 			<tr>
-				<th><?php esc_html_e( 'Immagine esemplare acceso', 'devil-fruit-archive' ); ?></th>
+				<th><?php esc_html_e( 'Immagine esemplare a lampada spenta', 'devil-fruit-archive' ); ?></th>
 				<td>
-					<?php self::render_image_field( 'specimen_lit_image', $lit_image ); ?>
-					<p class="description"><?php esc_html_e( 'Stessa inquadratura dell\'immagine in evidenza, ma con la lampada del barattolo accesa. Nella scheda singola compare un bottone che alterna le due immagini in dissolvenza. Se questo campo è vuoto, il bottone non viene mostrato.', 'devil-fruit-archive' ); ?></p>
+					<?php self::render_image_field( 'specimen_lit_image', $unlit_image ); ?>
+					<p class="description"><?php esc_html_e( 'Stessa inquadratura dell\'immagine in evidenza, ma con la lampada del barattolo spenta. La scheda parte ACCESA (usa l\'immagine in evidenza) e mostra un bottone "Spegni la lampada" che alterna le due immagini in dissolvenza. Se questo campo è vuoto, il bottone non viene mostrato.', 'devil-fruit-archive' ); ?></p>
 				</td>
 			</tr>
 		</table>

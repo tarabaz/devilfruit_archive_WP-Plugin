@@ -291,10 +291,38 @@ body.dfa-archive-page {
 }
 
 
+/*
+ * Navigazione della scheda: ancorata in alto a sinistra della pagina
+ * (.dfa-single__frame e position: relative). Sotto i 700px torna nel
+ * flusso, sopra al titolo: li il titolo occupa tutta la larghezza e un
+ * bottone sovrapposto in alto a sinistra ci finirebbe addosso.
+ */
+.dfa-single__nav {
+	position: absolute;
+	top: 24px;
+	left: 24px;
+	z-index: 3;
+}
+
+.dfa-single__nav .dfa-topbar {
+	margin-top: 0;
+	justify-content: flex-start;
+}
+
+@media (max-width: 700px) {
+	.dfa-single__nav {
+		position: static;
+		padding: 20px 24px 0;
+	}
+	.dfa-single__nav .dfa-topbar {
+		justify-content: center;
+	}
+}
+
 .dfa-single__header {
 	position: relative !important;
 	z-index: 1 !important;
-	padding: 28px 24px 18px;
+	padding: 24px 24px 12px;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -341,7 +369,7 @@ body.dfa-archive-page {
 	display: flex;
 	justify-content: center;
 	max-width: 1200px;
-	margin: 40px auto 0;
+	margin: 10px auto 0;
 	padding: 0 24px;
 }
 
@@ -358,7 +386,7 @@ body.dfa-archive-page {
 }
 
 @media (min-width: 900px) {
-	.dfa-single__content { margin-top: 60px; }
+	.dfa-single__content { margin-top: 16px; }
 	.dfa-single__cols {
 		flex-direction: row;
 		align-items: stretch;
@@ -372,49 +400,74 @@ body.dfa-archive-page {
 }
 
 /*
- * Esemplare centrato con il bottone lampada centrato SOTTO di esso.
- * Essendo impilati in colonna, la larghezza del bottone non influenza
- * più la posizione dell'immagine: cambiando l'etichetta da "ACCENDI" a
- * "SPEGNI LA LAMPADA" l'immagine resta ferma.
+ * Esemplare centrato, col bottone lampada centrato sotto e leggermente
+ * SOPRA l'immagine (sconfina nella zona del riflesso). Essendo impilati
+ * in colonna, la larghezza del bottone non influenza la posizione
+ * dell'immagine: cambiando l'etichetta da "SPEGNI" a "ACCENDI LA
+ * LAMPADA" l'immagine resta ferma.
  */
 .dfa-single__specimen-wrap {
 	position: relative;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 20px;
 	width: 100%;
 }
 
-/* +40% rispetto alla dimensione precedente (320x420 -> 450x590). */
+/*
+ * Niente altezza fissa: il primo livello resta nel flusso e detta
+ * l'altezza del blocco, che quindi combacia con le proporzioni reali
+ * dello scatto. Con un'altezza fissa (era 590px) restava sopra e sotto
+ * una fascia vuota, e l'immagine non poteva crescere oltre quella
+ * misura pur avendo spazio a disposizione.
+ */
 .dfa-single__specimen {
 	position: relative;
 	width: 100%;
-	max-width: 450px;
-	height: 590px;
+	max-width: 560px;
 	filter: drop-shadow(0 30px 40px rgba(0, 0, 0, .85));
 }
 
-/* Le due versioni (spenta/accesa) sono sovrapposte e si alternano in
-   dissolvenza da 1s al clic sul bottone. */
+@media (min-width: 1100px) {
+	.dfa-single__specimen { max-width: 680px; }
+}
+
+/*
+ * Le due versioni (accesa/spenta) si alternano in dissolvenza da 1s al
+ * clic sul bottone. Sovrapposto è SEMPRE il secondo livello, qualunque
+ * sia: così se manca l'immagine in evidenza il blocco non si affloscia
+ * a zero.
+ */
 .dfa-single__specimen-layer {
-	position: absolute;
-	inset: 0;
 	transition: opacity 1s ease;
 }
-.dfa-single__specimen-layer--on { opacity: 0; }
-.dfa-single__specimen.is-lit .dfa-single__specimen-layer--off { opacity: 0; }
-.dfa-single__specimen.is-lit .dfa-single__specimen-layer--on { opacity: 1; }
+.dfa-single__specimen-layer + .dfa-single__specimen-layer {
+	position: absolute;
+	inset: 0;
+}
+.dfa-single__specimen-layer--unlit { opacity: 0; }
+.dfa-single__specimen.is-unlit .dfa-single__specimen-layer--lit { opacity: 0; }
+.dfa-single__specimen.is-unlit .dfa-single__specimen-layer--unlit { opacity: 1; }
 
 .dfa-single__specimen img {
+	display: block;
 	width: 100%;
+	height: auto;
+	border-radius: 6px;
+}
+
+/* Il livello sovrapposto si adatta al riquadro del primo. */
+.dfa-single__specimen-layer + .dfa-single__specimen-layer img {
 	height: 100%;
 	object-fit: contain;
-	border-radius: 6px;
 }
 
 .dfa-single__lamp-btn {
 	display: inline-block;
+	position: relative;
+	z-index: 2;
+	/* Sconfina sull'immagine, all'altezza del riflesso. */
+	margin-top: -58px;
 	padding: 10px 18px;
 	background: rgba(14, 16, 18, .9);
 	border: 1px solid rgba(216, 219, 222, .5);
