@@ -48,6 +48,9 @@ Brand: **FrancyStore3D**.
      non apre la scheda) e viene spostata **in fondo alla griglia**,
      anche se il suo Catalog ID verrebbe prima: se DF-002 e DF-005 sono
      normali e DF-004 è coming soon, l'ordine è DF-002, DF-005, DF-004.
+     La card è interamente in **bianco e nero** (frutto e icona della
+     tipologia compresi) e al passaggio del mouse non cambia nulla: non
+     si illumina e non si colora, per non far pensare che sia apribile.
    - `Immagine frutto`: immagine "prodotto" mostrata nel riquadro della
      card nella griglia archivio (al posto della featured image; se non
      caricata quel riquadro resta trasparente e mostra lo sfondo dietro,
@@ -203,6 +206,11 @@ mostrati.
 pacchetto può superare la dimensione massima di caricamento del server
 (`upload_max_filesize` / `post_max_size`). In quel caso l'import segnala
 l'errore: chiedi all'hosting di alzare quei limiti.
+
+Al passaggio del mouse su una card **attiva** il velo nero si schiarisce
+del 10% (opacità da .5 a .45), il personaggio passa a colori e il frutto
+si illumina. La card non si solleva: resta ferma, cambiano solo bordo e
+alone.
 
 ## Griglia archivio e shortcode
 
