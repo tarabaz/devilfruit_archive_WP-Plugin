@@ -47,6 +47,14 @@ class DFA_Shortcode {
 			)
 		);
 
+		/*
+		 * Stesso ordine dell'archivio pubblico: i "coming soon" vanno in
+		 * fondo. Si riordina prima di iniziare il loop, quindi
+		 * have_posts() e the_post() vedono già la sequenza giusta.
+		 */
+		$query->posts      = DFA_Meta::sort_for_archive( $query->posts );
+		$query->post_count = count( $query->posts );
+
 		ob_start();
 		?>
 		<div class="dfa-archive dfa-archive--shortcode">

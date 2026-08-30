@@ -840,6 +840,48 @@ body.dfa-archive-page {
 .dfa-archive__card-link:hover,
 .dfa-archive__card-link:focus-visible { color: inherit; }
 
+/*
+ * Card "coming soon": si vede ma non si apre. Il contenitore è un
+ * <div> invece di un <a>, quindi qui si tolgono anche i segnali di
+ * interattività — sollevamento, bordo acceso e ritorno al colore
+ * dell'immagine in hover — altrimenti la card prometterebbe un clic che
+ * non c'è.
+ */
+.dfa-archive__card--coming {
+	cursor: default;
+}
+.dfa-archive__card--coming:hover,
+.dfa-archive__card--coming:focus-within {
+	transform: none;
+	border-color: rgba(216, 219, 222, .16);
+	box-shadow: none;
+}
+.dfa-archive__card--coming:hover .dfa-archive__card-bg-character img,
+.dfa-archive__card--coming:focus-within .dfa-archive__card-bg-character img {
+	filter: grayscale(100%);
+}
+.dfa-archive__card--coming:hover .dfa-archive__card-image img,
+.dfa-archive__card--coming:focus-within .dfa-archive__card-image img {
+	filter: brightness(.5) drop-shadow(0 8px 14px rgba(0, 0, 0, .55));
+}
+
+/* Fascia in alto sulla card, sopra a tutti i livelli dello sfondo. */
+.dfa-archive__card-watermark {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 3;
+	padding: 9px 10px;
+	background: rgba(8, 9, 10, .74);
+	border-bottom: 1px solid rgba(216, 219, 222, .28);
+	font: 700 11px/1 'IBM Plex Mono', ui-monospace, monospace;
+	letter-spacing: .3em;
+	text-align: center;
+	text-indent: .3em; /* compensa lo spazio finale del letter-spacing */
+	color: rgba(232, 235, 238, .92);
+}
+
 .dfa-archive__card-corner {
 	position: absolute;
 	width: 10px;

@@ -123,6 +123,7 @@ class DFA_Metabox {
 		$fruit_image   = (int) DFA_Meta::get( $post->ID, 'fruit_image' );
 		// Chiave meta storica: ora contiene lo scatto a lampada SPENTA.
 		$unlit_image   = (int) DFA_Meta::get( $post->ID, 'specimen_lit_image' );
+		$coming_soon   = DFA_Meta::is_coming_soon( $post->ID );
 
 		if ( '' === $fruit_type ) {
 			$fruit_type = 'PARAMECIA';
@@ -143,6 +144,16 @@ class DFA_Metabox {
 							<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $fruit_type, $value ); ?>><?php echo esc_html( $label ); ?></option>
 						<?php endforeach; ?>
 					</select>
+				</td>
+			</tr>
+			<tr>
+				<th><label for="dfa_coming_soon"><?php esc_html_e( 'Coming soon', 'devil-fruit-archive' ); ?></label></th>
+				<td>
+					<label>
+						<input type="checkbox" id="dfa_coming_soon" name="dfa_coming_soon" value="1" <?php checked( $coming_soon ); ?>>
+						<?php esc_html_e( 'Annunciato ma non ancora consultabile', 'devil-fruit-archive' ); ?>
+					</label>
+					<p class="description"><?php esc_html_e( 'Nella griglia archivio la card mostra la fascia COMING SOON, non è cliccabile e viene spostata in fondo alla griglia, anche se il suo Catalog ID verrebbe prima.', 'devil-fruit-archive' ); ?></p>
 				</td>
 			</tr>
 			<tr>
@@ -299,5 +310,12 @@ class DFA_Metabox {
 			$value      = isset( $_POST[ $field_name ] ) ? absint( $_POST[ $field_name ] ) : 0;
 			update_post_meta( $post_id, DFA_Meta::PREFIX . $key, $value );
 		}
+
+		// Checkbox: assente nel POST significa "non spuntata".
+		update_post_meta(
+			$post_id,
+			DFA_Meta::PREFIX . 'coming_soon',
+			isset( $_POST['dfa_coming_soon'] ) ? '1' : ''
+		);
 	}
 }

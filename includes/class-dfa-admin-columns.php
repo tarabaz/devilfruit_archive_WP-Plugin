@@ -1,8 +1,14 @@
 <?php
 /**
  * Colonne personalizzate nella lista admin degli esemplari:
- * "Catalog ID", "Type", "Proprietario", "Ex proprietario" e
- * "Pubblicato" (spunta che pubblica/spubblica senza aprire il post).
+ * "Catalog ID", "Type", "Proprietario", "Ex proprietario", "Pubblicato"
+ * e "Coming soon".
+ *
+ * Le ultime due sono spunte che cambiano lo stato con un clic, senza
+ * aprire il post: condividono markup, script e endpoint AJAX (il "flag"
+ * nella richiesta dice quale delle due si sta cambiando), e cambia solo
+ * cosa viene scritto — lo stato del post per "Pubblicato", un meta per
+ * "Coming soon".
  *
  * @package DevilFruitArchive
  */
@@ -13,11 +19,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class DFA_Admin_Columns {
 
+	/** Nome dell'azione AJAX (e action del nonce) delle due spunte. */
+	const TOGGLE_ACTION = 'dfa_toggle_flag';
+
+	/** Spunta che pubblica/spubblica l'esemplare. */
+	const FLAG_PUBLISHED = 'published';
+
+	/** Spunta "annunciato ma non ancora consultabile". */
+	const FLAG_COMING_SOON = 'coming_soon';
+
 	/**
-	 * Nome dell'azione AJAX (e dell'action del nonce) usata dalla spunta
-	 * "Pubblicato" nella lista.
+	 * Campo nascosto presente SOLO nel form delle Modifiche rapide: fa
+	 * da marcatore per il salvataggio. Senza, una modifica in blocco
+	 * (che non contiene le nostre spunte ma passa dallo stesso hook)
+	 * azzererebbe il flag su tutti gli esemplari selezionati.
 	 */
-	const TOGGLE_ACTION = 'dfa_toggle_published';
+	const QUICK_EDIT_MARKER = 'dfa_quick_edit';
 
 	/**
 	 * Aggancia i filtri per le colonne della lista admin.
@@ -28,8 +45,9 @@ class DFA_Admin_Columns {
 		add_filter( 'manage_edit-' . DFA_CPT::POST_TYPE . '_sortable_columns', array( __CLASS__, 'sortable_columns' ) );
 		add_action( 'pre_get_posts', array( __CLASS__, 'sort_columns_query' ) );
 		add_action( 'quick_edit_custom_box', array( __CLASS__, 'render_quick_edit_box' ), 10, 2 );
+		add_action( 'save_post_' . DFA_CPT::POST_TYPE, array( __CLASS__, 'save_quick_edit' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_assets' ) );
-		add_action( 'wp_ajax_' . self::TOGGLE_ACTION, array( __CLASS__, 'ajax_toggle_published' ) );
+		add_action( 'wp_ajax_' . self::TOGGLE_ACTION, array( __CLASS__, 'ajax_toggle_flag' ) );
 	}
 
 	/**
@@ -50,6 +68,7 @@ class DFA_Admin_Columns {
 				$new_columns['dfa_owner_current'] = __( 'Proprietario', 'devil-fruit-archive' );
 				$new_columns['dfa_owner_former']  = __( 'Ex proprietario', 'devil-fruit-archive' );
 				$new_columns['dfa_published']     = __( 'Pubblicato', 'devil-fruit-archive' );
+				$new_columns['dfa_coming_soon']   = __( 'Coming soon', 'devil-fruit-archive' );
 			}
 		}
 
@@ -82,97 +101,192 @@ class DFA_Admin_Columns {
 		}
 
 		if ( 'dfa_published' === $column ) {
-			self::render_published_cell( $post_id );
+			self::render_flag_cell( $post_id, self::FLAG_PUBLISHED );
+		}
+
+		if ( 'dfa_coming_soon' === $column ) {
+			self::render_flag_cell( $post_id, self::FLAG_COMING_SOON );
 		}
 	}
 
 	/**
-	 * Cella "Pubblicato": spunta che pubblica/spubblica la scheda con un
-	 * clic, senza aprire il post.
+	 * Cella con la spunta: cambia lo stato con un clic, senza aprire il
+	 * post.
 	 *
-	 * La spunta compare solo per gli stati "pubblicato" e "bozza" e solo
-	 * a chi può modificare quel post: per gli altri stati (in attesa di
-	 * revisione, programmato, cestino...) si stampa l'etichetta dello
-	 * stato, così un clic non può stravolgere una condizione che il
-	 * checkbox non è in grado di rappresentare.
+	 * "Pubblicato" ha una condizione in più: la spunta compare solo per
+	 * gli stati "pubblicato" e "bozza", perché un checkbox non sa
+	 * rappresentare "in attesa di revisione", "programmato" o "cestino"
+	 * e un clic li stravolgerebbe. In quei casi (e per chi non può
+	 * modificare quel post) si stampa solo l'etichetta.
 	 *
-	 * L'attributo data-published è anche il valore che lo script legge
-	 * per pre-compilare la spunta nelle Modifiche rapide.
+	 * L'attributo data-value è anche il valore che lo script legge per
+	 * pre-compilare le Modifiche rapide.
 	 *
-	 * @param int $post_id ID del post in riga.
+	 * @param int    $post_id ID del post in riga.
+	 * @param string $flag    Una delle costanti FLAG_*.
 	 */
-	private static function render_published_cell( $post_id ) {
-		$status       = get_post_status( $post_id );
-		$is_published = ( 'publish' === $status );
-		$toggleable   = in_array( $status, array( 'publish', 'draft' ), true )
-			&& current_user_can( 'edit_post', $post_id );
+	private static function render_flag_cell( $post_id, $flag ) {
+		$is_on      = self::get_flag_value( $post_id, $flag );
+		$can_edit   = current_user_can( 'edit_post', $post_id );
+		$toggleable = $can_edit;
+		$label      = self::flag_label( $flag, $is_on );
+
+		if ( self::FLAG_PUBLISHED === $flag ) {
+			$status = get_post_status( $post_id );
+
+			if ( ! in_array( $status, array( 'publish', 'draft' ), true ) ) {
+				$toggleable    = false;
+				$status_object = get_post_status_object( $status );
+				$label         = $status_object ? $status_object->label : $status;
+			}
+		}
 
 		if ( ! $toggleable ) {
-			$status_object = get_post_status_object( $status );
-			$label         = $status_object ? $status_object->label : $status;
-
 			printf(
-				'<span class="dfa-published" data-published="%d"><span class="dfa-published__label">%s</span></span>',
-				$is_published ? 1 : 0,
+				'<span class="dfa-flag" data-flag="%1$s" data-value="%2$d"><span class="dfa-flag__label">%3$s</span></span>',
+				esc_attr( $flag ),
+				$is_on ? 1 : 0,
 				esc_html( $label )
 			);
 			return;
 		}
 
 		printf(
-			'<span class="dfa-published" data-published="%1$d">
-				<label class="dfa-published__toggle">
-					<input type="checkbox" class="dfa-published__input" data-post-id="%2$d"%3$s>
-					<span class="dfa-published__label">%4$s</span>
+			'<span class="dfa-flag" data-flag="%1$s" data-value="%2$d">
+				<label class="dfa-flag__toggle">
+					<input type="checkbox" class="dfa-flag__input" data-post-id="%3$d" data-flag="%1$s"%4$s>
+					<span class="dfa-flag__label">%5$s</span>
 				</label>
 			</span>',
-			$is_published ? 1 : 0,
+			esc_attr( $flag ),
+			$is_on ? 1 : 0,
 			(int) $post_id,
-			$is_published ? ' checked' : '',
-			esc_html( $is_published ? self::published_label( true ) : self::published_label( false ) )
+			$is_on ? ' checked' : '',
+			esc_html( $label )
 		);
 	}
 
 	/**
-	 * Etichetta accanto alla spunta. Tenuta in un solo posto perché la
-	 * usano sia il PHP (primo caricamento) sia il JS (dopo il toggle).
+	 * Valore corrente di una spunta.
 	 *
-	 * @param bool $is_published Stato da etichettare.
-	 * @return string
+	 * @param int    $post_id ID del post.
+	 * @param string $flag    Una delle costanti FLAG_*.
+	 * @return bool
 	 */
-	private static function published_label( $is_published ) {
-		return $is_published
-			? __( 'Pubblicato', 'devil-fruit-archive' )
-			: __( 'Non pubblicato', 'devil-fruit-archive' );
+	private static function get_flag_value( $post_id, $flag ) {
+		if ( self::FLAG_PUBLISHED === $flag ) {
+			return 'publish' === get_post_status( $post_id );
+		}
+
+		return DFA_Meta::is_coming_soon( $post_id );
 	}
 
 	/**
-	 * Spunta "Pubblicato" dentro le Modifiche rapide.
+	 * Etichetta accanto alla spunta. Tenuta in un solo posto perché la
+	 * usano sia il PHP (primo caricamento) sia il JS (dopo il clic).
 	 *
-	 * WordPress non pre-compila i campi custom delle Modifiche rapide:
-	 * ci pensa admin-list.js leggendo data-published dalla riga. La
-	 * spunta non viene salvata da noi, pilota direttamente il menu
-	 * "Stato" nativo del form (publish/draft), così il salvataggio
-	 * resta quello del core e non c'è il rischio che due controlli
-	 * dello stesso valore si contraddicano.
+	 * @param string $flag  Una delle costanti FLAG_*.
+	 * @param bool   $is_on Stato da etichettare.
+	 * @return string
+	 */
+	private static function flag_label( $flag, $is_on ) {
+		if ( self::FLAG_PUBLISHED === $flag ) {
+			return $is_on
+				? __( 'Pubblicato', 'devil-fruit-archive' )
+				: __( 'Non pubblicato', 'devil-fruit-archive' );
+		}
+
+		return $is_on
+			? __( 'Sì', 'devil-fruit-archive' )
+			: __( 'No', 'devil-fruit-archive' );
+	}
+
+	/**
+	 * Le due spunte dentro le Modifiche rapide.
+	 *
+	 * WordPress non pre-compila i campi custom del quick edit: ci pensa
+	 * admin-list.js leggendo data-value dalla riga.
+	 *
+	 * "Pubblicato" non ha un salvataggio proprio: pilota il menu "Stato"
+	 * nativo del form (publish/draft), così a salvare resta il core e
+	 * due controlli dello stesso valore non possono contraddirsi.
+	 * "Coming soon" invece è un meta nostro e viene salvato da
+	 * save_quick_edit().
 	 *
 	 * @param string $column    Colonna per cui si sta stampando il box.
 	 * @param string $post_type Post type della lista.
 	 */
 	public static function render_quick_edit_box( $column, $post_type ) {
-		if ( 'dfa_published' !== $column || DFA_CPT::POST_TYPE !== $post_type ) {
+		if ( DFA_CPT::POST_TYPE !== $post_type ) {
 			return;
 		}
-		?>
-		<fieldset class="inline-edit-col-right">
-			<div class="inline-edit-col">
-				<label class="alignleft dfa-quick-published">
-					<input type="checkbox" class="dfa-quick-published__input">
-					<span class="checkbox-title"><?php esc_html_e( 'Pubblicato', 'devil-fruit-archive' ); ?></span>
-				</label>
-			</div>
-		</fieldset>
-		<?php
+
+		if ( 'dfa_published' === $column ) {
+			?>
+			<fieldset class="inline-edit-col-right">
+				<div class="inline-edit-col">
+					<label class="alignleft dfa-quick-flag" data-flag="<?php echo esc_attr( self::FLAG_PUBLISHED ); ?>">
+						<input type="checkbox" class="dfa-quick-flag__input">
+						<span class="checkbox-title"><?php esc_html_e( 'Pubblicato', 'devil-fruit-archive' ); ?></span>
+					</label>
+				</div>
+			</fieldset>
+			<?php
+			return;
+		}
+
+		if ( 'dfa_coming_soon' === $column ) {
+			?>
+			<fieldset class="inline-edit-col-right">
+				<div class="inline-edit-col">
+					<input type="hidden" name="<?php echo esc_attr( self::QUICK_EDIT_MARKER ); ?>" value="1">
+					<label class="alignleft dfa-quick-flag" data-flag="<?php echo esc_attr( self::FLAG_COMING_SOON ); ?>">
+						<input type="checkbox" class="dfa-quick-flag__input" name="dfa_coming_soon" value="1">
+						<span class="checkbox-title"><?php esc_html_e( 'Coming soon', 'devil-fruit-archive' ); ?></span>
+					</label>
+				</div>
+			</fieldset>
+			<?php
+		}
+	}
+
+	/**
+	 * Salva la spunta "Coming soon" delle Modifiche rapide.
+	 *
+	 * Il campo nascosto QUICK_EDIT_MARKER garantisce che si stia
+	 * salvando davvero dal form del quick edit: la modifica in blocco
+	 * passa dallo stesso hook con lo stesso nonce ma non contiene le
+	 * nostre spunte, e senza questo controllo azzererebbe il flag su
+	 * tutti gli esemplari selezionati.
+	 *
+	 * @param int $post_id ID del post in salvataggio.
+	 */
+	public static function save_quick_edit( $post_id ) {
+		if ( ! isset( $_POST[ self::QUICK_EDIT_MARKER ] ) ) {
+			return;
+		}
+
+		if ( ! isset( $_POST['_inline_edit'] ) ) {
+			return;
+		}
+
+		if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_inline_edit'] ) ), 'inlineeditnonce' ) ) {
+			return;
+		}
+
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return;
+		}
+
+		if ( ! current_user_can( 'edit_post', $post_id ) ) {
+			return;
+		}
+
+		update_post_meta(
+			$post_id,
+			DFA_Meta::PREFIX . 'coming_soon',
+			isset( $_POST['dfa_coming_soon'] ) ? '1' : ''
+		);
 	}
 
 	/**
@@ -209,29 +323,44 @@ class DFA_Admin_Columns {
 			'dfa-admin-list',
 			'dfaList',
 			array(
-				'ajaxUrl'          => admin_url( 'admin-ajax.php' ),
-				'action'           => self::TOGGLE_ACTION,
-				'nonce'            => wp_create_nonce( self::TOGGLE_ACTION ),
-				'labelPublished'   => self::published_label( true ),
-				'labelUnpublished' => self::published_label( false ),
-				'errorMessage'     => __( 'Non è stato possibile cambiare lo stato di pubblicazione.', 'devil-fruit-archive' ),
+				'ajaxUrl'       => admin_url( 'admin-ajax.php' ),
+				'action'        => self::TOGGLE_ACTION,
+				'nonce'         => wp_create_nonce( self::TOGGLE_ACTION ),
+				'flagPublished' => self::FLAG_PUBLISHED,
+				'labels'        => array(
+					self::FLAG_PUBLISHED   => array(
+						'on'  => self::flag_label( self::FLAG_PUBLISHED, true ),
+						'off' => self::flag_label( self::FLAG_PUBLISHED, false ),
+					),
+					self::FLAG_COMING_SOON => array(
+						'on'  => self::flag_label( self::FLAG_COMING_SOON, true ),
+						'off' => self::flag_label( self::FLAG_COMING_SOON, false ),
+					),
+				),
+				'errorMessage'  => __( 'Non è stato possibile salvare la modifica.', 'devil-fruit-archive' ),
 			)
 		);
 	}
 
 	/**
-	 * Pubblica/spubblica un esemplare dalla spunta nella lista.
+	 * Cambia una delle due spunte dalla lista.
 	 *
-	 * Controlli, nell'ordine: nonce, esistenza e post type corretto,
-	 * permesso di modifica su quel post, permesso di pubblicare (solo
-	 * quando si pubblica) e stato di partenza fra publish e draft.
+	 * Controlli, nell'ordine: nonce, flag riconosciuto, esistenza e post
+	 * type corretto, permesso di modifica su quel post e — solo per
+	 * "Pubblicato" — permesso di pubblicare e stato di partenza fra
+	 * publish e draft.
 	 */
-	public static function ajax_toggle_published() {
+	public static function ajax_toggle_flag() {
 		check_ajax_referer( self::TOGGLE_ACTION, 'nonce' );
 
+		$flag    = isset( $_POST['flag'] ) ? sanitize_key( wp_unslash( $_POST['flag'] ) ) : '';
 		$post_id = isset( $_POST['post_id'] ) ? absint( wp_unslash( $_POST['post_id'] ) ) : 0;
-		$publish = isset( $_POST['publish'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['publish'] ) );
+		$value   = isset( $_POST['value'] ) && '1' === sanitize_text_field( wp_unslash( $_POST['value'] ) );
 		$post    = $post_id ? get_post( $post_id ) : null;
+
+		if ( ! in_array( $flag, array( self::FLAG_PUBLISHED, self::FLAG_COMING_SOON ), true ) ) {
+			wp_send_json_error( array( 'message' => __( 'Campo non riconosciuto.', 'devil-fruit-archive' ) ), 400 );
+		}
 
 		if ( ! $post || DFA_CPT::POST_TYPE !== $post->post_type ) {
 			wp_send_json_error( array( 'message' => __( 'Esemplare non trovato.', 'devil-fruit-archive' ) ), 404 );
@@ -241,8 +370,19 @@ class DFA_Admin_Columns {
 			wp_send_json_error( array( 'message' => __( 'Permessi insufficienti.', 'devil-fruit-archive' ) ), 403 );
 		}
 
+		if ( self::FLAG_COMING_SOON === $flag ) {
+			update_post_meta( $post_id, DFA_Meta::PREFIX . 'coming_soon', $value ? '1' : '' );
+
+			wp_send_json_success(
+				array(
+					'value' => $value,
+					'label' => self::flag_label( $flag, $value ),
+				)
+			);
+		}
+
 		$post_type_object = get_post_type_object( DFA_CPT::POST_TYPE );
-		if ( $publish && ( ! $post_type_object || ! current_user_can( $post_type_object->cap->publish_posts ) ) ) {
+		if ( $value && ( ! $post_type_object || ! current_user_can( $post_type_object->cap->publish_posts ) ) ) {
 			wp_send_json_error( array( 'message' => __( 'Permessi insufficienti per pubblicare.', 'devil-fruit-archive' ) ), 403 );
 		}
 
@@ -253,7 +393,7 @@ class DFA_Admin_Columns {
 		$result = wp_update_post(
 			array(
 				'ID'          => $post_id,
-				'post_status' => $publish ? 'publish' : 'draft',
+				'post_status' => $value ? 'publish' : 'draft',
 			),
 			true
 		);
@@ -264,8 +404,8 @@ class DFA_Admin_Columns {
 
 		wp_send_json_success(
 			array(
-				'published' => $publish,
-				'label'     => self::published_label( $publish ),
+				'value' => $value,
+				'label' => self::flag_label( $flag, $value ),
 			)
 		);
 	}
@@ -273,9 +413,9 @@ class DFA_Admin_Columns {
 	/**
 	 * Rende ordinabili le colonne custom.
 	 *
-	 * Proprietario ed ex proprietario restano non ordinabili di
-	 * proposito: l'ordinamento per meta value fa una JOIN che
-	 * escluderebbe dalla lista gli esemplari senza quel campo.
+	 * Proprietari e spunte restano non ordinabili di proposito:
+	 * l'ordinamento per meta value fa una JOIN che escluderebbe dalla
+	 * lista gli esemplari senza quel campo.
 	 *
 	 * @param array<string,string> $columns Colonne ordinabili esistenti.
 	 * @return array<string,string>
@@ -290,6 +430,9 @@ class DFA_Admin_Columns {
 	 * Ordinamento della lista admin: per Catalog ID crescente (DF-001,
 	 * DF-002, ...) come impostazione predefinita, o per la colonna su
 	 * cui si è cliccato.
+	 *
+	 * A differenza della griglia pubblica, qui i "coming soon" NON
+	 * vanno in fondo: in redazione serve trovarli al loro numero.
 	 *
 	 * L'ordinamento predefinito NON usa meta_key + orderby meta_value:
 	 * quella forma fa una INNER JOIN e farebbe sparire dalla lista gli

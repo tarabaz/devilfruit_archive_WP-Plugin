@@ -42,6 +42,12 @@ Brand: **FrancyStore3D**.
    - `Romaji` (es. `JIKI JIKI NO MI`)
    - `Katakana` (es. `ジキジキの実`)
    - `Special Note`
+   - `Coming soon` (spunta): esemplare annunciato ma non ancora
+     consultabile. Nella griglia archivio la card mostra la fascia
+     COMING SOON in alto, **non è cliccabile** (non è un link, quindi
+     non apre la scheda) e viene spostata **in fondo alla griglia**,
+     anche se il suo Catalog ID verrebbe prima: se DF-002 e DF-005 sono
+     normali e DF-004 è coming soon, l'ordine è DF-002, DF-005, DF-004.
    - `Immagine frutto`: immagine "prodotto" mostrata nel riquadro della
      card nella griglia archivio (al posto della featured image; se non
      caricata quel riquadro resta trasparente e mostra lo sfondo dietro,
@@ -82,9 +88,15 @@ Brand: **FrancyStore3D**.
   spubblica l'esemplare all'istante, senza aprire il post e senza
   ricaricare la pagina. Se qualcosa va storto (permessi, sessione
   scaduta) la spunta torna com'era e compare il motivo.
-- La stessa spunta è disponibile anche nelle **Modifiche rapide**, dove
-  è collegata al menu "Stato" nativo di WordPress: spuntarla equivale a
-  scegliere "Pubblicato", toglierla equivale a "Bozza".
+- La colonna **Coming soon** funziona allo stesso modo e marca
+  l'esemplare come annunciato ma non ancora consultabile (vedi sopra:
+  fascia COMING SOON, card non cliccabile, in fondo alla griglia).
+- Entrambe le spunte sono disponibili anche nelle **Modifiche rapide**.
+  Quella di Pubblicato è collegata al menu "Stato" nativo di WordPress:
+  spuntarla equivale a scegliere "Pubblicato", toglierla equivale a
+  "Bozza".
+- Nella lista admin i "coming soon" **non** vengono spostati in fondo:
+  restano al loro numero, perché in redazione serve trovarli lì.
 - Per gli stati che una spunta non sa rappresentare (in attesa di
   revisione, programmato, cestino) la colonna mostra l'etichetta dello
   stato invece della spunta, così un clic non può stravolgerlo. Lo

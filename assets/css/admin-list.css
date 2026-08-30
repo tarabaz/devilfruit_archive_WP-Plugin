@@ -1,21 +1,22 @@
 /**
- * Lista admin degli esemplari: colonna "Pubblicato".
+ * Lista admin degli esemplari: colonne con spunta ("Pubblicato" e
+ * "Coming soon", stesso markup .dfa-flag).
  */
 
-.dfa-published__toggle {
+.dfa-flag__toggle {
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;
 	cursor: pointer;
 }
 
-.dfa-published__input {
+.dfa-flag__input {
 	margin: 0;
 }
 
 /* Mentre la richiesta è in volo la cella resta leggibile ma smorzata,
    così si vede che il clic è stato preso in carico. */
-.dfa-published.is-busy {
+.dfa-flag.is-busy {
 	opacity: .5;
 }
 
@@ -23,8 +24,9 @@
    colonne di testo brevi e schiaccia il titolo. */
 .column-dfa_catalog_id,
 .column-dfa_fruit_type,
-.column-dfa_published {
-	width: 10%;
+.column-dfa_published,
+.column-dfa_coming_soon {
+	width: 9%;
 }
 
 .column-dfa_owner_current,

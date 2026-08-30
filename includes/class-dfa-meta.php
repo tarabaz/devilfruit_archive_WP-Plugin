@@ -86,6 +86,25 @@ class DFA_Meta {
 			)
 		);
 
+		/*
+		 * Flag "coming soon": salvato come '1' oppure stringa vuota
+		 * (invece che come boolean) per restare omogeneo agli altri meta
+		 * di testo, che export/import e meta box trattano tutti allo
+		 * stesso modo.
+		 */
+		register_post_meta(
+			DFA_CPT::POST_TYPE,
+			self::PREFIX . 'coming_soon',
+			array(
+				'type'              => 'string',
+				'single'            => true,
+				'default'           => '',
+				'sanitize_callback' => array( __CLASS__, 'sanitize_coming_soon' ),
+				'show_in_rest'      => true,
+				'auth_callback'     => array( __CLASS__, 'auth_callback' ),
+			)
+		);
+
 		foreach ( array( 'owner_current_image', 'fruit_image', 'specimen_lit_image' ) as $key ) {
 			register_post_meta(
 				DFA_CPT::POST_TYPE,
@@ -111,6 +130,71 @@ class DFA_Meta {
 	public static function sanitize_fruit_type( $value ) {
 		$valid = array_keys( self::get_fruit_types() );
 		return in_array( $value, $valid, true ) ? $value : 'PARAMECIA';
+	}
+
+	/**
+	 * Sanitize per il flag "coming soon": normalizza qualunque valore
+	 * "vero" (1, '1', true, 'on') a '1' e tutto il resto a stringa vuota.
+	 *
+	 * @param mixed $value Valore grezzo.
+	 * @return string '1' oppure ''.
+	 */
+	public static function sanitize_coming_soon( $value ) {
+		return $value && '0' !== $value ? '1' : '';
+	}
+
+	/**
+	 * Un esemplare "coming soon" compare nell'archivio con la fascia
+	 * COMING SOON, non è cliccabile e finisce in fondo alla griglia.
+	 *
+	 * @param int $post_id ID dell'esemplare.
+	 * @return bool
+	 */
+	public static function is_coming_soon( $post_id ) {
+		return '1' === (string) self::get( $post_id, 'coming_soon' );
+	}
+
+	/**
+	 * Ordina gli esemplari come vanno mostrati nell'archivio: prima i
+	 * normali per Catalog ID crescente, poi i "coming soon" (sempre in
+	 * fondo, anche se hanno un Catalog ID più basso), a loro volta per
+	 * Catalog ID.
+	 *
+	 * L'ordinamento è in PHP e non in SQL: ordinare per due meta diversi
+	 * richiederebbe clausole annidate con LEFT JOIN, fragili e capaci di
+	 * far sparire dalla griglia gli esemplari a cui manca uno dei due
+	 * campi. L'archivio è a pagina unica e di poche decine di schede,
+	 * quindi il costo è irrilevante.
+	 *
+	 * @param WP_Post[] $posts Post da ordinare.
+	 * @return WP_Post[]
+	 */
+	public static function sort_for_archive( $posts ) {
+		if ( count( $posts ) < 2 ) {
+			return $posts;
+		}
+
+		// I meta letti qui sotto arrivano tutti da una sola query.
+		update_postmeta_cache( wp_list_pluck( $posts, 'ID' ) );
+
+		usort(
+			$posts,
+			static function ( $a, $b ) {
+				$a_soon = self::is_coming_soon( $a->ID ) ? 1 : 0;
+				$b_soon = self::is_coming_soon( $b->ID ) ? 1 : 0;
+
+				if ( $a_soon !== $b_soon ) {
+					return $a_soon - $b_soon;
+				}
+
+				return strcmp(
+					(string) self::get( $a->ID, 'catalog_id' ),
+					(string) self::get( $b->ID, 'catalog_id' )
+				);
+			}
+		);
+
+		return $posts;
 	}
 
 	/**
