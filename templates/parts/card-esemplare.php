@@ -35,9 +35,25 @@ if ( 'LOGIA' === $dfa_fruit_type ) {
 // caricata il riquadro resta trasparente e mostra lo sfondo dietro.
 $dfa_card_bg_image = (int) DFA_Meta::get( $dfa_post_id, 'owner_current_image' );
 $dfa_fruit_image   = (int) DFA_Meta::get( $dfa_post_id, 'fruit_image' );
+
+// Esemplare annunciato ma non ancora consultabile: la card si vede ma
+// non è un link, quindi non apre la scheda.
+$dfa_coming_soon = DFA_Meta::is_coming_soon( $dfa_post_id );
 ?>
-<article class="dfa-archive__card">
+<article class="dfa-archive__card<?php echo $dfa_coming_soon ? ' dfa-archive__card--coming' : ''; ?>">
+	<?php
+	/*
+	 * Stesso contenuto in entrambi i casi: cambia solo il contenitore,
+	 * <a> per gli esemplari consultabili e <div> per i coming soon. Il
+	 * tag di chiusura corrispondente è in fondo al file.
+	 */
+	?>
+	<?php if ( $dfa_coming_soon ) : ?>
+	<div class="dfa-archive__card-link">
+		<div class="dfa-archive__card-watermark">COMING SOON</div>
+	<?php else : ?>
 	<a class="dfa-archive__card-link" href="<?php the_permalink(); ?>" aria-label="<?php echo esc_attr( $dfa_romaji_name ? $dfa_romaji_name : get_the_title() ); ?>">
+	<?php endif; ?>
 		<?php if ( $dfa_card_bg_image ) : ?>
 			<div class="dfa-archive__card-bg">
 				<div class="dfa-archive__card-bg-character"><?php echo wp_get_attachment_image( $dfa_card_bg_image, 'medium_large' ); ?></div>
@@ -67,5 +83,9 @@ $dfa_fruit_image   = (int) DFA_Meta::get( $dfa_post_id, 'fruit_image' );
 				<span><?php echo esc_html( $dfa_type_label ); ?></span>
 			</div>
 		<?php endif; ?>
+	<?php if ( $dfa_coming_soon ) : ?>
+	</div>
+	<?php else : ?>
 	</a>
+	<?php endif; ?>
 </article>

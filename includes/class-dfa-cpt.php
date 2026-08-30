@@ -29,6 +29,7 @@ class DFA_CPT {
 		add_action( 'init', array( __CLASS__, 'register_post_type' ) );
 		add_action( 'after_setup_theme', array( __CLASS__, 'ensure_thumbnail_support' ) );
 		add_action( 'pre_get_posts', array( __CLASS__, 'order_archive_query' ) );
+		add_filter( 'the_posts', array( __CLASS__, 'push_coming_soon_last' ), 10, 2 );
 	}
 
 	/**
@@ -51,6 +52,28 @@ class DFA_CPT {
 		$query->set( 'meta_key', DFA_Meta::PREFIX . 'catalog_id' ); // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_key
 		$query->set( 'orderby', 'meta_value' );
 		$query->set( 'order', 'ASC' );
+	}
+
+	/**
+	 * Manda in fondo alla griglia gli esemplari "coming soon", anche
+	 * quando il loro Catalog ID verrebbe prima (es. DF-004 coming soon
+	 * finisce dopo DF-005). L'ordinamento vero e proprio sta in
+	 * DFA_Meta::sort_for_archive().
+	 *
+	 * @param WP_Post[] $posts Post trovati dalla query.
+	 * @param WP_Query  $query Query in corso.
+	 * @return WP_Post[]
+	 */
+	public static function push_coming_soon_last( $posts, $query ) {
+		if ( is_admin() || ! $query instanceof WP_Query || ! $query->is_main_query() ) {
+			return $posts;
+		}
+
+		if ( ! $query->is_post_type_archive( self::POST_TYPE ) ) {
+			return $posts;
+		}
+
+		return DFA_Meta::sort_for_archive( $posts );
 	}
 
 	/**

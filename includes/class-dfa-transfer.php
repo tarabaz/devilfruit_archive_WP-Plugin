@@ -42,7 +42,7 @@ class DFA_Transfer {
 	 * @return string[]
 	 */
 	private static function text_fields() {
-		return array( 'catalog_id', 'fruit_type', 'romaji_name', 'katakana_name', 'special_note', 'owner_current', 'owner_former', 'lore' );
+		return array( 'catalog_id', 'fruit_type', 'romaji_name', 'katakana_name', 'special_note', 'owner_current', 'owner_former', 'lore', 'coming_soon' );
 	}
 
 	/**
@@ -369,6 +369,10 @@ class DFA_Transfer {
 
 				if ( 'fruit_type' === $key ) {
 					$value = DFA_Meta::sanitize_fruit_type( $value );
+				}
+
+				if ( 'coming_soon' === $key ) {
+					$value = DFA_Meta::sanitize_coming_soon( $value );
 				}
 
 				update_post_meta( $post_id, DFA_Meta::PREFIX . $key, $value );
