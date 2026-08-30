@@ -33,8 +33,9 @@ Brand: **FrancyStore3D**.
 2. Inserisci un **Titolo** (uso interno/admin; il nome mostrato in scheda
    è il campo "Romaji").
 3. Imposta l'**immagine in evidenza** (featured image): è la foto
-   dell'esemplare nel barattolo, mostrata in primo piano al centro
-   della scheda singola. Non compare nella griglia archivio.
+   dell'esemplare nel barattolo **con la lampada accesa**, mostrata in
+   primo piano al centro della scheda singola. È lo stato iniziale della
+   scheda. Non compare nella griglia archivio.
 4. Compila il meta box **"Dati dell'esemplare (targa)"**:
    - `Catalog ID` (es. `DF-007`)
    - `Type` (LOGIA / PARAMECIA / ZOAN / ZOAN (MYTHICAL))
@@ -46,12 +47,15 @@ Brand: **FrancyStore3D**.
      caricata quel riquadro resta trasparente e mostra lo sfondo dietro,
      invece di un blocco nero) e, nella scheda singola, nella targa a
      destra del nome. Se non caricata, la targa resta come prima.
-   - `Immagine esemplare acceso` (opzionale): stessa inquadratura
-     dell'immagine in evidenza ma con la lampada del barattolo accesa.
-     Se valorizzata, nella scheda singola compare accanto all'esemplare
-     un bottone `ACCENDI LA LAMPADA` / `SPEGNI LA LAMPADA` che alterna
-     le due immagini con una dissolvenza di 1 secondo. Se il campo è
-     vuoto il bottone non viene mostrato.
+   - `Immagine esemplare a lampada spenta` (opzionale): stessa
+     inquadratura dell'immagine in evidenza ma con la lampada del
+     barattolo spenta. Se valorizzata, nella scheda singola compare
+     sotto l'esemplare un bottone `SPEGNI LA LAMPADA` / `ACCENDI LA
+     LAMPADA` che alterna le due immagini con una dissolvenza di 1
+     secondo. Se il campo è vuoto il bottone non viene mostrato.
+     La scheda **parte con la lampada accesa**, quindi il bottone parte
+     da "Spegni". La chiave meta si chiama ancora `dfa_specimen_lit_image`
+     per non invalidare contenuti e pacchetti di export già esistenti.
 5. Compila il meta box **"Proprietari"**:
    - `Proprietario attuale` (testo) + relativa foto (bottone "Seleziona
      immagine", media uploader nativo di WordPress). Questa foto è usata

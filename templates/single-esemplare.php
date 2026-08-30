@@ -29,9 +29,14 @@ while ( have_posts() ) :
 	$owner_current         = DFA_Meta::get( $post_id, 'owner_current' );
 	$owner_former          = DFA_Meta::get( $post_id, 'owner_former' );
 	$lore                  = DFA_Meta::get( $post_id, 'lore' );
-	// Versione "a lampada accesa" dell'esemplare: se presente, la scheda
-	// mostra un bottone che alterna le due immagini in dissolvenza.
-	$lit_image_id           = (int) DFA_Meta::get( $post_id, 'specimen_lit_image' );
+	/*
+	 * Secondo scatto dell'esemplare, a lampada SPENTA: l'immagine in
+	 * evidenza e quella accesa e la scheda parte accesa, quindi il
+	 * bottone parte da "SPEGNI LA LAMPADA". La chiave meta si chiama
+	 * ancora specimen_lit_image per non invalidare i contenuti e i
+	 * pacchetti di export gia esistenti.
+	 */
+	$unlit_image_id         = (int) DFA_Meta::get( $post_id, 'specimen_lit_image' );
 	// Immagine del frutto (la stessa usata nelle card dell'archivio):
 	// se presente, viene mostrata nella targa a sinistra del nome.
 	$fruit_image_id         = (int) DFA_Meta::get( $post_id, 'fruit_image' );
@@ -83,33 +88,45 @@ while ( have_posts() ) :
 		<div class="dfa-single__vignette"></div>
 		<div class="dfa-single__scanlines" aria-hidden="true"></div>
 
+		<?php
+		/*
+		 * Fuori dall'header: sui monitor il CSS lo ancora in alto a
+		 * sinistra della pagina, su mobile resta nel flusso sopra al
+		 * titolo (in alto a sinistra si sovrapporrebbe al titolo, che
+		 * li occupa tutta la larghezza).
+		 */
+		?>
+		<div class="dfa-single__nav">
+			<?php require DFA_PLUGIN_DIR . 'templates/parts/topbar.php'; ?>
+		</div>
+
 		<header class="dfa-single__header">
 			<?php // Stesso titolo dell'archivio; sotto, il Catalog ID a metà dimensione (font-size: 50% nel CSS). ?>
 			<div class="dfa-single__header-title dfa-display">VEGAPUNK RESEARCH DIVISION<?php
 				echo $catalog_id ? '<span class="dfa-single__header-id">' . esc_html( $catalog_id ) . '</span>' : '';
 			?></div>
 			<div class="dfa-single__header-rule"></div>
-			<?php require DFA_PLUGIN_DIR . 'templates/parts/topbar.php'; ?>
 		</header>
 
 		<div class="dfa-single__content">
 
 			<div class="dfa-single__specimen-wrap">
 				<div class="dfa-single__specimen">
+					<?php // Immagine in evidenza = lampada accesa: e lo stato iniziale. ?>
 					<?php if ( has_post_thumbnail() ) : ?>
-						<div class="dfa-single__specimen-layer dfa-single__specimen-layer--off"><?php the_post_thumbnail( 'large' ); ?></div>
+						<div class="dfa-single__specimen-layer dfa-single__specimen-layer--lit"><?php the_post_thumbnail( 'large' ); ?></div>
 					<?php endif; ?>
-					<?php if ( $lit_image_id ) : ?>
-						<div class="dfa-single__specimen-layer dfa-single__specimen-layer--on"><?php echo wp_get_attachment_image( $lit_image_id, 'large' ); ?></div>
+					<?php if ( $unlit_image_id ) : ?>
+						<div class="dfa-single__specimen-layer dfa-single__specimen-layer--unlit"><?php echo wp_get_attachment_image( $unlit_image_id, 'large' ); ?></div>
 					<?php endif; ?>
 				</div>
 
-				<?php if ( $lit_image_id ) : ?>
+				<?php if ( $unlit_image_id ) : ?>
 					<button type="button"
 						class="dfa-single__lamp-btn"
 						data-label-on="ACCENDI LA LAMPADA"
 						data-label-off="SPEGNI LA LAMPADA"
-						aria-pressed="false">ACCENDI LA LAMPADA</button>
+						aria-pressed="true">SPEGNI LA LAMPADA</button>
 				<?php endif; ?>
 			</div>
 
