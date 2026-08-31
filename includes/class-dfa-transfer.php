@@ -50,6 +50,18 @@ class DFA_Transfer {
 	const STEP_ACTION = 'dfa_import_step';
 
 	/**
+	 * Meta con cui si marchia ogni allegato creato dall'importazione:
+	 * contiene l'impronta (md5) del file. Serve a NON ricaricare due
+	 * volte lo stesso file: senza, ogni importazione creava una copia
+	 * nuova di ogni immagine e la Libreria media si riempiva di doppioni,
+	 * con i vecchi che restavano lì non più collegati a nulla.
+	 *
+	 * La chiave inizia con "_" così non compare fra i campi
+	 * personalizzati nell'editor.
+	 */
+	const HASH_META = '_dfa_import_hash';
+
+	/**
 	 * Budget di tempo di un lotto. Il controllo avviene FRA un esemplare
 	 * e il successivo, mai a metà: un lotto può quindi sforare del costo
 	 * dell'ultimo esemplare iniziato (con quattro foto pesanti, una
@@ -703,6 +715,21 @@ class DFA_Transfer {
 			return 0;
 		}
 
+		/*
+		 * Se questo identico file è già in Libreria — perché importato
+		 * da un pacchetto precedente — si riusa quell'allegato invece di
+		 * crearne un altro. Il confronto è sul contenuto (md5) e non sul
+		 * nome: WordPress rinomina i file in conflitto (foto-1.jpg,
+		 * foto-2.jpg) e sul nome non si riconoscerebbero più.
+		 */
+		$hash     = md5( $contents );
+		$existing = self::find_attachment_by_hash( $hash );
+
+		if ( $existing ) {
+			$job['img_map'][ $ref ] = $existing;
+			return $existing;
+		}
+
 		$upload = wp_upload_bits( $safe, null, $contents );
 
 		if ( ! empty( $upload['error'] ) || empty( $upload['file'] ) ) {
@@ -726,11 +753,47 @@ class DFA_Transfer {
 		}
 
 		wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $upload['file'] ) );
+		update_post_meta( $attachment_id, self::HASH_META, $hash );
 
 		$job['img_map'][ $ref ] = $attachment_id;
 		++$job['images'];
 
 		return $attachment_id;
+	}
+
+	/**
+	 * Cerca in Libreria un allegato già importato con la stessa
+	 * impronta. Se il file non c'è più sul disco l'allegato viene
+	 * ignorato, altrimenti si ricollegherebbero immagini fantasma.
+	 *
+	 * @param string $hash Impronta md5 del file.
+	 * @return int ID allegato, 0 se non trovato.
+	 */
+	private static function find_attachment_by_hash( $hash ) {
+		$query = new WP_Query(
+			array(
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'posts_per_page' => 1,
+				'fields'         => 'ids',
+				'no_found_rows'  => true,
+				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
+					array(
+						'key'   => self::HASH_META,
+						'value' => $hash,
+					),
+				),
+			)
+		);
+
+		if ( ! $query->have_posts() ) {
+			return 0;
+		}
+
+		$attachment_id = (int) $query->posts[0];
+		$file          = get_attached_file( $attachment_id );
+
+		return ( $file && file_exists( $file ) ) ? $attachment_id : 0;
 	}
 
 	/**
