@@ -185,6 +185,25 @@ chiama `devil-fruit-archive-AAAA-MM-GG-HHMMSS.zip`.
 
 **Importare**: seleziona un pacchetto e clicca "Importa dal pacchetto".
 
+L'importazione avviene **a lotti, con una barra di avanzamento**: il
+caricamento del file e l'estrazione avvengono subito, poi la pagina
+esegue il lavoro qualche secondo per volta finché non arriva al 100%.
+Serve perché la parte lenta non sono i post (millisecondi l'uno) ma le
+immagini: ognuna viene ricaricata nella Libreria media e rigenerata in
+tutti i formati del sito, un'operazione da uno o più secondi a immagine.
+Su un pacchetto di qualche decina di MB, farlo in un'unica richiesta
+supera qualunque `max_execution_time` e l'importazione fallisce a metà.
+
+- **Lascia la pagina aperta** finché la barra non arriva in fondo: è il
+  browser a chiedere un lotto dopo l'altro.
+- Se chiudi a metà, la volta successiva l'importazione riparte da capo:
+  la cartella di lavoro rimasta viene ripulita all'avvio della nuova.
+  Non si creano duplicati, perché l'import è idempotente sul Catalog ID.
+- Il limite di dimensione del file è quello del server (`upload_max_filesize`
+  e `post_max_size` di PHP): la pagina delle impostazioni lo mostra sotto
+  il campo di caricamento. Se il pacchetto è più grande, l'unica strada è
+  alzare quei valori lato hosting.
+
 - L'import è **idempotente sul Catalog ID**: un esemplare già presente
   viene aggiornato, non duplicato. Puoi quindi reimportare lo stesso
   pacchetto più volte in sicurezza.
@@ -282,6 +301,7 @@ assets/
   js/devil-fruit-archive.js        JS minimo di frontend
   js/admin-metabox.js              Media uploader per le immagini owner nei meta box
   js/admin-list.js                 Spunta "Pubblicato" (AJAX) e spunta nelle Modifiche rapide
+  js/admin-import.js               Importazione a lotti con barra di avanzamento
 _design/                           Mockup approvati (HTML/CSS) usati come base dei template
 _seed/                             Catalogo dei 17 esemplari di esempio (sorgente del seed)
 ```

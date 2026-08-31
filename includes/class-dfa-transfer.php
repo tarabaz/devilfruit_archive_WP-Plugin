@@ -37,6 +37,29 @@ class DFA_Transfer {
 	const IMAGES_DIR = 'images/';
 
 	/**
+	 * Opzione che tiene lo stato dell'importazione in corso: cartella di
+	 * lavoro, punto a cui si è arrivati, conteggi e mappa delle immagini
+	 * già caricate. Serve perché l'import non avviene più in una sola
+	 * richiesta ma a lotti, e ogni lotto è una richiesta HTTP diversa.
+	 * Ne esiste una sola alla volta: un nuovo import ripulisce quello
+	 * eventualmente rimasto a metà.
+	 */
+	const JOB_OPTION = 'dfa_import_job';
+
+	/** Azione AJAX che esegue un lotto dell'importazione. */
+	const STEP_ACTION = 'dfa_import_step';
+
+	/**
+	 * Budget di tempo di un lotto. Il controllo avviene FRA un esemplare
+	 * e il successivo, mai a metà: un lotto può quindi sforare del costo
+	 * dell'ultimo esemplare iniziato (con quattro foto pesanti, una
+	 * decina di secondi). Con 8 secondi di budget il caso peggiore resta
+	 * ampiamente sotto il max_execution_time tipico di 30s e sotto i
+	 * timeout dei proxy.
+	 */
+	const BATCH_SECONDS = 8;
+
+	/**
 	 * Campi di testo esportati per ogni esemplare.
 	 *
 	 * @return string[]
@@ -61,6 +84,7 @@ class DFA_Transfer {
 	public static function init() {
 		add_action( 'admin_post_' . self::EXPORT_ACTION, array( __CLASS__, 'handle_export' ) );
 		add_action( 'admin_post_' . self::IMPORT_ACTION, array( __CLASS__, 'handle_import' ) );
+		add_action( 'wp_ajax_' . self::STEP_ACTION, array( __CLASS__, 'ajax_import_step' ) );
 		add_action( 'admin_notices', array( __CLASS__, 'maybe_render_notice' ) );
 	}
 
@@ -244,6 +268,16 @@ class DFA_Transfer {
 			self::redirect_with( 'error', 'upload' );
 		}
 
+		/*
+		 * Un'importazione precedente interrotta a metà (finestra chiusa,
+		 * errore di rete) lascerebbe cartella di lavoro e stato sul
+		 * disco: si ripuliscono qui, prima di cominciarne una nuova.
+		 */
+		$previous = self::get_job();
+		if ( ! empty( $previous ) ) {
+			self::finish_job( $previous );
+		}
+
 		// Cartella di lavoro dentro uploads, rimossa a fine operazione.
 		$uploads  = wp_upload_dir();
 		$work_dir = trailingslashit( $uploads['basedir'] ) . 'dfa-import-' . wp_generate_password( 8, false );
@@ -316,121 +350,321 @@ class DFA_Transfer {
 			self::redirect_with( 'error', 'bad_data' );
 		}
 
-		require_once ABSPATH . 'wp-admin/includes/image.php';
-
-		$created  = 0;
-		$updated  = 0;
-		$images   = 0;
-		$img_map  = array(); // nome nel pacchetto => ID allegato creato.
-
+		/*
+		 * Da qui in poi NON si importa nulla: si prepara soltanto il
+		 * "lavoro" e si torna subito alla pagina, che poi lo esegue a
+		 * lotti via AJAX mostrando la barra di avanzamento.
+		 *
+		 * Prima l'importazione stava tutta in questa richiesta, ed è il
+		 * motivo per cui su pacchetti grossi finiva in timeout: la parte
+		 * lenta non è creare i post (millisecondi) ma le immagini, che
+		 * per ognuna vengono ricaricate e soprattutto rigenerate in
+		 * tutti i formati del sito — un'operazione da uno o più secondi
+		 * a immagine, che con qualche centinaio di foto supera qualunque
+		 * max_execution_time.
+		 */
+		$units = count( $data['esemplari'] );
 		foreach ( $data['esemplari'] as $entry ) {
-			if ( ! is_array( $entry ) ) {
-				continue;
-			}
-
-			$meta       = isset( $entry['meta'] ) && is_array( $entry['meta'] ) ? $entry['meta'] : array();
-			$catalog_id = isset( $meta['catalog_id'] ) ? sanitize_text_field( $meta['catalog_id'] ) : '';
-			$title      = isset( $entry['title'] ) ? sanitize_text_field( $entry['title'] ) : $catalog_id;
-			$status     = isset( $entry['status'] ) && in_array( $entry['status'], array( 'publish', 'draft', 'pending', 'private' ), true )
-				? $entry['status']
-				: 'publish';
-
-			$existing_id = $catalog_id ? self::find_by_catalog_id( $catalog_id ) : 0;
-
-			if ( $existing_id ) {
-				wp_update_post(
-					array(
-						'ID'         => $existing_id,
-						'post_title' => $title,
-					)
-				);
-				$post_id = $existing_id;
-				++$updated;
-			} else {
-				$post_id = wp_insert_post(
-					array(
-						'post_type'   => DFA_CPT::POST_TYPE,
-						'post_title'  => $title,
-						'post_status' => $status,
-					),
-					true
-				);
-
-				if ( is_wp_error( $post_id ) || ! $post_id ) {
-					continue;
-				}
-				++$created;
-			}
-
-			// Campi di testo.
-			foreach ( self::text_fields() as $key ) {
-				$value = isset( $meta[ $key ] ) ? (string) $meta[ $key ] : '';
-				$value = ( 'lore' === $key ) ? sanitize_textarea_field( $value ) : sanitize_text_field( $value );
-
-				if ( 'fruit_type' === $key ) {
-					$value = DFA_Meta::sanitize_fruit_type( $value );
-				}
-
-				if ( 'coming_soon' === $key ) {
-					$value = DFA_Meta::sanitize_coming_soon( $value );
-				}
-
-				update_post_meta( $post_id, DFA_Meta::PREFIX . $key, $value );
-			}
-
-			// Immagini.
-			$entry_images = isset( $entry['images'] ) && is_array( $entry['images'] ) ? $entry['images'] : array();
-
-			$featured_ref = isset( $entry_images['featured'] ) ? $entry_images['featured'] : '';
-			$featured_id  = self::import_image( $featured_ref, $work_dir, $img_map, $images );
-			if ( $featured_id ) {
-				set_post_thumbnail( $post_id, $featured_id );
-			}
-
-			foreach ( self::image_fields() as $key ) {
-				$ref = isset( $entry_images[ $key ] ) ? $entry_images[ $key ] : '';
-				$id  = self::import_image( $ref, $work_dir, $img_map, $images );
-				update_post_meta( $post_id, DFA_Meta::PREFIX . $key, $id );
+			if ( is_array( $entry ) && ! empty( $entry['images'] ) && is_array( $entry['images'] ) ) {
+				$units += count( array_filter( $entry['images'] ) );
 			}
 		}
 
-		// --- Impostazioni ---
-		if ( isset( $data['settings'] ) && is_array( $data['settings'] ) ) {
-			$incoming = $data['settings'];
-			$settings = get_option( DFA_Settings::OPTION_NAME, array() );
-
-			if ( isset( $incoming['cta_url'] ) ) {
-				$settings['cta_url'] = esc_url_raw( $incoming['cta_url'] );
-			}
-
-			foreach ( array( 'archive_background_image', 'single_background_image' ) as $key ) {
-				if ( ! empty( $incoming[ $key ] ) ) {
-					$id = self::import_image( $incoming[ $key ], $work_dir, $img_map, $images );
-					if ( $id ) {
-						$settings[ $key ] = $id;
-					}
-				}
-			}
-
-			update_option( DFA_Settings::OPTION_NAME, $settings );
-		}
-
-		self::cleanup_dir( $work_dir );
-
-		$redirect = add_query_arg(
+		self::save_job(
 			array(
-				'post_type'       => DFA_CPT::POST_TYPE,
-				'page'            => DFA_Settings::PAGE_SLUG,
-				'dfa_import_done' => 1,
-				'created'         => $created,
-				'updated'         => $updated,
-				'images'          => $images,
-			),
-			admin_url( 'edit.php' )
+				'work_dir'    => $work_dir,
+				'phase'       => 'esemplari',
+				'cursor'      => 0,
+				'total'       => count( $data['esemplari'] ),
+				'units_done'  => 0,
+				'units_total' => max( 1, $units ),
+				'created'     => 0,
+				'updated'     => 0,
+				'images'      => 0,
+				'img_map'     => array(),
+				'started_at'  => time(),
+			)
 		);
 
-		wp_safe_redirect( $redirect );
+		wp_safe_redirect(
+			add_query_arg(
+				array(
+					'post_type'      => DFA_CPT::POST_TYPE,
+					'page'           => DFA_Settings::PAGE_SLUG,
+					'dfa_import_job' => 1,
+				),
+				admin_url( 'edit.php' )
+			)
+		);
 		exit;
+	}
+
+	/* ------------------------------------------------------------------
+	 * IMPORTAZIONE A LOTTI
+	 * ------------------------------------------------------------------ */
+
+	/**
+	 * Stato dell'importazione in corso, o array vuoto se non ce n'è una.
+	 *
+	 * @return array
+	 */
+	public static function get_job() {
+		$job = get_option( self::JOB_OPTION, array() );
+		return is_array( $job ) ? $job : array();
+	}
+
+	/**
+	 * Salva lo stato dell'importazione. autoload "no": è un dato di
+	 * lavoro, non deve pesare su ogni caricamento di pagina.
+	 *
+	 * @param array $job Stato da salvare.
+	 */
+	private static function save_job( array $job ) {
+		update_option( self::JOB_OPTION, $job, false );
+	}
+
+	/**
+	 * Chiude l'importazione: cancella la cartella di lavoro e lo stato.
+	 *
+	 * @param array $job Stato dell'importazione.
+	 */
+	private static function finish_job( array $job ) {
+		if ( ! empty( $job['work_dir'] ) ) {
+			self::cleanup_dir( $job['work_dir'] );
+		}
+
+		delete_option( self::JOB_OPTION );
+	}
+
+	/**
+	 * Esegue un lotto dell'importazione e risponde con l'avanzamento.
+	 *
+	 * Il lotto lavora "a tempo" e non a numero fisso di elementi: gli
+	 * esemplari non costano tutti uguale (uno con quattro foto in alta
+	 * risoluzione può valere dieci volte uno senza immagini), quindi si
+	 * va avanti finché restano secondi nel budget e ci si ferma al primo
+	 * elemento completato dopo la scadenza.
+	 */
+	public static function ajax_import_step() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Permessi insufficienti.', 'devil-fruit-archive' ) ), 403 );
+		}
+
+		check_ajax_referer( self::STEP_ACTION, 'nonce' );
+
+		$job = self::get_job();
+
+		if ( empty( $job ) || empty( $job['work_dir'] ) ) {
+			wp_send_json_error( array( 'message' => __( 'Nessuna importazione in corso.', 'devil-fruit-archive' ) ), 404 );
+		}
+
+		$json_path = $job['work_dir'] . '/' . self::DATA_FILE;
+		if ( ! file_exists( $json_path ) ) {
+			self::finish_job( $job );
+			wp_send_json_error( array( 'message' => __( 'I file dell\'importazione non sono più disponibili.', 'devil-fruit-archive' ) ), 410 );
+		}
+
+		$data = json_decode( file_get_contents( $json_path ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_get_contents
+		if ( ! is_array( $data ) || ! isset( $data['esemplari'] ) || ! is_array( $data['esemplari'] ) ) {
+			self::finish_job( $job );
+			wp_send_json_error( array( 'message' => __( 'Dati del pacchetto non leggibili.', 'devil-fruit-archive' ) ), 422 );
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/image.php';
+
+		// Il lotto è breve per scelta, ma la generazione dei formati di
+		// un'immagine grande vuole tempo e memoria: meglio chiederli.
+		if ( function_exists( 'set_time_limit' ) ) {
+			@set_time_limit( 0 ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		}
+		wp_raise_memory_limit( 'image' );
+
+		$deadline = microtime( true ) + self::BATCH_SECONDS;
+		$entries  = array_values( $data['esemplari'] );
+
+		while ( 'esemplari' === $job['phase'] && $job['cursor'] < count( $entries ) ) {
+			self::import_entry( $entries[ $job['cursor'] ], $job );
+			++$job['cursor'];
+
+			if ( microtime( true ) >= $deadline ) {
+				break;
+			}
+		}
+
+		if ( 'esemplari' === $job['phase'] && $job['cursor'] >= count( $entries ) ) {
+			$job['phase'] = 'impostazioni';
+		}
+
+		// Le impostazioni sono due sole immagini: si fanno in un colpo,
+		// ma solo in un lotto che non ha già esaurito il suo tempo.
+		if ( 'impostazioni' === $job['phase'] && microtime( true ) < $deadline ) {
+			self::import_settings( $data, $job );
+			$job['phase'] = 'fatto';
+		}
+
+		if ( 'fatto' === $job['phase'] ) {
+			$summary = array(
+				'created' => (int) $job['created'],
+				'updated' => (int) $job['updated'],
+				'images'  => (int) $job['images'],
+			);
+
+			self::finish_job( $job );
+
+			wp_send_json_success(
+				array(
+					'done'     => true,
+					'percent'  => 100,
+					'message'  => self::progress_message( 'fatto', $job ),
+					'summary'  => $summary,
+				)
+			);
+		}
+
+		self::save_job( $job );
+
+		wp_send_json_success(
+			array(
+				'done'    => false,
+				'percent' => min( 99, (int) round( 100 * $job['units_done'] / max( 1, $job['units_total'] ) ) ),
+				'message' => self::progress_message( $job['phase'], $job ),
+			)
+		);
+	}
+
+	/**
+	 * Riga di stato mostrata sotto la barra.
+	 *
+	 * @param string $phase Fase corrente.
+	 * @param array  $job   Stato dell'importazione.
+	 * @return string
+	 */
+	private static function progress_message( $phase, array $job ) {
+		if ( 'impostazioni' === $phase ) {
+			return __( 'Importazione delle impostazioni…', 'devil-fruit-archive' );
+		}
+
+		if ( 'fatto' === $phase ) {
+			return __( 'Importazione completata.', 'devil-fruit-archive' );
+		}
+
+		return sprintf(
+			/* translators: 1: esemplari fatti, 2: totale esemplari, 3: immagini caricate. */
+			__( 'Esemplare %1$d di %2$d — %3$d immagini caricate', 'devil-fruit-archive' ),
+			(int) $job['cursor'],
+			(int) $job['total'],
+			(int) $job['images']
+		);
+	}
+
+	/**
+	 * Importa un singolo esemplare del pacchetto: post, campi di testo e
+	 * immagini collegate. Aggiorna i contatori dentro $job.
+	 *
+	 * @param mixed $entry Voce del pacchetto.
+	 * @param array $job   Stato dell'importazione (per riferimento).
+	 */
+	private static function import_entry( $entry, array &$job ) {
+		++$job['units_done'];
+
+		if ( ! is_array( $entry ) ) {
+			return;
+		}
+
+		$meta       = isset( $entry['meta'] ) && is_array( $entry['meta'] ) ? $entry['meta'] : array();
+		$catalog_id = isset( $meta['catalog_id'] ) ? sanitize_text_field( $meta['catalog_id'] ) : '';
+		$title      = isset( $entry['title'] ) ? sanitize_text_field( $entry['title'] ) : $catalog_id;
+		$status     = isset( $entry['status'] ) && in_array( $entry['status'], array( 'publish', 'draft', 'pending', 'private' ), true )
+			? $entry['status']
+			: 'publish';
+
+		$existing_id = $catalog_id ? self::find_by_catalog_id( $catalog_id ) : 0;
+
+		if ( $existing_id ) {
+			wp_update_post(
+				array(
+					'ID'         => $existing_id,
+					'post_title' => $title,
+				)
+			);
+			$post_id = $existing_id;
+			++$job['updated'];
+		} else {
+			$post_id = wp_insert_post(
+				array(
+					'post_type'   => DFA_CPT::POST_TYPE,
+					'post_title'  => $title,
+					'post_status' => $status,
+				),
+				true
+			);
+
+			if ( is_wp_error( $post_id ) || ! $post_id ) {
+				return;
+			}
+			++$job['created'];
+		}
+
+		// Campi di testo.
+		foreach ( self::text_fields() as $key ) {
+			$value = isset( $meta[ $key ] ) ? (string) $meta[ $key ] : '';
+			$value = ( 'lore' === $key ) ? sanitize_textarea_field( $value ) : sanitize_text_field( $value );
+
+			if ( 'fruit_type' === $key ) {
+				$value = DFA_Meta::sanitize_fruit_type( $value );
+			}
+
+			if ( 'coming_soon' === $key ) {
+				$value = DFA_Meta::sanitize_coming_soon( $value );
+			}
+
+			update_post_meta( $post_id, DFA_Meta::PREFIX . $key, $value );
+		}
+
+		// Immagini.
+		$entry_images = isset( $entry['images'] ) && is_array( $entry['images'] ) ? $entry['images'] : array();
+
+		$featured_ref = isset( $entry_images['featured'] ) ? $entry_images['featured'] : '';
+		$featured_id  = self::import_image( $featured_ref, $job );
+		if ( $featured_id ) {
+			set_post_thumbnail( $post_id, $featured_id );
+		}
+
+		foreach ( self::image_fields() as $key ) {
+			$ref = isset( $entry_images[ $key ] ) ? $entry_images[ $key ] : '';
+			$id  = self::import_image( $ref, $job );
+			update_post_meta( $post_id, DFA_Meta::PREFIX . $key, $id );
+		}
+	}
+
+	/**
+	 * Importa le impostazioni del plugin contenute nel pacchetto.
+	 *
+	 * @param array $data Contenuto del file dati.
+	 * @param array $job  Stato dell'importazione (per riferimento).
+	 */
+	private static function import_settings( array $data, array &$job ) {
+		if ( ! isset( $data['settings'] ) || ! is_array( $data['settings'] ) ) {
+			return;
+		}
+
+		$incoming = $data['settings'];
+		$settings = get_option( DFA_Settings::OPTION_NAME, array() );
+
+		if ( isset( $incoming['cta_url'] ) ) {
+			$settings['cta_url'] = esc_url_raw( $incoming['cta_url'] );
+		}
+
+		foreach ( array( 'archive_background_image', 'single_background_image' ) as $key ) {
+			if ( ! empty( $incoming[ $key ] ) ) {
+				$id = self::import_image( $incoming[ $key ], $job );
+				if ( $id ) {
+					$settings[ $key ] = $id;
+				}
+			}
+		}
+
+		update_option( DFA_Settings::OPTION_NAME, $settings );
 	}
 
 	/**
@@ -440,23 +674,25 @@ class DFA_Transfer {
 	 * riusate (mappa $img_map), così un file condiviso da più esemplari
 	 * non viene duplicato nella Libreria.
 	 *
-	 * @param string $ref      Nome nel pacchetto (es. "images/12-foto.jpg").
-	 * @param string $work_dir Cartella di lavoro dell'import.
-	 * @param array  $img_map  Cache riferimento => ID allegato.
-	 * @param int    $counter  Contatore immagini importate.
+	 * @param string $ref Nome nel pacchetto (es. "images/12-foto.jpg").
+	 * @param array  $job Stato dell'importazione (per riferimento).
 	 * @return int ID allegato, 0 se non importabile.
 	 */
-	private static function import_image( $ref, $work_dir, array &$img_map, &$counter ) {
+	private static function import_image( $ref, array &$job ) {
 		if ( ! is_string( $ref ) || '' === $ref ) {
 			return 0;
 		}
 
-		if ( isset( $img_map[ $ref ] ) ) {
-			return $img_map[ $ref ];
+		// Conta come lavoro svolto anche se il file poi non c'è: la
+		// barra deve arrivare in fondo comunque.
+		++$job['units_done'];
+
+		if ( isset( $job['img_map'][ $ref ] ) ) {
+			return $job['img_map'][ $ref ];
 		}
 
 		$safe = sanitize_file_name( basename( $ref ) );
-		$path = $work_dir . '/images/' . $safe;
+		$path = $job['work_dir'] . '/images/' . $safe;
 
 		if ( '' === $safe || ! file_exists( $path ) ) {
 			return 0;
@@ -491,8 +727,8 @@ class DFA_Transfer {
 
 		wp_update_attachment_metadata( $attachment_id, wp_generate_attachment_metadata( $attachment_id, $upload['file'] ) );
 
-		$img_map[ $ref ] = $attachment_id;
-		++$counter;
+		$job['img_map'][ $ref ] = $attachment_id;
+		++$job['images'];
 
 		return $attachment_id;
 	}
