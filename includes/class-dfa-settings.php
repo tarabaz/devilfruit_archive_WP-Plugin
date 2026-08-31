@@ -358,15 +358,78 @@ class DFA_Settings {
 			<?php else : ?>
 
 				<p>
-					<?php esc_html_e( 'Il pacchetto .zip contiene tutti gli esemplari con i loro campi, le impostazioni del plugin e i file immagine veri e propri (foto esemplare, versione accesa, immagine frutto, foto proprietario e sfondi). Serve sia da backup sia per spostare l\'archivio su un altro sito.', 'devil-fruit-archive' ); ?>
+					<?php esc_html_e( 'Il pacchetto .zip contiene gli esemplari con i loro campi, le impostazioni del plugin e i file immagine veri e propri (foto esemplare, versione accesa, immagine frutto, foto proprietario e sfondi). Serve sia da backup sia per spostare l\'archivio su un altro sito.', 'devil-fruit-archive' ); ?>
 				</p>
 
 				<h3><?php esc_html_e( 'Esporta', 'devil-fruit-archive' ); ?></h3>
-				<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post">
-					<?php wp_nonce_field( DFA_Transfer::EXPORT_ACTION ); ?>
-					<input type="hidden" name="action" value="<?php echo esc_attr( DFA_Transfer::EXPORT_ACTION ); ?>">
-					<?php submit_button( __( 'Scarica il pacchetto dell\'archivio', 'devil-fruit-archive' ), 'secondary', 'submit', false ); ?>
-				</form>
+
+				<?php
+				$dfa_parts    = DFA_Transfer::get_export_parts();
+				$dfa_max_size = wp_max_upload_size();
+				?>
+
+				<?php if ( empty( $dfa_parts ) ) : ?>
+
+					<p class="description"><?php esc_html_e( 'Non c\'è ancora nessun esemplare da esportare.', 'devil-fruit-archive' ); ?></p>
+
+				<?php else : ?>
+
+					<p class="description" style="max-width:640px">
+						<?php
+						printf(
+							/* translators: 1: esemplari per pacchetto, 2: numero di pacchetti. */
+							esc_html__( 'Il backup è diviso in pacchetti da %1$d esemplari (%2$d in tutto): un archivio intero diventa presto un file troppo grande per essere ricaricato. Scaricali tutti e importali uno alla volta, in qualsiasi ordine. Le impostazioni del plugin viaggiano nel primo pacchetto.', 'devil-fruit-archive' ),
+							(int) DFA_Transfer::EXPORT_CHUNK,
+							count( $dfa_parts )
+						);
+						?>
+					</p>
+
+					<table class="widefat striped" style="max-width:640px;margin-bottom:8px">
+						<thead>
+							<tr>
+								<th><?php esc_html_e( 'Pacchetto', 'devil-fruit-archive' ); ?></th>
+								<th><?php esc_html_e( 'Esemplari', 'devil-fruit-archive' ); ?></th>
+								<th><?php esc_html_e( 'Peso stimato', 'devil-fruit-archive' ); ?></th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+						<?php foreach ( $dfa_parts as $dfa_part ) : ?>
+							<?php
+							$dfa_url = wp_nonce_url(
+								add_query_arg(
+									array(
+										'action' => DFA_Transfer::EXPORT_ACTION,
+										'part'   => $dfa_part['number'],
+									),
+									admin_url( 'admin-post.php' )
+								),
+								DFA_Transfer::EXPORT_ACTION
+							);
+							// Un pacchetto più pesante del limite di caricamento si
+							// scarica lo stesso, ma non si potrebbe reimportare da qui.
+							$dfa_too_big = $dfa_max_size && $dfa_part['bytes'] > $dfa_max_size;
+							?>
+							<tr>
+								<td><strong><?php echo esc_html( $dfa_part['label'] ); ?></strong></td>
+								<td><?php echo esc_html( (string) $dfa_part['count'] ); ?></td>
+								<td<?php echo $dfa_too_big ? ' style="color:#d63638"' : ''; ?>>
+									<?php echo esc_html( size_format( $dfa_part['bytes'] ) ); ?>
+									<?php if ( $dfa_too_big ) : ?>
+										<br><small><?php esc_html_e( 'oltre il limite di caricamento', 'devil-fruit-archive' ); ?></small>
+									<?php endif; ?>
+								</td>
+								<td>
+									<a class="button" href="<?php echo esc_url( $dfa_url ); ?>">
+										<?php esc_html_e( 'Scarica', 'devil-fruit-archive' ); ?>
+									</a>
+								</td>
+							</tr>
+						<?php endforeach; ?>
+						</tbody>
+					</table>
+				<?php endif; ?>
 
 				<h3 style="margin-top:24px"><?php esc_html_e( 'Importa', 'devil-fruit-archive' ); ?></h3>
 				<p class="description" style="max-width:640px">

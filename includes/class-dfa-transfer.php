@@ -33,6 +33,18 @@ class DFA_Transfer {
 	/** Nome del file dati dentro il pacchetto. */
 	const DATA_FILE = 'archivio.json';
 
+	/**
+	 * Quanti esemplari entrano in un pacchetto di esportazione.
+	 *
+	 * L'archivio intero e' un file solo troppo grande: si supera il
+	 * limite di caricamento del server proprio nel momento in cui
+	 * servirebbe reimportarlo. I pacchetti sono indipendenti e si
+	 * importano in qualsiasi ordine, perche' l'import aggiorna gli
+	 * esemplari gia' presenti (Catalog ID) e riusa le immagini gia' in
+	 * Libreria (impronta del file).
+	 */
+	const EXPORT_CHUNK = 10;
+
 	/** Cartella delle immagini dentro il pacchetto. */
 	const IMAGES_DIR = 'images/';
 
@@ -116,7 +128,118 @@ class DFA_Transfer {
 	 * ------------------------------------------------------------------ */
 
 	/**
-	 * Costruisce il pacchetto .zip e lo invia al browser come download.
+	 * Tutti gli esemplari da esportare, in ordine di Catalog ID.
+	 *
+	 * L'ordinamento e' in PHP e non in SQL perche' ordinare per meta
+	 * value fa una INNER JOIN, che escluderebbe dal backup proprio gli
+	 * esemplari a cui manca il Catalog ID.
+	 *
+	 * @return WP_Post[]
+	 */
+	private static function get_export_posts() {
+		$posts = get_posts(
+			array(
+				'post_type'        => DFA_CPT::POST_TYPE,
+				'post_status'      => array( 'publish', 'draft', 'pending', 'private' ),
+				'numberposts'      => -1,
+				'suppress_filters' => false,
+			)
+		);
+
+		/*
+		 * A parita' di Catalog ID (o quando manca a entrambi) si ordina
+		 * per ID del post: serve un ordine DETERMINISTICO, perche' usort
+		 * non e' stabile in PHP 7 e l'elenco viene ricalcolato due volte
+		 * — una per costruire i pacchetti, una per estrarre la fetta da
+		 * scaricare. Con un ordine ballerino lo stesso esemplare
+		 * potrebbe finire in due pacchetti e un altro in nessuno.
+		 */
+		usort(
+			$posts,
+			static function ( $a, $b ) {
+				$compare = strcmp(
+					(string) DFA_Meta::get( $a->ID, 'catalog_id' ),
+					(string) DFA_Meta::get( $b->ID, 'catalog_id' )
+				);
+
+				return 0 !== $compare ? $compare : ( (int) $a->ID - (int) $b->ID );
+			}
+		);
+
+		return $posts;
+	}
+
+	/**
+	 * Elenco dei pacchetti in cui viene diviso il backup, con etichetta
+	 * ("1-10") e peso stimato, per costruire i bottoni di download.
+	 *
+	 * Il peso e' la somma dei file immagine di quel gruppo: e' una stima
+	 * per eccesso di quanto pesera' lo zip (le foto sono gia' compresse,
+	 * quindi lo zip non le riduce quasi per niente) e serve a capire a
+	 * colpo d'occhio se un pacchetto rientra nel limite di caricamento.
+	 *
+	 * @return array[] Ogni voce: number, from, to, label, count, bytes.
+	 */
+	public static function get_export_parts() {
+		$posts = self::get_export_posts();
+		$total = count( $posts );
+
+		if ( 0 === $total ) {
+			return array();
+		}
+
+		$parts  = array();
+		$number = 0;
+
+		for ( $offset = 0; $offset < $total; $offset += self::EXPORT_CHUNK ) {
+			++$number;
+			$slice = array_slice( $posts, $offset, self::EXPORT_CHUNK );
+			$bytes = 0;
+
+			foreach ( $slice as $post ) {
+				$ids = array_merge(
+					array( (int) get_post_thumbnail_id( $post->ID ) ),
+					array_map(
+						static function ( $key ) use ( $post ) {
+							return (int) DFA_Meta::get( $post->ID, $key );
+						},
+						self::image_fields()
+					)
+				);
+
+				foreach ( array_filter( array_unique( $ids ) ) as $attachment_id ) {
+					$file = get_attached_file( $attachment_id );
+					if ( $file && file_exists( $file ) ) {
+						$bytes += (int) filesize( $file );
+					}
+				}
+			}
+
+			$from = $offset + 1;
+			$to   = min( $offset + self::EXPORT_CHUNK, $total );
+
+			$parts[] = array(
+				'number' => $number,
+				'from'   => $from,
+				'to'     => $to,
+				'label'  => $from . '-' . $to,
+				'count'  => count( $slice ),
+				'bytes'  => $bytes,
+			);
+		}
+
+		return $parts;
+	}
+
+	/**
+	 * Costruisce UN pacchetto .zip e lo invia al browser come download.
+	 *
+	 * Quale pacchetto lo dice il parametro "part": gli esemplari sono
+	 * ordinati per Catalog ID e divisi a gruppi di EXPORT_CHUNK, quindi
+	 * la parte 1 contiene i primi dieci, la 2 i successivi dieci e cosi'
+	 * via. Le impostazioni del plugin (con le loro due immagini di
+	 * sfondo) viaggiano SOLO nella prima parte: sono le stesse per tutto
+	 * l'archivio e ripeterle in ogni pacchetto sarebbe peso inutile.
 	 */
 	public static function handle_export() {
 		if ( ! current_user_can( 'manage_options' ) ) {
@@ -129,20 +252,27 @@ class DFA_Transfer {
 			self::redirect_with( 'error', 'zip_missing' );
 		}
 
-		$posts = get_posts(
-			array(
-				'post_type'        => DFA_CPT::POST_TYPE,
-				'post_status'      => array( 'publish', 'draft', 'pending', 'private' ),
-				'numberposts'      => -1,
-				'suppress_filters' => false,
-			)
-		);
+		$parts = self::get_export_parts();
+
+		if ( empty( $parts ) ) {
+			self::redirect_with( 'error', 'no_posts' );
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- check_admin_referer() qui sopra.
+		$requested = isset( $_REQUEST['part'] ) ? absint( wp_unslash( $_REQUEST['part'] ) ) : 1;
+		$index     = max( 1, min( count( $parts ), $requested ) ) - 1;
+		$part      = $parts[ $index ];
+
+		$posts = array_slice( self::get_export_posts(), $index * self::EXPORT_CHUNK, self::EXPORT_CHUNK );
 
 		$data = array(
 			'plugin'      => 'devil-fruit-archive',
 			'version'     => DFA_VERSION,
 			'exported_at' => gmdate( 'c' ),
 			'site'        => home_url( '/' ),
+			'part'        => $part['number'],
+			'parts'       => count( $parts ),
+			'range'       => $part['label'],
 			'settings'    => array(),
 			'esemplari'   => array(),
 		);
@@ -150,11 +280,13 @@ class DFA_Transfer {
 		// Elenco file da inserire nello zip: percorso reale => nome nel pacchetto.
 		$files = array();
 
-		// --- Impostazioni del plugin (con le loro immagini) ---
-		$settings                     = get_option( DFA_Settings::OPTION_NAME, array() );
-		$data['settings']['cta_url']  = isset( $settings['cta_url'] ) ? $settings['cta_url'] : '';
-		$data['settings']['archive_background_image'] = self::stage_image( isset( $settings['archive_background_image'] ) ? (int) $settings['archive_background_image'] : 0, $files );
-		$data['settings']['single_background_image']  = self::stage_image( isset( $settings['single_background_image'] ) ? (int) $settings['single_background_image'] : 0, $files );
+		// --- Impostazioni del plugin (con le loro immagini), solo parte 1 ---
+		if ( 1 === $part['number'] ) {
+			$settings                     = get_option( DFA_Settings::OPTION_NAME, array() );
+			$data['settings']['cta_url']  = isset( $settings['cta_url'] ) ? $settings['cta_url'] : '';
+			$data['settings']['archive_background_image'] = self::stage_image( isset( $settings['archive_background_image'] ) ? (int) $settings['archive_background_image'] : 0, $files );
+			$data['settings']['single_background_image']  = self::stage_image( isset( $settings['single_background_image'] ) ? (int) $settings['single_background_image'] : 0, $files );
+		}
 
 		// --- Esemplari ---
 		foreach ( $posts as $post ) {
@@ -197,7 +329,7 @@ class DFA_Transfer {
 
 		$zip->close();
 
-		$filename = 'devil-fruit-archive-' . gmdate( 'Y-m-d-His' ) . '.zip';
+		$filename = 'devil-fruit-archive-' . $part['label'] . '-' . gmdate( 'Y-m-d-His' ) . '.zip';
 
 		nocache_headers();
 		header( 'Content-Type: application/zip' );
@@ -385,6 +517,9 @@ class DFA_Transfer {
 		self::save_job(
 			array(
 				'work_dir'    => $work_dir,
+				// Quale pacchetto della serie: solo per la riga di stato.
+				'part'        => isset( $data['part'] ) ? (int) $data['part'] : 0,
+				'parts'       => isset( $data['parts'] ) ? (int) $data['parts'] : 0,
 				'phase'       => 'esemplari',
 				'cursor'      => 0,
 				'total'       => count( $data['esemplari'] ),
@@ -552,17 +687,29 @@ class DFA_Transfer {
 	 * @return string
 	 */
 	private static function progress_message( $phase, array $job ) {
+		// I pacchetti di una serie divisa dichiarano quale sono: farlo
+		// vedere evita di chiedersi se si sta importando quello giusto.
+		$prefix = '';
+		if ( ! empty( $job['parts'] ) && $job['parts'] > 1 ) {
+			$prefix = sprintf(
+				/* translators: 1: numero del pacchetto, 2: pacchetti totali. */
+				__( 'Pacchetto %1$d di %2$d — ', 'devil-fruit-archive' ),
+				(int) $job['part'],
+				(int) $job['parts']
+			);
+		}
+
 		if ( 'impostazioni' === $phase ) {
-			return __( 'Importazione delle impostazioni…', 'devil-fruit-archive' );
+			return $prefix . __( 'importazione delle impostazioni…', 'devil-fruit-archive' );
 		}
 
 		if ( 'fatto' === $phase ) {
-			return __( 'Importazione completata.', 'devil-fruit-archive' );
+			return $prefix . __( 'importazione completata.', 'devil-fruit-archive' );
 		}
 
-		return sprintf(
+		return $prefix . sprintf(
 			/* translators: 1: esemplari fatti, 2: totale esemplari, 3: immagini caricate. */
-			__( 'Esemplare %1$d di %2$d — %3$d immagini caricate', 'devil-fruit-archive' ),
+			__( 'esemplare %1$d di %2$d, %3$d immagini caricate', 'devil-fruit-archive' ),
 			(int) $job['cursor'],
 			(int) $job['total'],
 			(int) $job['images']
@@ -907,6 +1054,7 @@ class DFA_Transfer {
 			$messages = array(
 				'zip_missing' => __( 'Estensione PHP "zip" non disponibile sul server: import/export non utilizzabili. Chiedi al tuo hosting di attivare ZipArchive.', 'devil-fruit-archive' ),
 				'zip_create'  => __( 'Impossibile creare il file di esportazione.', 'devil-fruit-archive' ),
+				'no_posts'    => __( 'Non c\'è ancora nessun esemplare da esportare.', 'devil-fruit-archive' ),
 				'zip_open'    => __( 'Il file caricato non è un pacchetto .zip leggibile.', 'devil-fruit-archive' ),
 				'no_file'     => __( 'Nessun file selezionato.', 'devil-fruit-archive' ),
 				'not_zip'     => __( 'Il file deve essere un .zip esportato da questo plugin.', 'devil-fruit-archive' ),
