@@ -109,6 +109,37 @@ class DFA_Settings {
 				'mediaButton' => __( 'Usa questa immagine', 'devil-fruit-archive' ),
 			)
 		);
+
+		/*
+		 * Script dell'importazione a lotti: serve solo quando ce n'è una
+		 * da portare avanti, cioè subito dopo il caricamento del
+		 * pacchetto o al rientro su una rimasta a metà.
+		 */
+		if ( ! DFA_Transfer::get_job() ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'dfa-admin-import',
+			DFA_PLUGIN_URL . 'assets/js/admin-import.js',
+			array( 'jquery' ),
+			DFA_VERSION,
+			true
+		);
+
+		wp_localize_script(
+			'dfa-admin-import',
+			'dfaImport',
+			array(
+				'ajaxUrl'      => admin_url( 'admin-ajax.php' ),
+				'action'       => DFA_Transfer::STEP_ACTION,
+				'nonce'        => wp_create_nonce( DFA_Transfer::STEP_ACTION ),
+				'startMessage' => __( 'Importazione avviata…', 'devil-fruit-archive' ),
+				'errorMessage' => __( 'Importazione interrotta da un errore.', 'devil-fruit-archive' ),
+				/* translators: 1: esemplari creati, 2: aggiornati, 3: immagini. */
+				'doneMessage'  => __( 'Fatto: %1$d esemplari creati, %2$d aggiornati, %3$d immagini caricate.', 'devil-fruit-archive' ),
+			)
+		);
 	}
 
 	/**
@@ -341,12 +372,27 @@ class DFA_Settings {
 				<p class="description" style="max-width:640px">
 					<?php esc_html_e( 'L\'import è idempotente sul Catalog ID: un esemplare già presente viene aggiornato, non duplicato. Le immagini del pacchetto vengono caricate nella Libreria media di questo sito e ricollegate ai campi corretti. Le impostazioni del plugin presenti nel pacchetto sovrascrivono quelle attuali.', 'devil-fruit-archive' ); ?>
 				</p>
-				<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" enctype="multipart/form-data">
+				<p class="description" style="max-width:640px">
+					<?php
+					printf(
+						/* translators: %s: dimensione massima di caricamento del server. */
+						esc_html__( 'L\'importazione avviene a lotti, con una barra di avanzamento: si può seguire fino alla fine senza rischiare un timeout. La pagina va però lasciata aperta finché non finisce. Dimensione massima del file accettata da questo server: %s.', 'devil-fruit-archive' ),
+						esc_html( size_format( wp_max_upload_size() ) )
+					);
+					?>
+				</p>
+				<form action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" method="post" enctype="multipart/form-data" class="dfa-import-form">
 					<?php wp_nonce_field( DFA_Transfer::IMPORT_ACTION ); ?>
 					<input type="hidden" name="action" value="<?php echo esc_attr( DFA_Transfer::IMPORT_ACTION ); ?>">
 					<p><input type="file" name="dfa_import_file" accept=".zip" required></p>
 					<?php submit_button( __( 'Importa dal pacchetto', 'devil-fruit-archive' ), 'secondary', 'submit', false ); ?>
 				</form>
+
+				<?php // Compare solo quando c'è un'importazione da eseguire: la riempie admin-import.js. ?>
+				<div class="dfa-import-progress" hidden>
+					<div class="dfa-import-progress__bar"><span class="dfa-import-progress__fill" style="width:0"></span></div>
+					<p class="dfa-import-progress__text"></p>
+				</div>
 
 			<?php endif; ?>
 

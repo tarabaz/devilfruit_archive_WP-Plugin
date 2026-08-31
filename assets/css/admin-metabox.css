@@ -17,3 +17,46 @@
 	border: 1px solid #dcdcde;
 	border-radius: 2px;
 }
+
+/* --------------------------------------------------------------------
+   Barra di avanzamento dell'importazione (pagina Impostazioni)
+   -------------------------------------------------------------------- */
+
+.dfa-import-progress {
+	max-width: 640px;
+	margin-top: 12px;
+}
+
+.dfa-import-progress__bar {
+	height: 18px;
+	background: #f0f0f1;
+	border: 1px solid #c3c4c7;
+	border-radius: 3px;
+	overflow: hidden;
+}
+
+.dfa-import-progress__fill {
+	display: block;
+	height: 100%;
+	width: 0;
+	background: #2271b1;
+	transition: width .3s ease;
+}
+
+.dfa-import-progress.is-done .dfa-import-progress__fill {
+	background: #00a32a;
+}
+
+.dfa-import-progress.is-error .dfa-import-progress__fill {
+	background: #d63638;
+}
+
+.dfa-import-progress__text {
+	margin: 8px 0 0;
+	color: #50575e;
+}
+
+.dfa-import-progress.is-error .dfa-import-progress__text {
+	color: #d63638;
+	font-weight: 600;
+}
