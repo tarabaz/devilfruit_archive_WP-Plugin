@@ -196,6 +196,14 @@ supera qualunque `max_execution_time` e l'importazione fallisce a metà.
 
 - **Lascia la pagina aperta** finché la barra non arriva in fondo: è il
   browser a chiedere un lotto dopo l'altro.
+- Le immagini **non vengono duplicate**: ogni allegato creato
+  dall'importazione viene marchiato con l'impronta (md5) del file, e se
+  un pacchetto successivo contiene lo stesso file si riusa l'allegato
+  già in Libreria invece di caricarne una copia. Il confronto è sul
+  contenuto e non sul nome, perché WordPress rinomina i file in
+  conflitto (`foto-1.jpg`, `foto-2.jpg`). Vale dalla versione 3.9 in
+  poi: le copie create dalle importazioni precedenti restano dov'erano e
+  vanno eventualmente cestinate a mano.
 - Se chiudi a metà, la volta successiva l'importazione riparte da capo:
   la cartella di lavoro rimasta viene ripulita all'avvio della nuova.
   Non si creano duplicati, perché l'import è idempotente sul Catalog ID.
