@@ -173,15 +173,31 @@ plugin in un unico file `.zip`.
 **Cosa contiene il pacchetto**
 
 ```
-archivio.json      tutti gli esemplari (titolo, stato e ogni campo)
-                   + le impostazioni del plugin
+archivio.json      gli esemplari del pacchetto (titolo, stato e ogni
+                   campo) + le impostazioni del plugin (solo nel primo)
 images/…           i file immagine originali: foto esemplare (featured),
                    versione accesa, immagine frutto, foto proprietario
                    e le due immagini di sfondo delle impostazioni
 ```
 
-**Esportare**: clicca "Scarica il pacchetto dell'archivio". Il file si
-chiama `devil-fruit-archive-AAAA-MM-GG-HHMMSS.zip`.
+**Esportare**: il backup è **diviso in pacchetti da 10 esemplari**, in
+ordine di Catalog ID. La pagina impostazioni ne elenca uno per riga con
+etichetta (`1-10`, `11-20`, `21-23`…), numero di esemplari e peso
+stimato, e un bottone "Scarica" per ciascuno. I file si chiamano
+`devil-fruit-archive-1-10-AAAA-MM-GG-HHMMSS.zip`.
+
+Serve perché l'archivio intero diventa presto un file troppo grande per
+essere ricaricato: con foto in alta risoluzione si superano i 100 MB con
+una ventina di esemplari, e il limite di caricamento del server (spesso
+64 o 128 MB) blocca proprio l'importazione, cioè quando il backup
+servirebbe. Se un pacchetto supera comunque il limite del server, la
+riga lo segnala in rosso.
+
+I pacchetti sono **indipendenti** e si importano uno alla volta in
+qualsiasi ordine: l'import aggiorna gli esemplari già presenti (Catalog
+ID) e riusa le immagini già in Libreria (impronta del file). Le
+impostazioni del plugin, con le due immagini di sfondo, viaggiano solo
+nel **primo** pacchetto.
 
 **Importare**: seleziona un pacchetto e clicca "Importa dal pacchetto".
 

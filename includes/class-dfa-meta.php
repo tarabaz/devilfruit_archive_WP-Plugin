@@ -187,10 +187,15 @@ class DFA_Meta {
 					return $a_soon - $b_soon;
 				}
 
-				return strcmp(
+				$compare = strcmp(
 					(string) self::get( $a->ID, 'catalog_id' ),
 					(string) self::get( $b->ID, 'catalog_id' )
 				);
+
+				// A parita' di Catalog ID si ordina per ID: usort non e'
+				// stabile in PHP 7 e senza questo la griglia potrebbe
+				// cambiare ordine da un caricamento all'altro.
+				return 0 !== $compare ? $compare : ( (int) $a->ID - (int) $b->ID );
 			}
 		);
 
