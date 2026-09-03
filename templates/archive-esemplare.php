@@ -81,6 +81,9 @@ $dfa_archive_bg_url = $dfa_archive_bg_id ? wp_get_attachment_image_url( $dfa_arc
 
 	</div>
 
+	<?php // Fuori da .dfa-archive: sta sul fondo pagina, non sopra lo sfondo. ?>
+	<?php require DFA_PLUGIN_DIR . 'templates/parts/footer-bar.php'; ?>
+
 	<?php wp_footer(); ?>
 </body>
 </html>
