@@ -242,6 +242,9 @@ while ( have_posts() ) :
 
 	</article>
 
+	<?php // Fuori da .dfa-single__frame: sta sul fondo pagina, non sopra lo sfondo. ?>
+	<?php require DFA_PLUGIN_DIR . 'templates/parts/footer-bar.php'; ?>
+
 	<?php wp_footer(); ?>
 </body>
 </html>

@@ -156,6 +156,27 @@ Il numero di versione del plugin (bump ad ogni modifica) è mostrato in
 fondo a questa pagina — utile per verificare a colpo d'occhio che un
 aggiornamento sia stato effettivamente caricato sul sito.
 
+### Barra in fondo alle pagine
+
+Le pagine dell'archivio sono documenti indipendenti dal tema (non
+chiamano `get_footer()`), quindi **il footer di Avada non compare**: è la
+stessa scelta che le tiene fuori dal layout e dai colori del tema. La
+sezione **Barra in fondo alle pagine** delle impostazioni ne riporta i
+contenuti nello stile dell'archivio:
+
+| Campo | Nella barra | Se lasciato vuoto |
+|---|---|---|
+| Email di contatto | a sinistra, come `mailto:` | la parte sinistra resta vuota |
+| Link Privacy Policy | a destra | si usa la pagina di Impostazioni → Privacy; senza quella, il link non compare |
+| Link Cookie Policy | a destra | punta allo stesso indirizzo della privacy |
+| Intestatario del copyright | `© anno intestatario` | si usa il nome del sito |
+
+L'anno si aggiorna da solo (`wp_date`, quindi cambia con il fuso orario
+del sito, non a Greenwich).
+
+**Il banner dei cookie non passa da qui**: quello lo inietta il plugin di
+consenso agganciandosi a `wp_footer()`, che i template chiamano già.
+
 ## Seed del catalogo (17 esemplari di esempio)
 
 Il file [`_seed/Devil_Fruit_Archive_Catalogo.md`](_seed/Devil_Fruit_Archive_Catalogo.md)
@@ -342,6 +363,7 @@ templates/
   single-esemplare.php             Scheda singola
   archive-esemplare.php            Griglia archivio
   parts/card-esemplare.php         Card riusata da griglia e shortcode
+  parts/footer-bar.php             Barra in fondo (email, policy, copyright)
 assets/
   css/devil-fruit-archive.css      Stile di frontend (derivato da _design/)
   css/admin-metabox.css            Stile minimo per i meta box

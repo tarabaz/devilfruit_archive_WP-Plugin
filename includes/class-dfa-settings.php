@@ -170,6 +170,10 @@ class DFA_Settings {
 					'cta_url'                  => '#',
 					'archive_background_image' => 0,
 					'single_background_image'  => 0,
+					'footer_email'             => '',
+					'footer_privacy_url'       => '',
+					'footer_cookie_url'        => '',
+					'footer_owner'             => '',
 				),
 			)
 		);
@@ -218,6 +222,45 @@ class DFA_Settings {
 			self::PAGE_SLUG,
 			'dfa_settings_single'
 		);
+
+		add_settings_section(
+			'dfa_settings_footer',
+			__( 'Barra in fondo alle pagine', 'devil-fruit-archive' ),
+			array( __CLASS__, 'render_footer_section' ),
+			self::PAGE_SLUG
+		);
+
+		add_settings_field(
+			'dfa_footer_email',
+			__( 'Email di contatto', 'devil-fruit-archive' ),
+			array( __CLASS__, 'render_footer_email_field' ),
+			self::PAGE_SLUG,
+			'dfa_settings_footer'
+		);
+
+		add_settings_field(
+			'dfa_footer_privacy_url',
+			__( 'Link Privacy Policy', 'devil-fruit-archive' ),
+			array( __CLASS__, 'render_footer_privacy_field' ),
+			self::PAGE_SLUG,
+			'dfa_settings_footer'
+		);
+
+		add_settings_field(
+			'dfa_footer_cookie_url',
+			__( 'Link Cookie Policy', 'devil-fruit-archive' ),
+			array( __CLASS__, 'render_footer_cookie_field' ),
+			self::PAGE_SLUG,
+			'dfa_settings_footer'
+		);
+
+		add_settings_field(
+			'dfa_footer_owner',
+			__( 'Intestatario del copyright', 'devil-fruit-archive' ),
+			array( __CLASS__, 'render_footer_owner_field' ),
+			self::PAGE_SLUG,
+			'dfa_settings_footer'
+		);
 	}
 
 	/**
@@ -237,6 +280,11 @@ class DFA_Settings {
 		$output['archive_background_image'] = isset( $input['archive_background_image'] ) ? absint( $input['archive_background_image'] ) : 0;
 
 		$output['single_background_image'] = isset( $input['single_background_image'] ) ? absint( $input['single_background_image'] ) : 0;
+
+		$output['footer_email']       = isset( $input['footer_email'] ) ? sanitize_email( trim( $input['footer_email'] ) ) : '';
+		$output['footer_privacy_url'] = isset( $input['footer_privacy_url'] ) ? esc_url_raw( trim( $input['footer_privacy_url'] ) ) : '';
+		$output['footer_cookie_url']  = isset( $input['footer_cookie_url'] ) ? esc_url_raw( trim( $input['footer_cookie_url'] ) ) : '';
+		$output['footer_owner']       = isset( $input['footer_owner'] ) ? sanitize_text_field( trim( $input['footer_owner'] ) ) : '';
 
 		return $output;
 	}
@@ -470,6 +518,96 @@ class DFA_Settings {
 			</p>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Testo introduttivo della sezione footer.
+	 */
+	public static function render_footer_section() {
+		echo '<p>' . esc_html__( 'Barra sottile in fondo alle pagine dell\'archivio: a sinistra l\'email, a destra i link alle policy e il copyright. Le pagine dell\'archivio sono documenti indipendenti dal tema, quindi il footer di Avada non compare: questa barra ne riporta i contenuti nello stile dell\'archivio. Lasciando vuoti i campi, la parte corrispondente non viene stampata; l\'anno del copyright si aggiorna da solo.', 'devil-fruit-archive' ) . '</p>';
+	}
+
+	/**
+	 * Campo email di contatto della barra footer.
+	 */
+	public static function render_footer_email_field() {
+		$settings = get_option( self::OPTION_NAME, array() );
+		$value    = isset( $settings['footer_email'] ) ? $settings['footer_email'] : '';
+		?>
+		<input type="email" name="<?php echo esc_attr( self::OPTION_NAME ); ?>[footer_email]" value="<?php echo esc_attr( $value ); ?>" class="regular-text" placeholder="info@francystore3d.it">
+		<?php
+	}
+
+	/**
+	 * Campo URL della privacy policy.
+	 */
+	public static function render_footer_privacy_field() {
+		$settings = get_option( self::OPTION_NAME, array() );
+		$value    = isset( $settings['footer_privacy_url'] ) ? $settings['footer_privacy_url'] : '';
+		?>
+		<input type="url" name="<?php echo esc_attr( self::OPTION_NAME ); ?>[footer_privacy_url]" value="<?php echo esc_attr( $value ); ?>" class="regular-text" placeholder="https://www.francystore3d.it/privacy-policy/">
+		<p class="description"><?php esc_html_e( 'Se lasciato vuoto si usa la pagina indicata in Impostazioni → Privacy di WordPress.', 'devil-fruit-archive' ); ?></p>
+		<?php
+	}
+
+	/**
+	 * Campo URL della cookie policy.
+	 */
+	public static function render_footer_cookie_field() {
+		$settings = get_option( self::OPTION_NAME, array() );
+		$value    = isset( $settings['footer_cookie_url'] ) ? $settings['footer_cookie_url'] : '';
+		?>
+		<input type="url" name="<?php echo esc_attr( self::OPTION_NAME ); ?>[footer_cookie_url]" value="<?php echo esc_attr( $value ); ?>" class="regular-text" placeholder="https://www.francystore3d.it/privacy-policy/">
+		<p class="description"><?php esc_html_e( 'Se lasciato vuoto punta allo stesso indirizzo della privacy policy: spesso le due informative stanno sulla stessa pagina.', 'devil-fruit-archive' ); ?></p>
+		<?php
+	}
+
+	/**
+	 * Campo intestatario del copyright.
+	 */
+	public static function render_footer_owner_field() {
+		$settings = get_option( self::OPTION_NAME, array() );
+		$value    = isset( $settings['footer_owner'] ) ? $settings['footer_owner'] : '';
+		?>
+		<input type="text" name="<?php echo esc_attr( self::OPTION_NAME ); ?>[footer_owner]" value="<?php echo esc_attr( $value ); ?>" class="regular-text" placeholder="<?php echo esc_attr( get_bloginfo( 'name' ) ); ?>">
+		<p class="description"><?php esc_html_e( 'Se lasciato vuoto si usa il nome del sito. L\'anno viene aggiunto in automatico.', 'devil-fruit-archive' ); ?></p>
+		<?php
+	}
+
+	/**
+	 * Contenuti della barra in fondo alle pagine dell'archivio, già
+	 * risolti con i loro ripieghi: la usa templates/parts/footer-bar.php.
+	 *
+	 * @return array{email:string,privacy:string,cookie:string,owner:string,year:string}
+	 */
+	public static function get_footer_data() {
+		$settings = get_option( self::OPTION_NAME, array() );
+
+		$privacy = isset( $settings['footer_privacy_url'] ) ? $settings['footer_privacy_url'] : '';
+		if ( '' === $privacy ) {
+			// Ripiego: la pagina scelta in Impostazioni → Privacy.
+			$privacy = (string) get_privacy_policy_url();
+		}
+
+		$cookie = isset( $settings['footer_cookie_url'] ) ? $settings['footer_cookie_url'] : '';
+		if ( '' === $cookie ) {
+			$cookie = $privacy;
+		}
+
+		$owner = isset( $settings['footer_owner'] ) ? $settings['footer_owner'] : '';
+		if ( '' === $owner ) {
+			$owner = (string) get_bloginfo( 'name' );
+		}
+
+		return array(
+			'email'   => isset( $settings['footer_email'] ) ? $settings['footer_email'] : '',
+			'privacy' => $privacy,
+			'cookie'  => $cookie,
+			'owner'   => $owner,
+			// wp_date() rispetta il fuso orario del sito: a Capodanno
+			// l'anno cambia quando cambia lì, non a Greenwich.
+			'year'    => wp_date( 'Y' ),
+		);
 	}
 
 	/**
