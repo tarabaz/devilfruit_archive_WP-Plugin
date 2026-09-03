@@ -314,7 +314,13 @@ body.dfa-archive-page {
 	justify-content: flex-start;
 }
 
-@media (max-width: 700px) {
+/*
+ * Sotto i 1200px la navigazione torna nel flusso, sopra al titolo: il
+ * titolo occupa tutta la larghezza disponibile e un bottone appoggiato
+ * nell'angolo gli finirebbe sopra (misurato: si sovrapponevano fino a
+ * circa 1300px di viewport).
+ */
+@media (max-width: 1199px) {
 	.dfa-single__nav {
 		position: static;
 		padding: 20px 24px 0;
@@ -332,6 +338,20 @@ body.dfa-archive-page {
 	flex-direction: column;
 	align-items: center;
 	gap: 14px;
+}
+
+/*
+ * Sopra i 1200px il bottone e ancorato all'angolo: l'intestazione gli
+ * lascia il posto da entrambi i lati, cosi resta centrata e non ci
+ * finisce sotto. Questo blocco DEVE stare dopo la regola qui sopra: ha
+ * la stessa specificita e quella usa la scorciatoia "padding", che
+ * riscriverebbe anche i lati.
+ */
+@media (min-width: 1200px) {
+	.dfa-single__header {
+		padding-left: 190px;
+		padding-right: 190px;
+	}
 }
 
 /* Titolo identico a quello dell'archivio (.dfa-archive__title), così le
@@ -450,9 +470,22 @@ body.dfa-archive-page {
 	position: absolute;
 	inset: 0;
 }
-.dfa-single__specimen-layer--unlit { opacity: 0; }
-.dfa-single__specimen.is-unlit .dfa-single__specimen-layer--lit { opacity: 0; }
-.dfa-single__specimen.is-unlit .dfa-single__specimen-layer--unlit { opacity: 1; }
+/*
+ * Quale scatto si vede: la combinazione di due interruttori
+ * indipendenti, il modello (base o variante) e la lampada (accesa o
+ * spenta). Tutti i livelli partono trasparenti e se ne riaccende uno
+ * solo: elencare le quattro combinazioni per esteso è più lungo di una
+ * catena di override, ma non lascia dubbi su cosa vince e non dipende
+ * dall'ordine delle regole nel file.
+ */
+.dfa-single__specimen-layer { opacity: 0; }
+
+.dfa-single__specimen:not(.is-variant):not(.is-unlit) .dfa-single__specimen-layer--lit,
+.dfa-single__specimen:not(.is-variant).is-unlit .dfa-single__specimen-layer--unlit,
+.dfa-single__specimen.is-variant:not(.is-unlit) .dfa-single__specimen-layer--variant-lit,
+.dfa-single__specimen.is-variant.is-unlit .dfa-single__specimen-layer--variant-unlit {
+	opacity: 1;
+}
 
 .dfa-single__specimen img {
 	display: block;
@@ -467,12 +500,22 @@ body.dfa-archive-page {
 	object-fit: contain;
 }
 
-.dfa-single__lamp-btn {
-	display: inline-block;
+/* I due bottoni affiancati sotto l'esemplare. Lo scavalcamento
+   sull'immagine sta qui e non sui bottoni, così restano allineati. */
+.dfa-single__actions {
 	position: relative;
 	z-index: 2;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 10px;
 	/* Sconfina sull'immagine, all'altezza del riflesso. */
 	margin-top: -58px;
+}
+
+.dfa-single__lamp-btn,
+.dfa-single__variant-btn {
+	display: inline-block;
 	padding: 10px 18px;
 	background: rgba(14, 16, 18, .9);
 	border: 1px solid rgba(216, 219, 222, .5);
@@ -484,9 +527,30 @@ body.dfa-archive-page {
 	transition: background .15s ease, border-color .15s ease, color .15s ease;
 }
 .dfa-single__lamp-btn:hover,
-.dfa-single__lamp-btn:focus-visible {
+.dfa-single__lamp-btn:focus-visible,
+.dfa-single__variant-btn:hover,
+.dfa-single__variant-btn:focus-visible {
 	background: rgba(216, 219, 222, .1);
 	border-color: rgba(216, 219, 222, .85);
+	color: #fff;
+}
+
+/* Modello senza versione spenta: il bottone della lampada resta lì ma
+   spento, così i due bottoni non ballano cambiando variante. */
+.dfa-single__lamp-btn[disabled] {
+	opacity: .4;
+	cursor: default;
+}
+.dfa-single__lamp-btn[disabled]:hover {
+	background: rgba(14, 16, 18, .9);
+	border-color: rgba(216, 219, 222, .5);
+	color: #e8ebee;
+}
+
+/* Il modello in vista è marcato, come una linguetta selezionata. */
+.dfa-single__variant-btn[aria-pressed="true"] {
+	background: rgba(216, 219, 222, .16);
+	border-color: rgba(216, 219, 222, .8);
 	color: #fff;
 }
 

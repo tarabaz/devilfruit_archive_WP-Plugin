@@ -97,7 +97,8 @@ class DFA_CPT {
 		$labels = array(
 			'name'                  => __( 'Devil Fruit Archive', 'devil-fruit-archive' ),
 			'singular_name'         => __( 'Esemplare', 'devil-fruit-archive' ),
-			'menu_name'             => __( 'Devil Fruit Archive', 'devil-fruit-archive' ),
+			// Voce del menu di wp-admin, distinta dal nome del post type.
+			'menu_name'             => __( 'Francy Devil Fruit Archive', 'devil-fruit-archive' ),
 			'name_admin_bar'        => __( 'Esemplare', 'devil-fruit-archive' ),
 			'add_new'               => __( 'Aggiungi esemplare', 'devil-fruit-archive' ),
 			'add_new_item'          => __( 'Aggiungi nuovo esemplare', 'devil-fruit-archive' ),

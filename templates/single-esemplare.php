@@ -37,6 +37,25 @@ while ( have_posts() ) :
 	 * pacchetti di export gia esistenti.
 	 */
 	$unlit_image_id         = (int) DFA_Meta::get( $post_id, 'specimen_lit_image' );
+
+	/*
+	 * Variante: seconda versione dello stesso esemplare (es. il frutto
+	 * intero e quello morsicato), anch'essa nei due stati della lampada.
+	 * La variante "esiste" solo se c'è la sua immagine accesa: senza
+	 * quella non ci sarebbe niente da mostrare passando all'altro
+	 * modello.
+	 */
+	$variant_lit_image_id   = (int) DFA_Meta::get( $post_id, 'variant_lit_image' );
+	$variant_unlit_image_id = (int) DFA_Meta::get( $post_id, 'variant_unlit_image' );
+	$has_variant            = (bool) $variant_lit_image_id;
+	$variant_label          = DFA_Meta::get( $post_id, 'variant_label' );
+	if ( '' === $variant_label ) {
+		$variant_label = 'VARIANTE';
+	}
+
+	// Il bottone della lampada serve se almeno uno dei due modelli ha
+	// una versione spenta da mostrare.
+	$has_lamp = $unlit_image_id || ( $has_variant && $variant_unlit_image_id );
 	// Immagine del frutto (la stessa usata nelle card dell'archivio):
 	// se presente, viene mostrata nella targa a sinistra del nome.
 	$fruit_image_id         = (int) DFA_Meta::get( $post_id, 'fruit_image' );
@@ -111,7 +130,20 @@ while ( have_posts() ) :
 		<div class="dfa-single__content">
 
 			<div class="dfa-single__specimen-wrap">
-				<div class="dfa-single__specimen">
+				<?php
+				/*
+				 * Fino a quattro scatti sovrapposti: modello base e
+				 * variante, ciascuno acceso e spento. Quale si vede lo
+				 * decidono le classi is-variant / is-unlit sul
+				 * contenitore, gestite dal CSS. I data-has-* dicono al JS
+				 * quali combinazioni esistono davvero, così il bottone
+				 * della lampada si disattiva sui modelli che non hanno
+				 * una versione spenta invece di mostrare il vuoto.
+				 */
+				?>
+				<div class="dfa-single__specimen"
+					data-has-unlit="<?php echo $unlit_image_id ? '1' : '0'; ?>"
+					data-has-variant-unlit="<?php echo ( $has_variant && $variant_unlit_image_id ) ? '1' : '0'; ?>">
 					<?php // Immagine in evidenza = lampada accesa: e lo stato iniziale. ?>
 					<?php if ( has_post_thumbnail() ) : ?>
 						<div class="dfa-single__specimen-layer dfa-single__specimen-layer--lit"><?php the_post_thumbnail( 'large' ); ?></div>
@@ -119,14 +151,31 @@ while ( have_posts() ) :
 					<?php if ( $unlit_image_id ) : ?>
 						<div class="dfa-single__specimen-layer dfa-single__specimen-layer--unlit"><?php echo wp_get_attachment_image( $unlit_image_id, 'large' ); ?></div>
 					<?php endif; ?>
+					<?php if ( $has_variant ) : ?>
+						<div class="dfa-single__specimen-layer dfa-single__specimen-layer--variant-lit"><?php echo wp_get_attachment_image( $variant_lit_image_id, 'large' ); ?></div>
+					<?php endif; ?>
+					<?php if ( $has_variant && $variant_unlit_image_id ) : ?>
+						<div class="dfa-single__specimen-layer dfa-single__specimen-layer--variant-unlit"><?php echo wp_get_attachment_image( $variant_unlit_image_id, 'large' ); ?></div>
+					<?php endif; ?>
 				</div>
 
-				<?php if ( $unlit_image_id ) : ?>
-					<button type="button"
-						class="dfa-single__lamp-btn"
-						data-label-on="ACCENDI LA LAMPADA"
-						data-label-off="SPEGNI LA LAMPADA"
-						aria-pressed="true">SPEGNI LA LAMPADA</button>
+				<?php if ( $has_lamp || $has_variant ) : ?>
+					<div class="dfa-single__actions">
+						<?php if ( $has_lamp ) : ?>
+							<button type="button"
+								class="dfa-single__lamp-btn"
+								data-label-on="ACCENDI LA LAMPADA"
+								data-label-off="SPEGNI LA LAMPADA"
+								aria-pressed="true">SPEGNI LA LAMPADA</button>
+						<?php endif; ?>
+						<?php if ( $has_variant ) : ?>
+							<button type="button"
+								class="dfa-single__variant-btn"
+								data-label-variant="<?php echo esc_attr( $variant_label ); ?>"
+								data-label-base="MODELLO BASE"
+								aria-pressed="false"><?php echo esc_html( $variant_label ); ?></button>
+						<?php endif; ?>
+					</div>
 				<?php endif; ?>
 			</div>
 
