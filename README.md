@@ -29,7 +29,7 @@ Brand: **FrancyStore3D**.
 
 ## Creare un esemplare
 
-1. In wp-admin, apri il menu **Devil Fruit Archive → Aggiungi esemplare**.
+1. In wp-admin, apri il menu **Francy Devil Fruit Archive → Aggiungi esemplare**.
 2. Inserisci un **Titolo** (uso interno/admin; il nome mostrato in scheda
    è il campo "Romaji").
 3. Imposta l'**immagine in evidenza** (featured image): è la foto
@@ -56,6 +56,10 @@ Brand: **FrancyStore3D**.
      caricata quel riquadro resta trasparente e mostra lo sfondo dietro,
      invece di un blocco nero) e, nella scheda singola, nella targa a
      destra del nome. Se non caricata, la targa resta come prima.
+   - `Nome della variante`, `Variante, lampada accesa`, `Variante,
+     lampada spenta` (opzionali): seconda versione dello stesso
+     esemplare — per esempio il frutto intero e quello morsicato. Vedi
+     "Variante" qui sotto.
    - `Immagine esemplare a lampada spenta` (opzionale): stessa
      inquadratura dell'immagine in evidenza ma con la lampada del
      barattolo spenta. Se valorizzata, nella scheda singola compare
@@ -80,7 +84,7 @@ Brand: **FrancyStore3D**.
 
 ## La lista degli esemplari in wp-admin
 
-**Devil Fruit Archive → Tutti gli esemplari** mostra le colonne
+**Francy Devil Fruit Archive → Tutti gli esemplari** mostra le colonne
 **Catalog ID**, **Type**, **Proprietario**, **Ex proprietario** e
 **Pubblicato**.
 
@@ -105,9 +109,29 @@ Brand: **FrancyStore3D**.
   stato invece della spunta, così un clic non può stravolgerlo. Lo
   stesso vale per chi non ha i permessi di modifica su quell'esemplare.
 
+### Variante (due versioni dello stesso esemplare)
+
+Un esemplare può avere una seconda versione — il caso tipico è il frutto
+intero e quello morsicato. Sono quindi in gioco **quattro scatti**:
+base acceso (l'immagine in evidenza), base spento, variante accesa,
+variante spenta.
+
+Nella scheda singola compaiono due bottoni affiancati sotto
+l'esemplare: quello della lampada e quello della variante. Sono
+**indipendenti**: cambiando modello lo stato acceso/spento si mantiene,
+e viceversa. Il bottone della variante mostra il `Nome della variante`
+(o "VARIANTE" se non compilato) e, una volta premuto, "MODELLO BASE".
+
+- La variante esiste solo se è caricata la sua **immagine accesa**:
+  senza quella il bottone non compare.
+- Se il modello in vista non ha la versione spenta, il bottone della
+  lampada resta visibile ma **disattivato**, e passando a quel modello
+  da uno spento si torna acceso: non c'è una versione spenta da
+  mostrare, e sparire il bottone farebbe ballare la fila.
+
 ## Impostazioni
 
-**Devil Fruit Archive → Impostazioni**:
+**Francy Devil Fruit Archive → Impostazioni**:
 
 - **URL della CTA (DM / contatti)**: impostazione al momento **non
   utilizzata**. Il bottone "RICHIEDI QUESTO ESEMPLARE" è stato rimosso
@@ -141,7 +165,7 @@ contenuti reali senza doverli scrivere a mano uno per uno.
 
 **Dalla pagina impostazioni:**
 
-1. Vai in **Devil Fruit Archive → Impostazioni**.
+1. Vai in **Francy Devil Fruit Archive → Impostazioni**.
 2. Nella sezione "Seed del catalogo" clicca **"Lancia il seed del
    catalogo"**.
 3. Verrai reindirizzato alla lista esemplari con un messaggio che indica
@@ -166,7 +190,7 @@ proprietari.
 
 ## Esporta / Importa l'archivio (backup e trasferimento)
 
-In **Devil Fruit Archive → Impostazioni**, sezione "Esporta / Importa
+In **Francy Devil Fruit Archive → Impostazioni**, sezione "Esporta / Importa
 archivio", trovi due pulsanti che gestiscono l'intero contenuto del
 plugin in un unico file `.zip`.
 

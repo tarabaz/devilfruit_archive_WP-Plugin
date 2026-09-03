@@ -124,6 +124,9 @@ class DFA_Metabox {
 		// Chiave meta storica: ora contiene lo scatto a lampada SPENTA.
 		$unlit_image   = (int) DFA_Meta::get( $post->ID, 'specimen_lit_image' );
 		$coming_soon   = DFA_Meta::is_coming_soon( $post->ID );
+		$variant_label = DFA_Meta::get( $post->ID, 'variant_label' );
+		$variant_lit   = (int) DFA_Meta::get( $post->ID, 'variant_lit_image' );
+		$variant_unlit = (int) DFA_Meta::get( $post->ID, 'variant_unlit_image' );
 
 		if ( '' === $fruit_type ) {
 			$fruit_type = 'PARAMECIA';
@@ -186,6 +189,35 @@ class DFA_Metabox {
 				<td>
 					<?php self::render_image_field( 'specimen_lit_image', $unlit_image ); ?>
 					<p class="description"><?php esc_html_e( 'Stessa inquadratura dell\'immagine in evidenza, ma con la lampada del barattolo spenta. La scheda parte ACCESA (usa l\'immagine in evidenza) e mostra un bottone "Spegni la lampada" che alterna le due immagini in dissolvenza. Se questo campo è vuoto, il bottone non viene mostrato.', 'devil-fruit-archive' ); ?></p>
+				</td>
+			</tr>
+			<tr>
+				<th colspan="2" style="padding-bottom:0">
+					<h3 style="margin:16px 0 0"><?php esc_html_e( 'Variante', 'devil-fruit-archive' ); ?></h3>
+					<p class="description" style="font-weight:400;max-width:640px">
+						<?php esc_html_e( 'Seconda versione dello stesso esemplare — per esempio il frutto intero e quello morsicato. Se carichi l\'immagine accesa della variante, nella scheda compare un bottone accanto a quello della lampada che passa da un modello all\'altro, mantenendo lo stato acceso/spento.', 'devil-fruit-archive' ); ?>
+					</p>
+				</th>
+			</tr>
+			<tr>
+				<th><label for="dfa_variant_label"><?php esc_html_e( 'Nome della variante', 'devil-fruit-archive' ); ?></label></th>
+				<td>
+					<input type="text" id="dfa_variant_label" name="dfa_variant_label" class="regular-text" value="<?php echo esc_attr( $variant_label ); ?>" placeholder="<?php esc_attr_e( 'VARIANTE', 'devil-fruit-archive' ); ?>">
+					<p class="description"><?php esc_html_e( 'Facoltativo: se compilato diventa l\'etichetta del bottone (es. "MORSICATO"), altrimenti il bottone dice "VARIANTE".', 'devil-fruit-archive' ); ?></p>
+				</td>
+			</tr>
+			<tr>
+				<th><?php esc_html_e( 'Variante, lampada accesa', 'devil-fruit-archive' ); ?></th>
+				<td>
+					<?php self::render_image_field( 'variant_lit_image', $variant_lit ); ?>
+					<p class="description"><?php esc_html_e( 'È questa a decidere se la variante esiste: senza, il bottone non compare.', 'devil-fruit-archive' ); ?></p>
+				</td>
+			</tr>
+			<tr>
+				<th><?php esc_html_e( 'Variante, lampada spenta', 'devil-fruit-archive' ); ?></th>
+				<td>
+					<?php self::render_image_field( 'variant_unlit_image', $variant_unlit ); ?>
+					<p class="description"><?php esc_html_e( 'Facoltativa. Se manca, mentre si guarda la variante il bottone della lampada resta disattivato: non c\'è una versione spenta da mostrare.', 'devil-fruit-archive' ); ?></p>
 				</td>
 			</tr>
 		</table>
@@ -288,7 +320,7 @@ class DFA_Metabox {
 			return;
 		}
 
-		$text_fields = array( 'catalog_id', 'romaji_name', 'katakana_name', 'special_note', 'owner_current', 'owner_former' );
+		$text_fields = array( 'catalog_id', 'romaji_name', 'katakana_name', 'special_note', 'owner_current', 'owner_former', 'variant_label' );
 		foreach ( $text_fields as $key ) {
 			$field_name = 'dfa_' . $key;
 			$value      = isset( $_POST[ $field_name ] ) ? sanitize_text_field( wp_unslash( $_POST[ $field_name ] ) ) : '';
@@ -305,7 +337,7 @@ class DFA_Metabox {
 			update_post_meta( $post_id, DFA_Meta::PREFIX . 'lore', $lore );
 		}
 
-		foreach ( array( 'owner_current_image', 'fruit_image', 'specimen_lit_image' ) as $key ) {
+		foreach ( array( 'owner_current_image', 'fruit_image', 'specimen_lit_image', 'variant_lit_image', 'variant_unlit_image' ) as $key ) {
 			$field_name = 'dfa_' . $key;
 			$value      = isset( $_POST[ $field_name ] ) ? absint( $_POST[ $field_name ] ) : 0;
 			update_post_meta( $post_id, DFA_Meta::PREFIX . $key, $value );

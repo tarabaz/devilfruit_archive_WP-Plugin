@@ -89,7 +89,7 @@ class DFA_Transfer {
 	 * @return string[]
 	 */
 	private static function text_fields() {
-		return array( 'catalog_id', 'fruit_type', 'romaji_name', 'katakana_name', 'special_note', 'owner_current', 'owner_former', 'lore', 'coming_soon' );
+		return array( 'catalog_id', 'fruit_type', 'romaji_name', 'katakana_name', 'special_note', 'owner_current', 'owner_former', 'lore', 'coming_soon', 'variant_label' );
 	}
 
 	/**
@@ -99,7 +99,7 @@ class DFA_Transfer {
 	 * @return string[]
 	 */
 	private static function image_fields() {
-		return array( 'owner_current_image', 'fruit_image', 'specimen_lit_image' );
+		return array( 'owner_current_image', 'fruit_image', 'specimen_lit_image', 'variant_lit_image', 'variant_unlit_image' );
 	}
 
 	/**

@@ -43,7 +43,7 @@ class DFA_Meta {
 	 * Registra tutti i meta field del CPT "esemplare".
 	 */
 	public static function register_meta_fields() {
-		$text_fields = array( 'catalog_id', 'romaji_name', 'katakana_name', 'special_note', 'owner_current', 'owner_former' );
+		$text_fields = array( 'catalog_id', 'romaji_name', 'katakana_name', 'special_note', 'owner_current', 'owner_former', 'variant_label' );
 
 		foreach ( $text_fields as $key ) {
 			register_post_meta(
@@ -105,7 +105,14 @@ class DFA_Meta {
 			)
 		);
 
-		foreach ( array( 'owner_current_image', 'fruit_image', 'specimen_lit_image' ) as $key ) {
+		/*
+		 * specimen_lit_image contiene lo scatto BASE a lampada spenta
+		 * (nome storico, tenuto per non invalidare contenuti e pacchetti
+		 * di export esistenti); variant_lit_image e variant_unlit_image
+		 * sono la seconda versione dell'esemplare — es. il frutto intero
+		 * e quello morsicato — nei due stati della lampada.
+		 */
+		foreach ( array( 'owner_current_image', 'fruit_image', 'specimen_lit_image', 'variant_lit_image', 'variant_unlit_image' ) as $key ) {
 			register_post_meta(
 				DFA_CPT::POST_TYPE,
 				self::PREFIX . $key,
