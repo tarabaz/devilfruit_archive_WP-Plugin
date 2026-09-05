@@ -156,23 +156,34 @@ Il numero di versione del plugin (bump ad ogni modifica) è mostrato in
 fondo a questa pagina — utile per verificare a colpo d'occhio che un
 aggiornamento sia stato effettivamente caricato sul sito.
 
-### Barra in fondo alle pagine
+### Riga in fondo alle pagine
 
 Le pagine dell'archivio sono documenti indipendenti dal tema (non
 chiamano `get_footer()`), quindi **il footer di Avada non compare**: è la
 stessa scelta che le tiene fuori dal layout e dai colori del tema. La
-sezione **Barra in fondo alle pagine** delle impostazioni ne riporta i
-contenuti nello stile dell'archivio:
+sezione **Barra in fondo alle pagine** delle impostazioni ne riporta
+l'essenziale in **una riga sola, centrata e volutamente discreta**:
 
-| Campo | Nella barra | Se lasciato vuoto |
-|---|---|---|
-| Email di contatto | a sinistra, come `mailto:` | la parte sinistra resta vuota |
-| Link Privacy Policy | a destra | si usa la pagina di Impostazioni → Privacy; senza quella, il link non compare |
-| Link Cookie Policy | a destra | punta allo stesso indirizzo della privacy |
-| Intestatario del copyright | `© anno intestatario` | si usa il nome del sito |
+```
+Privacy Policy · Cookie Policy · © 2026 Francystore3D · Tutti i diritti riservati
+```
+
+"Privacy Policy · Cookie Policy" è un **unico link**: le due informative
+stanno sulla stessa pagina.
+
+| Campo | Se lasciato vuoto |
+|---|---|
+| Link Privacy Policy | si usa la pagina di Impostazioni → Privacy di WordPress; senza nemmeno quella, resta solo il copyright |
+| Intestatario del copyright | si usa il nome del sito |
 
 L'anno si aggiorna da solo (`wp_date`, quindi cambia con il fuso orario
 del sito, non a Greenwich).
+
+Lo stile è tarato per farsi notare poco: 10px, molto spaziato, colore al
+30% (42% il link) sul fondo della pagina, senza bordo superiore. Il
+contrasto misurato è 2,1:1 per il testo e 3,1:1 per il link, sotto la
+soglia di accessibilità AA (4,5:1): è una scelta estetica consapevole, e
+in hover il link va a contrasto pieno.
 
 **Il banner dei cookie non passa da qui**: quello lo inietta il plugin di
 consenso agganciandosi a `wp_footer()`, che i template chiamano già.
@@ -363,7 +374,7 @@ templates/
   single-esemplare.php             Scheda singola
   archive-esemplare.php            Griglia archivio
   parts/card-esemplare.php         Card riusata da griglia e shortcode
-  parts/footer-bar.php             Barra in fondo (email, policy, copyright)
+  parts/footer-bar.php             Riga in fondo (policy e copyright)
 assets/
   css/devil-fruit-archive.css      Stile di frontend (derivato da _design/)
   css/admin-metabox.css            Stile minimo per i meta box
