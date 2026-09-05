@@ -719,57 +719,45 @@ body.dfa-archive-page {
 }
 
 /* --------------------------------------------------------------------
-   BARRA IN FONDO (single e archivio)
+   RIGA IN FONDO (single e archivio)
 
    Sta fuori dai contenitori con lo sfondo fotografico, quindi non ha
    bisogno di z-index: e appoggiata sul fondo pagina.
    -------------------------------------------------------------------- */
 
+/*
+ * Volutamente minuta e poco contrastata: e una riga di servizio, deve
+ * esserci ma non contendere la scena all'archivio. Niente bordo
+ * superiore e stesso fondo della pagina, cosi si fonde invece di
+ * sembrare una fascia attaccata sotto.
+ */
 .dfa-footer {
 	background: var(--bg);
-	border-top: 1px solid rgba(216, 219, 222, .14);
-	font: 400 11px/1.6 'IBM Plex Mono', ui-monospace, monospace;
-	letter-spacing: .08em;
-	color: rgba(216, 219, 222, .52);
+	padding: 26px 24px 30px;
 }
 
-.dfa-footer__inner {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: space-between;
-	gap: 8px 20px;
+.dfa-footer__line {
 	max-width: 1400px;
 	margin: 0 auto;
-	padding: 16px 24px;
+	text-align: center;
+	font: 400 10px/1.7 'IBM Plex Mono', ui-monospace, monospace;
+	letter-spacing: .12em;
+	color: rgba(216, 219, 222, .3);
 }
 
-.dfa-footer a {
-	color: rgba(216, 219, 222, .72);
+/* Il link resta un filo piu leggibile del testo attorno, e in hover
+   arriva a contrasto pieno: e l'unica cosa cliccabile della riga. */
+.dfa-footer__line a {
+	color: rgba(216, 219, 222, .42);
 	text-decoration: none;
 	border-bottom: 1px solid transparent;
 	transition: color .15s ease, border-color .15s ease;
 }
 
-.dfa-footer a:hover,
-.dfa-footer a:focus-visible {
+.dfa-footer__line a:hover,
+.dfa-footer__line a:focus-visible {
 	color: #eef1f3;
-	border-bottom-color: rgba(216, 219, 222, .5);
-}
-
-.dfa-footer__sep {
-	margin: 0 6px;
-	color: rgba(216, 219, 222, .3);
-}
-
-/* Su schermo stretto le due parti vanno in colonna e centrate: affiancate
-   si spezzerebbero su piu righe disallineate. */
-@media (max-width: 700px) {
-	.dfa-footer__inner {
-		flex-direction: column;
-		justify-content: center;
-		text-align: center;
-	}
+	border-bottom-color: rgba(216, 219, 222, .45);
 }
 
 /* --------------------------------------------------------------------
