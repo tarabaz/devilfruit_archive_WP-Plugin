@@ -150,7 +150,22 @@ e viceversa. Il bottone della variante mostra il `Nome della variante`
 - **Sfondo di riserva scheda singola**: usato come sfondo sulle schede
   degli esemplari che non hanno ancora una `Foto proprietario attuale`
   caricata.
+- **Dimensione del titolo** (20-160 px, predefinita 60): quanto è grande
+  "VEGAPUNK RESEARCH DIVISION" nelle schede, **sui monitor**. Su schermo
+  stretto scende nella stessa proporzione di prima (44 su 60, cioè il
+  73%), così non si imposta una misura sola che va bene di là e male di
+  qua. Il Catalog ID sotto resta sempre a metà del titolo, quindi segue
+  da solo. Non tocca il titolo della pagina archivio.
+- **Trasparenza del titolo** (0-100%, predefinita 100): quanto è
+  visibile la scritta. Vale **solo per il titolo**, non per il Catalog
+  ID sotto, che resta pieno.
 - **Seed del catalogo**: vedi sotto.
+
+Dimensione e trasparenza arrivano al CSS come **variabili** accodate al
+foglio di stile, non riscrivendone le regole: il file resta statico e
+quindi memorizzabile in cache, e le regole conservano i valori
+originali come ripiego se quelle righe mancano (impostazioni mai
+salvate, cache vecchia).
 
 Il numero di versione del plugin (bump ad ogni modifica) è mostrato in
 fondo a questa pagina — utile per verificare a colpo d'occhio che un

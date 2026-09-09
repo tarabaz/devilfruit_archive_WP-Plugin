@@ -121,7 +121,7 @@ while ( have_posts() ) :
 
 		<header class="dfa-single__header">
 			<?php // Stesso titolo dell'archivio; sotto, il Catalog ID a metà dimensione (font-size: 50% nel CSS). ?>
-			<div class="dfa-single__header-title dfa-display">VEGAPUNK RESEARCH DIVISION<?php
+			<div class="dfa-single__header-title dfa-display"><span class="dfa-single__header-name">VEGAPUNK RESEARCH DIVISION</span><?php
 				echo $catalog_id ? '<span class="dfa-single__header-id">' . esc_html( $catalog_id ) . '</span>' : '';
 			?></div>
 			<div class="dfa-single__header-rule"></div>

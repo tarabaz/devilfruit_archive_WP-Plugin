@@ -90,6 +90,15 @@ class DFA_Template_Loader {
 			DFA_VERSION
 		);
 
+		/*
+		 * Dimensione e trasparenza del titolo della scheda singola
+		 * arrivano dalle impostazioni: si passano al CSS come variabili
+		 * invece di riscrivere le regole, cosi il foglio di stile resta
+		 * un file statico (quindi ancora memorizzabile in cache) e le
+		 * regole conservano il loro ripiego se queste righe mancano.
+		 */
+		wp_add_inline_style( 'dfa-frontend', DFA_Settings::get_title_style_vars() );
+
 		wp_enqueue_script(
 			'dfa-frontend',
 			DFA_PLUGIN_URL . 'assets/js/devil-fruit-archive.js',

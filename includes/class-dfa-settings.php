@@ -16,6 +16,20 @@ class DFA_Settings {
 	/** Nome dell'opzione che contiene le impostazioni del plugin. */
 	const OPTION_NAME = 'dfa_settings';
 
+	/** Dimensione del titolo della scheda singola, in px, sui monitor. */
+	const TITLE_SIZE_DEFAULT = 60;
+
+	/** Limiti accettati per la dimensione del titolo. */
+	const TITLE_SIZE_MIN = 20;
+	const TITLE_SIZE_MAX = 160;
+
+	/**
+	 * Rapporto fra la dimensione del titolo su schermo stretto e quella
+	 * sui monitor: il valore originale era 44px su 60px. Impostando la
+	 * misura grande, quella piccola segue nella stessa proporzione.
+	 */
+	const TITLE_SIZE_MOBILE_RATIO = 44 / 60;
+
 	/** Slug della pagina impostazioni in wp-admin. */
 	const PAGE_SLUG = 'dfa-settings';
 
@@ -172,6 +186,8 @@ class DFA_Settings {
 					'single_background_image'  => 0,
 					'footer_privacy_url'       => '',
 					'footer_owner'             => '',
+					'single_title_size'        => self::TITLE_SIZE_DEFAULT,
+					'single_title_opacity'     => 100,
 				),
 			)
 		);
@@ -221,6 +237,22 @@ class DFA_Settings {
 			'dfa_settings_single'
 		);
 
+		add_settings_field(
+			'dfa_single_title_size',
+			__( 'Dimensione del titolo', 'devil-fruit-archive' ),
+			array( __CLASS__, 'render_single_title_size_field' ),
+			self::PAGE_SLUG,
+			'dfa_settings_single'
+		);
+
+		add_settings_field(
+			'dfa_single_title_opacity',
+			__( 'Trasparenza del titolo', 'devil-fruit-archive' ),
+			array( __CLASS__, 'render_single_title_opacity_field' ),
+			self::PAGE_SLUG,
+			'dfa_settings_single'
+		);
+
 		add_settings_section(
 			'dfa_settings_footer',
 			__( 'Barra in fondo alle pagine', 'devil-fruit-archive' ),
@@ -262,6 +294,17 @@ class DFA_Settings {
 		$output['archive_background_image'] = isset( $input['archive_background_image'] ) ? absint( $input['archive_background_image'] ) : 0;
 
 		$output['single_background_image'] = isset( $input['single_background_image'] ) ? absint( $input['single_background_image'] ) : 0;
+
+		// Fuori dai limiti si riporta dentro invece di rifiutare: un
+		// titolo da 0px o da 900px non e mai quello che si voleva.
+		$size = isset( $input['single_title_size'] ) ? absint( $input['single_title_size'] ) : self::TITLE_SIZE_DEFAULT;
+		if ( ! $size ) {
+			$size = self::TITLE_SIZE_DEFAULT;
+		}
+		$output['single_title_size'] = max( self::TITLE_SIZE_MIN, min( self::TITLE_SIZE_MAX, $size ) );
+
+		$opacity = isset( $input['single_title_opacity'] ) ? absint( $input['single_title_opacity'] ) : 100;
+		$output['single_title_opacity'] = max( 0, min( 100, $opacity ) );
 
 		$output['footer_privacy_url'] = isset( $input['footer_privacy_url'] ) ? esc_url_raw( trim( $input['footer_privacy_url'] ) ) : '';
 		$output['footer_owner']       = isset( $input['footer_owner'] ) ? sanitize_text_field( trim( $input['footer_owner'] ) ) : '';
@@ -498,6 +541,67 @@ class DFA_Settings {
 			</p>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Campo dimensione del titolo della scheda singola.
+	 */
+	public static function render_single_title_size_field() {
+		$settings = get_option( self::OPTION_NAME, array() );
+		$value    = isset( $settings['single_title_size'] ) ? (int) $settings['single_title_size'] : self::TITLE_SIZE_DEFAULT;
+		?>
+		<input type="number" name="<?php echo esc_attr( self::OPTION_NAME ); ?>[single_title_size]"
+			value="<?php echo esc_attr( (string) $value ); ?>"
+			min="<?php echo esc_attr( (string) self::TITLE_SIZE_MIN ); ?>"
+			max="<?php echo esc_attr( (string) self::TITLE_SIZE_MAX ); ?>" step="1" class="small-text"> px
+		<p class="description">
+			<?php
+			printf(
+				/* translators: 1: dimensione predefinita, 2: dimensione corrispondente su schermo stretto. */
+				esc_html__( 'Dimensione di "VEGAPUNK RESEARCH DIVISION" nelle schede, sui monitor (predefinita %1$d px). Su schermo stretto scende in proporzione, ora a %2$d px. Il Catalog ID sotto resta sempre a metà del titolo.', 'devil-fruit-archive' ),
+				(int) self::TITLE_SIZE_DEFAULT,
+				(int) round( $value * self::TITLE_SIZE_MOBILE_RATIO )
+			);
+			?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Campo trasparenza del titolo della scheda singola.
+	 */
+	public static function render_single_title_opacity_field() {
+		$settings = get_option( self::OPTION_NAME, array() );
+		$value    = isset( $settings['single_title_opacity'] ) ? (int) $settings['single_title_opacity'] : 100;
+		?>
+		<input type="number" name="<?php echo esc_attr( self::OPTION_NAME ); ?>[single_title_opacity]"
+			value="<?php echo esc_attr( (string) $value ); ?>" min="0" max="100" step="1" class="small-text"> %
+		<p class="description"><?php esc_html_e( 'Quanto è visibile il titolo: 100 pieno, 0 invisibile. Vale solo per la scritta, non per il Catalog ID sotto.', 'devil-fruit-archive' ); ?></p>
+		<?php
+	}
+
+	/**
+	 * Variabili CSS con dimensione e trasparenza del titolo, pronte da
+	 * accodare al foglio di stile di frontend.
+	 *
+	 * @return string
+	 */
+	public static function get_title_style_vars() {
+		$settings = get_option( self::OPTION_NAME, array() );
+
+		$size = isset( $settings['single_title_size'] ) ? (int) $settings['single_title_size'] : self::TITLE_SIZE_DEFAULT;
+		$size = max( self::TITLE_SIZE_MIN, min( self::TITLE_SIZE_MAX, $size ) );
+
+		$opacity = isset( $settings['single_title_opacity'] ) ? (int) $settings['single_title_opacity'] : 100;
+		$opacity = max( 0, min( 100, $opacity ) );
+
+		return sprintf(
+			':root{--dfa-title-size:%1$dpx;--dfa-title-size-mobile:%2$dpx;--dfa-title-opacity:%3$s}',
+			$size,
+			(int) round( $size * self::TITLE_SIZE_MOBILE_RATIO ),
+			// Due decimali bastano e evitano notazioni tipo 0.6699999.
+			number_format( $opacity / 100, 2, '.', '' )
+		);
 	}
 
 	/**
