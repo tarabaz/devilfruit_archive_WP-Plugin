@@ -30,6 +30,15 @@ class DFA_Settings {
 	 */
 	const TITLE_SIZE_MOBILE_RATIO = 44 / 60;
 
+	/**
+	 * Dimensione del Catalog ID come percentuale del titolo, non in px:
+	 * il titolo si rimpicciolisce da solo su schermo stretto, e una
+	 * misura fissa lo farebbe diventare piu grande del titolo stesso.
+	 */
+	const ID_SIZE_DEFAULT = 50;
+	const ID_SIZE_MIN     = 10;
+	const ID_SIZE_MAX     = 100;
+
 	/** Slug della pagina impostazioni in wp-admin. */
 	const PAGE_SLUG = 'dfa-settings';
 
@@ -250,6 +259,22 @@ class DFA_Settings {
 
 		/* --- Scheda "Footer" --- */
 
+		add_settings_field(
+			'dfa_single_id_size',
+			__( 'Dimensione del Catalog ID', 'devil-fruit-archive' ),
+			array( __CLASS__, 'render_single_id_size_field' ),
+			self::PAGE_SLUG . '-aspetto',
+			'dfa_settings_single'
+		);
+
+		add_settings_field(
+			'dfa_single_id_opacity',
+			__( 'Visibilità del Catalog ID', 'devil-fruit-archive' ),
+			array( __CLASS__, 'render_single_id_opacity_field' ),
+			self::PAGE_SLUG . '-aspetto',
+			'dfa_settings_single'
+		);
+
 		add_settings_section(
 			'dfa_settings_footer',
 			__( 'Riga in fondo alle pagine', 'devil-fruit-archive' ),
@@ -309,6 +334,9 @@ class DFA_Settings {
 			'single_title_size'           => self::TITLE_SIZE_DEFAULT,
 			'single_title_opacity'        => 100,
 			'single_title_opacity_mobile' => 100,
+			'single_id_size'              => self::ID_SIZE_DEFAULT,
+			'single_id_opacity'           => 100,
+			'single_id_opacity_mobile'    => 100,
 			'footer_privacy_url'          => '',
 			'footer_owner'                => '',
 		);
@@ -379,6 +407,14 @@ class DFA_Settings {
 			$output['single_title_size'] = max( self::TITLE_SIZE_MIN, min( self::TITLE_SIZE_MAX, $size ) );
 		}
 
+		if ( isset( $input['single_id_size'] ) ) {
+			$id_size = absint( $input['single_id_size'] );
+			if ( ! $id_size ) {
+				$id_size = self::ID_SIZE_DEFAULT;
+			}
+			$output['single_id_size'] = max( self::ID_SIZE_MIN, min( self::ID_SIZE_MAX, $id_size ) );
+		}
+
 		if ( isset( $input['footer_privacy_url'] ) ) {
 			$output['footer_privacy_url'] = esc_url_raw( trim( $input['footer_privacy_url'] ) );
 		}
@@ -404,6 +440,8 @@ class DFA_Settings {
 			'single_bg_opacity_mobile',
 			'single_title_opacity',
 			'single_title_opacity_mobile',
+			'single_id_opacity',
+			'single_id_opacity_mobile',
 		);
 	}
 
@@ -789,6 +827,41 @@ class DFA_Settings {
 	}
 
 	/**
+	 * Campo dimensione del Catalog ID, in percentuale del titolo.
+	 */
+	public static function render_single_id_size_field() {
+		$value      = (int) self::get( 'single_id_size' );
+		$title_size = (int) self::get( 'single_title_size' );
+		?>
+		<input type="number" name="<?php echo esc_attr( self::OPTION_NAME ); ?>[single_id_size]"
+			value="<?php echo esc_attr( (string) $value ); ?>"
+			min="<?php echo esc_attr( (string) self::ID_SIZE_MIN ); ?>"
+			max="<?php echo esc_attr( (string) self::ID_SIZE_MAX ); ?>" step="1" class="small-text"> %
+		<p class="description">
+			<?php
+			printf(
+				/* translators: 1: percentuale, 2: dimensione risultante in px, 3: dimensione del titolo. */
+				esc_html__( 'Dimensione del "DF-001" sotto al titolo, in percentuale del titolo stesso (predefinita 50%%). Col titolo a %3$d px viene %2$d px. È una percentuale e non una misura fissa perché su schermo stretto il titolo si rimpicciolisce da solo per stare in riga: in px il Catalog ID finirebbe per diventare più grande del titolo.', 'devil-fruit-archive' ),
+				$value,
+				(int) round( $title_size * $value / 100 ),
+				$title_size
+			);
+			?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Visibilità del Catalog ID sotto al titolo.
+	 */
+	public static function render_single_id_opacity_field() {
+		self::render_opacity_pair(
+			'single_id_opacity',
+			__( 'Quanto è visibile il "DF-001" sotto al titolo: 100 pieno, 0 invisibile.', 'devil-fruit-archive' )
+		);
+	}
+
+	/**
 	 * Visibilità del titolo della scheda esemplare.
 	 */
 	public static function render_single_title_opacity_field() {
@@ -809,9 +882,14 @@ class DFA_Settings {
 		$size = (int) self::get( 'single_title_size' );
 		$size = max( self::TITLE_SIZE_MIN, min( self::TITLE_SIZE_MAX, $size ) );
 
+		$id_size = (int) self::get( 'single_id_size' );
+		$id_size = max( self::ID_SIZE_MIN, min( self::ID_SIZE_MAX, $id_size ) );
+
 		$vars = array(
 			'--dfa-title-size'        => $size . 'px',
 			'--dfa-title-size-mobile' => (int) round( $size * self::TITLE_SIZE_MOBILE_RATIO ) . 'px',
+			// Percentuale: si risolve sul font-size del titolo.
+			'--dfa-id-size'           => $id_size . '%',
 		);
 
 		// Le percentuali diventano frazioni: due decimali bastano ed
@@ -823,6 +901,8 @@ class DFA_Settings {
 			'--dfa-single-bg-opacity-mobile'  => 'single_bg_opacity_mobile',
 			'--dfa-archive-bg-opacity'        => 'archive_bg_opacity',
 			'--dfa-archive-bg-opacity-mobile' => 'archive_bg_opacity_mobile',
+			'--dfa-id-opacity'                => 'single_id_opacity',
+			'--dfa-id-opacity-mobile'         => 'single_id_opacity_mobile',
 		);
 
 		foreach ( $map as $var => $key ) {

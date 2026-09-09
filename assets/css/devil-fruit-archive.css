@@ -391,15 +391,19 @@ body.dfa-archive-page {
 	opacity: var(--dfa-title-opacity-mobile, 1);
 }
 
-/* Catalog ID sotto al titolo, esattamente metà della sua dimensione:
-   il 50% si risolve sul font-size del genitore, quindi resta agganciato
-   al titolo anche quando questo cresce da 44px a 60px. */
+/*
+ * Catalog ID sotto al titolo. La sua dimensione e una PERCENTUALE del
+ * titolo, non una misura fissa: cosi resta agganciato quando il titolo
+ * cambia, comprese le riduzioni automatiche su schermo stretto, dove
+ * una misura in px lo farebbe diventare piu grande del titolo stesso.
+ */
 .dfa-single__header-id {
 	display: block;
 	margin-top: 10px;
-	font-size: 50%;
+	font-size: var(--dfa-id-size, 50%);
 	letter-spacing: .08em;
 	color: rgba(226, 229, 232, .78);
+	opacity: var(--dfa-id-opacity-mobile, 1);
 }
 
 
@@ -1279,6 +1283,10 @@ body.dfa-archive-page {
 
 	.dfa-single__header-name {
 		opacity: var(--dfa-title-opacity, 1);
+	}
+
+	.dfa-single__header-id {
+		opacity: var(--dfa-id-opacity, 1);
 	}
 
 	.dfa-single__bg img {
