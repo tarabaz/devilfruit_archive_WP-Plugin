@@ -881,10 +881,18 @@ body.dfa-archive-page {
 	margin: 0 auto;
 }
 
+/*
+ * Come il titolo della scheda: una riga sola a qualunque larghezza.
+ * Stessa scritta, stesso font e stesso letter-spacing, quindi vale lo
+ * stesso coefficiente misurato (largo 12,16 volte la dimensione, ci sta
+ * in 8,2vw; qui si usa 8vw meno il padding laterale della pagina).
+ */
 .dfa-archive__title {
 	font: 700 44px/1 'Saira Condensed';
+	font-size: min(44px, calc(8vw - 4px));
 	letter-spacing: .04em;
 	color: #eef1f3;
+	white-space: nowrap;
 }
 
 .dfa-archive__subtitle {
@@ -918,7 +926,7 @@ body.dfa-archive-page {
 }
 
 @media (min-width: 700px) {
-	.dfa-archive__title { font-size: 60px; }
+	.dfa-archive__title { font-size: min(60px, calc(8vw - 4px)); }
 }
 
 .dfa-archive__grid {

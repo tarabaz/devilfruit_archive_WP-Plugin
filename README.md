@@ -169,6 +169,10 @@ sembrare due impostazioni diverse. Lo spartiacque è 700px di larghezza.
 - **Visibilità del titolo** (desktop / mobile): vale solo per la
   scritta, non per il Catalog ID sotto.
 
+Anche il titolo della **pagina archivio** sta su una riga sola, con la
+stessa tecnica: lì però la dimensione non è configurabile e resta
+44px / 60px, ridotta quanto serve per non andare a capo.
+
 Il titolo sta su una riga perché il CSS gli impone `nowrap` e ne calcola
 la dimensione massima dalla larghezza dello schermo. Il coefficiente
 viene da una **misura del font vero**: in Saira Condensed 700 con
