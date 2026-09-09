@@ -97,7 +97,7 @@ class DFA_Template_Loader {
 		 * un file statico (quindi ancora memorizzabile in cache) e le
 		 * regole conservano il loro ripiego se queste righe mancano.
 		 */
-		wp_add_inline_style( 'dfa-frontend', DFA_Settings::get_title_style_vars() );
+		wp_add_inline_style( 'dfa-frontend', DFA_Settings::get_style_vars() );
 
 		wp_enqueue_script(
 			'dfa-frontend',

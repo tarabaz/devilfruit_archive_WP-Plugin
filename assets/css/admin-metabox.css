@@ -60,3 +60,43 @@
 	color: #d63638;
 	font-weight: 600;
 }
+
+/* --------------------------------------------------------------------
+   Coppie di campi desktop/mobile nella pagina impostazioni
+   -------------------------------------------------------------------- */
+
+.dfa-field-pair {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px 22px;
+	align-items: center;
+}
+
+.dfa-field-pair__item {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+}
+
+/* Larghezza fissa così i due campi restano incolonnati fra loro. */
+.dfa-field-pair__label {
+	min-width: 58px;
+	color: #50575e;
+	font-size: 12px;
+	text-transform: uppercase;
+	letter-spacing: .04em;
+}
+
+/* Un po' d'aria fra un gruppo e l'altro: le sezioni sono più di una e
+   senza stacco la pagina torna a sembrare un elenco unico. */
+.dfa-settings h2 {
+	margin-top: 28px;
+	padding-top: 18px;
+	border-top: 1px solid #dcdcde;
+}
+
+.dfa-settings .nav-tab-wrapper + form h2:first-of-type {
+	margin-top: 12px;
+	padding-top: 0;
+	border-top: 0;
+}
