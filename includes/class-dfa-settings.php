@@ -180,60 +180,55 @@ class DFA_Settings {
 			array(
 				'type'              => 'array',
 				'sanitize_callback' => array( __CLASS__, 'sanitize_settings' ),
-				'default'           => array(
-					'cta_url'                  => '#',
-					'archive_background_image' => 0,
-					'single_background_image'  => 0,
-					'footer_privacy_url'       => '',
-					'footer_owner'             => '',
-					'single_title_size'        => self::TITLE_SIZE_DEFAULT,
-					'single_title_opacity'     => 100,
-				),
+				'default'           => self::defaults(),
 			)
 		);
 
-		add_settings_section(
-			'dfa_settings_main',
-			__( 'Contatto', 'devil-fruit-archive' ),
-			array( __CLASS__, 'render_main_section' ),
-			self::PAGE_SLUG
-		);
-
-		add_settings_field(
-			'dfa_cta_url',
-			__( 'URL della CTA (DM / contatti)', 'devil-fruit-archive' ),
-			array( __CLASS__, 'render_cta_url_field' ),
-			self::PAGE_SLUG,
-			'dfa_settings_main'
-		);
+		/* --- Scheda "Aspetto" --- */
 
 		add_settings_section(
 			'dfa_settings_archive',
-			__( 'Aspetto pagina archivio', 'devil-fruit-archive' ),
+			__( 'Pagina archivio', 'devil-fruit-archive' ),
 			array( __CLASS__, 'render_archive_section' ),
-			self::PAGE_SLUG
+			self::PAGE_SLUG . '-aspetto'
 		);
 
 		add_settings_field(
 			'dfa_archive_background_image',
-			__( 'Immagine di sfondo archivio', 'devil-fruit-archive' ),
+			__( 'Immagine di sfondo', 'devil-fruit-archive' ),
 			array( __CLASS__, 'render_archive_background_field' ),
-			self::PAGE_SLUG,
+			self::PAGE_SLUG . '-aspetto',
+			'dfa_settings_archive'
+		);
+
+		add_settings_field(
+			'dfa_archive_bg_opacity',
+			__( 'Visibilità dello sfondo', 'devil-fruit-archive' ),
+			array( __CLASS__, 'render_archive_bg_opacity_field' ),
+			self::PAGE_SLUG . '-aspetto',
 			'dfa_settings_archive'
 		);
 
 		add_settings_section(
 			'dfa_settings_single',
-			__( 'Aspetto scheda singola', 'devil-fruit-archive' ),
+			__( 'Scheda esemplare', 'devil-fruit-archive' ),
 			array( __CLASS__, 'render_single_section' ),
-			self::PAGE_SLUG
+			self::PAGE_SLUG . '-aspetto'
 		);
 
 		add_settings_field(
 			'dfa_single_background_image',
-			__( 'Sfondo di riserva scheda singola', 'devil-fruit-archive' ),
+			__( 'Sfondo di riserva', 'devil-fruit-archive' ),
 			array( __CLASS__, 'render_single_background_field' ),
-			self::PAGE_SLUG,
+			self::PAGE_SLUG . '-aspetto',
+			'dfa_settings_single'
+		);
+
+		add_settings_field(
+			'dfa_single_bg_opacity',
+			__( 'Visibilità dello sfondo', 'devil-fruit-archive' ),
+			array( __CLASS__, 'render_single_bg_opacity_field' ),
+			self::PAGE_SLUG . '-aspetto',
 			'dfa_settings_single'
 		);
 
@@ -241,30 +236,32 @@ class DFA_Settings {
 			'dfa_single_title_size',
 			__( 'Dimensione del titolo', 'devil-fruit-archive' ),
 			array( __CLASS__, 'render_single_title_size_field' ),
-			self::PAGE_SLUG,
+			self::PAGE_SLUG . '-aspetto',
 			'dfa_settings_single'
 		);
 
 		add_settings_field(
 			'dfa_single_title_opacity',
-			__( 'Trasparenza del titolo', 'devil-fruit-archive' ),
+			__( 'Visibilità del titolo', 'devil-fruit-archive' ),
 			array( __CLASS__, 'render_single_title_opacity_field' ),
-			self::PAGE_SLUG,
+			self::PAGE_SLUG . '-aspetto',
 			'dfa_settings_single'
 		);
 
+		/* --- Scheda "Footer" --- */
+
 		add_settings_section(
 			'dfa_settings_footer',
-			__( 'Barra in fondo alle pagine', 'devil-fruit-archive' ),
+			__( 'Riga in fondo alle pagine', 'devil-fruit-archive' ),
 			array( __CLASS__, 'render_footer_section' ),
-			self::PAGE_SLUG
+			self::PAGE_SLUG . '-footer'
 		);
 
 		add_settings_field(
 			'dfa_footer_privacy_url',
-			__( 'Link Privacy Policy', 'devil-fruit-archive' ),
+			__( 'Link alle informative', 'devil-fruit-archive' ),
 			array( __CLASS__, 'render_footer_privacy_field' ),
-			self::PAGE_SLUG,
+			self::PAGE_SLUG . '-footer',
 			'dfa_settings_footer'
 		);
 
@@ -272,9 +269,66 @@ class DFA_Settings {
 			'dfa_footer_owner',
 			__( 'Intestatario del copyright', 'devil-fruit-archive' ),
 			array( __CLASS__, 'render_footer_owner_field' ),
-			self::PAGE_SLUG,
+			self::PAGE_SLUG . '-footer',
 			'dfa_settings_footer'
 		);
+
+		/* --- Scheda "Avanzate" --- */
+
+		add_settings_section(
+			'dfa_settings_advanced',
+			__( 'Impostazioni avanzate', 'devil-fruit-archive' ),
+			array( __CLASS__, 'render_advanced_section' ),
+			self::PAGE_SLUG . '-avanzate'
+		);
+
+		add_settings_field(
+			'dfa_cta_url',
+			__( 'URL della CTA (non in uso)', 'devil-fruit-archive' ),
+			array( __CLASS__, 'render_cta_url_field' ),
+			self::PAGE_SLUG . '-avanzate',
+			'dfa_settings_advanced'
+		);
+	}
+
+	/**
+	 * Valori predefiniti di tutte le impostazioni, in un posto solo:
+	 * li usano register_setting(), il salvataggio e la lettura.
+	 *
+	 * @return array<string,mixed>
+	 */
+	public static function defaults() {
+		return array(
+			'cta_url'                     => '#',
+			'archive_background_image'    => 0,
+			'archive_bg_opacity'          => 100,
+			'archive_bg_opacity_mobile'   => 100,
+			'single_background_image'     => 0,
+			'single_bg_opacity'           => 100,
+			'single_bg_opacity_mobile'    => 100,
+			'single_title_size'           => self::TITLE_SIZE_DEFAULT,
+			'single_title_opacity'        => 100,
+			'single_title_opacity_mobile' => 100,
+			'footer_privacy_url'          => '',
+			'footer_owner'                => '',
+		);
+	}
+
+	/**
+	 * Un'impostazione, con il suo valore predefinito se non c'è.
+	 *
+	 * @param string $key Chiave dell'impostazione.
+	 * @return mixed
+	 */
+	public static function get( $key ) {
+		$settings = get_option( self::OPTION_NAME, array() );
+		$defaults = self::defaults();
+
+		if ( isset( $settings[ $key ] ) && '' !== $settings[ $key ] ) {
+			return $settings[ $key ];
+		}
+
+		return isset( $defaults[ $key ] ) ? $defaults[ $key ] : '';
 	}
 
 	/**
@@ -284,39 +338,121 @@ class DFA_Settings {
 	 * @return array<string,string>
 	 */
 	public static function sanitize_settings( $input ) {
-		$output            = array();
-		$output['cta_url'] = isset( $input['cta_url'] ) ? esc_url_raw( trim( $input['cta_url'] ) ) : '#';
+		/*
+		 * Si parte da quello che c'e gia e si toccano SOLO i campi
+		 * presenti nell'invio. La pagina e divisa in schede e ogni scheda
+		 * manda solo i propri campi: ricostruendo l'array da zero si
+		 * azzererebbero le impostazioni delle altre schede a ogni
+		 * salvataggio.
+		 */
+		$output = wp_parse_args( get_option( self::OPTION_NAME, array() ), self::defaults() );
 
-		if ( '' === $output['cta_url'] ) {
-			$output['cta_url'] = '#';
+		if ( ! is_array( $input ) ) {
+			return $output;
 		}
 
-		$output['archive_background_image'] = isset( $input['archive_background_image'] ) ? absint( $input['archive_background_image'] ) : 0;
-
-		$output['single_background_image'] = isset( $input['single_background_image'] ) ? absint( $input['single_background_image'] ) : 0;
-
-		// Fuori dai limiti si riporta dentro invece di rifiutare: un
-		// titolo da 0px o da 900px non e mai quello che si voleva.
-		$size = isset( $input['single_title_size'] ) ? absint( $input['single_title_size'] ) : self::TITLE_SIZE_DEFAULT;
-		if ( ! $size ) {
-			$size = self::TITLE_SIZE_DEFAULT;
+		if ( isset( $input['cta_url'] ) ) {
+			$url               = esc_url_raw( trim( $input['cta_url'] ) );
+			$output['cta_url'] = '' !== $url ? $url : '#';
 		}
-		$output['single_title_size'] = max( self::TITLE_SIZE_MIN, min( self::TITLE_SIZE_MAX, $size ) );
 
-		$opacity = isset( $input['single_title_opacity'] ) ? absint( $input['single_title_opacity'] ) : 100;
-		$output['single_title_opacity'] = max( 0, min( 100, $opacity ) );
+		foreach ( array( 'archive_background_image', 'single_background_image' ) as $key ) {
+			if ( isset( $input[ $key ] ) ) {
+				$output[ $key ] = absint( $input[ $key ] );
+			}
+		}
 
-		$output['footer_privacy_url'] = isset( $input['footer_privacy_url'] ) ? esc_url_raw( trim( $input['footer_privacy_url'] ) ) : '';
-		$output['footer_owner']       = isset( $input['footer_owner'] ) ? sanitize_text_field( trim( $input['footer_owner'] ) ) : '';
+		// Percentuali: fuori scala si riportano dentro invece di
+		// rifiutare, sia qui sia in lettura, cosi anche un valore
+		// modificato a mano nel database resta innocuo.
+		foreach ( self::opacity_keys() as $key ) {
+			if ( isset( $input[ $key ] ) ) {
+				$output[ $key ] = max( 0, min( 100, absint( $input[ $key ] ) ) );
+			}
+		}
+
+		if ( isset( $input['single_title_size'] ) ) {
+			$size = absint( $input['single_title_size'] );
+			if ( ! $size ) {
+				$size = self::TITLE_SIZE_DEFAULT;
+			}
+			$output['single_title_size'] = max( self::TITLE_SIZE_MIN, min( self::TITLE_SIZE_MAX, $size ) );
+		}
+
+		if ( isset( $input['footer_privacy_url'] ) ) {
+			$output['footer_privacy_url'] = esc_url_raw( trim( $input['footer_privacy_url'] ) );
+		}
+
+		if ( isset( $input['footer_owner'] ) ) {
+			$output['footer_owner'] = sanitize_text_field( trim( $input['footer_owner'] ) );
+		}
 
 		return $output;
 	}
 
 	/**
+	 * Le impostazioni espresse in percentuale, tutte trattate allo stesso
+	 * modo da salvataggio e lettura.
+	 *
+	 * @return string[]
+	 */
+	private static function opacity_keys() {
+		return array(
+			'archive_bg_opacity',
+			'archive_bg_opacity_mobile',
+			'single_bg_opacity',
+			'single_bg_opacity_mobile',
+			'single_title_opacity',
+			'single_title_opacity_mobile',
+		);
+	}
+
+	/**
+	 * Percentuale letta e riportata comunque fra 0 e 100.
+	 *
+	 * @param string $key Chiave dell'impostazione.
+	 * @return int
+	 */
+	private static function opacity( $key ) {
+		$settings = get_option( self::OPTION_NAME, array() );
+		$value    = isset( $settings[ $key ] ) ? (int) $settings[ $key ] : 100;
+
+		return max( 0, min( 100, $value ) );
+	}
+
+	/**
+	 * Coppia di campi percentuale desktop/mobile sulla stessa riga: sono
+	 * la stessa impostazione su due schermi, separarle in due righe le
+	 * farebbe sembrare due cose diverse.
+	 *
+	 * @param string $key         Chiave del valore desktop.
+	 * @param string $description Testo esplicativo sotto la coppia.
+	 */
+	private static function render_opacity_pair( $key, $description ) {
+		$fields = array(
+			$key             => __( 'Desktop', 'devil-fruit-archive' ),
+			$key . '_mobile' => __( 'Mobile', 'devil-fruit-archive' ),
+		);
+		?>
+		<div class="dfa-field-pair">
+			<?php foreach ( $fields as $name => $label ) : ?>
+				<label class="dfa-field-pair__item">
+					<span class="dfa-field-pair__label"><?php echo esc_html( $label ); ?></span>
+					<input type="number" name="<?php echo esc_attr( self::OPTION_NAME . '[' . $name . ']' ); ?>"
+						value="<?php echo esc_attr( (string) self::opacity( $name ) ); ?>"
+						min="0" max="100" step="1" class="small-text"> %
+				</label>
+			<?php endforeach; ?>
+		</div>
+		<p class="description"><?php echo esc_html( $description ); ?></p>
+		<?php
+	}
+
+	/**
 	 * Testo introduttivo della sezione impostazioni.
 	 */
-	public static function render_main_section() {
-		echo '<p>' . esc_html__( 'Link di contatto (es. DM Instagram, modulo di contatto, canale Discord). Al momento non è usato da nessuna pagina: il bottone "Richiedi questo esemplare" è stato rimosso dalla scheda singola. Il valore resta salvato qui, pronto se in futuro si vorrà rimettere una CTA di contatto.', 'devil-fruit-archive' ) . '</p>';
+	public static function render_advanced_section() {
+		echo '<p>' . esc_html__( 'Roba che non serve tutti i giorni, tenuta fuori dalle altre schede per non appesantirle.', 'devil-fruit-archive' ) . '</p>';
 	}
 
 	/**
@@ -393,16 +529,46 @@ class DFA_Settings {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return;
 		}
+		$tabs = self::get_tabs();
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- sola navigazione fra schede.
+		$current = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : 'aspetto';
+		if ( ! isset( $tabs[ $current ] ) ) {
+			$current = 'aspetto';
+		}
 		?>
-		<div class="wrap">
-			<h1><?php esc_html_e( 'Impostazioni Devil Fruit Archive', 'devil-fruit-archive' ); ?></h1>
-			<form action="options.php" method="post">
+		<div class="wrap dfa-settings">
+			<h1><?php esc_html_e( 'Devil Fruit Archive', 'devil-fruit-archive' ); ?></h1>
+
+			<nav class="nav-tab-wrapper">
+				<?php foreach ( $tabs as $slug => $label ) : ?>
+					<a class="nav-tab <?php echo $slug === $current ? 'nav-tab-active' : ''; ?>"
+						href="<?php echo esc_url( self::tab_url( $slug ) ); ?>"><?php echo esc_html( $label ); ?></a>
+				<?php endforeach; ?>
+			</nav>
+
+			<?php if ( 'aspetto' === $current || 'footer' === $current || 'avanzate' === $current ) : ?>
 				<?php
-				settings_fields( 'dfa_settings_group' );
-				do_settings_sections( self::PAGE_SLUG );
-				submit_button( __( 'Salva impostazioni', 'devil-fruit-archive' ) );
+				/*
+				 * Un modulo per scheda, con gli stessi campi nascosti di
+				 * sempre: options.php rimanda alla scheda da cui si e
+				 * salvato, invece che alla prima.
+				 */
 				?>
-			</form>
+				<form action="options.php" method="post">
+					<?php
+					settings_fields( 'dfa_settings_group' );
+					printf(
+						'<input type="hidden" name="_wp_http_referer" value="%s">',
+						esc_url( self::tab_url( $current ) )
+					);
+					do_settings_sections( self::PAGE_SLUG . '-' . $current );
+					submit_button( __( 'Salva impostazioni', 'devil-fruit-archive' ) );
+					?>
+				</form>
+			<?php endif; ?>
+
+			<?php if ( 'avanzate' === $current ) : ?>
 
 			<hr>
 
@@ -418,7 +584,9 @@ class DFA_Settings {
 				<?php submit_button( __( 'Lancia il seed del catalogo', 'devil-fruit-archive' ), 'secondary' ); ?>
 			</form>
 
-			<hr>
+			<?php endif; ?>
+
+			<?php if ( 'backup' === $current ) : ?>
 
 			<h2><?php esc_html_e( 'Esporta / Importa archivio', 'devil-fruit-archive' ); ?></h2>
 
@@ -530,6 +698,8 @@ class DFA_Settings {
 
 			<?php endif; ?>
 
+			<?php endif; ?>
+
 			<p style="margin-top:24px;color:#787c82">
 				<?php
 				printf(
@@ -541,6 +711,57 @@ class DFA_Settings {
 			</p>
 		</div>
 		<?php
+	}
+
+	/**
+	 * Le schede della pagina impostazioni.
+	 *
+	 * @return array<string,string>
+	 */
+	private static function get_tabs() {
+		return array(
+			'aspetto'  => __( 'Aspetto', 'devil-fruit-archive' ),
+			'footer'   => __( 'Footer', 'devil-fruit-archive' ),
+			'backup'   => __( 'Backup', 'devil-fruit-archive' ),
+			'avanzate' => __( 'Avanzate', 'devil-fruit-archive' ),
+		);
+	}
+
+	/**
+	 * Indirizzo di una scheda della pagina impostazioni.
+	 *
+	 * @param string $slug Scheda.
+	 * @return string
+	 */
+	private static function tab_url( $slug ) {
+		return add_query_arg(
+			array(
+				'post_type' => DFA_CPT::POST_TYPE,
+				'page'      => self::PAGE_SLUG,
+				'tab'       => $slug,
+			),
+			admin_url( 'edit.php' )
+		);
+	}
+
+	/**
+	 * Visibilità dello sfondo della pagina archivio.
+	 */
+	public static function render_archive_bg_opacity_field() {
+		self::render_opacity_pair(
+			'archive_bg_opacity',
+			__( 'Quanto si vede la foto di sfondo: 100 piena, 0 invisibile. I veli e la sfumatura verso il fondo pagina restano invariati.', 'devil-fruit-archive' )
+		);
+	}
+
+	/**
+	 * Visibilità dello sfondo della scheda esemplare.
+	 */
+	public static function render_single_bg_opacity_field() {
+		self::render_opacity_pair(
+			'single_bg_opacity',
+			__( 'Vale sia per la foto del proprietario sia per lo sfondo di riserva. Su mobile puoi tenerla più alta: lì la foto è già molto ridotta dai veli.', 'devil-fruit-archive' )
+		);
 	}
 
 	/**
@@ -558,7 +779,7 @@ class DFA_Settings {
 			<?php
 			printf(
 				/* translators: 1: dimensione predefinita, 2: dimensione corrispondente su schermo stretto. */
-				esc_html__( 'Dimensione di "VEGAPUNK RESEARCH DIVISION" nelle schede, sui monitor (predefinita %1$d px). Su schermo stretto scende in proporzione, ora a %2$d px. Il Catalog ID sotto resta sempre a metà del titolo.', 'devil-fruit-archive' ),
+				esc_html__( 'Dimensione di "VEGAPUNK RESEARCH DIVISION" nelle schede, sui monitor (predefinita %1$d px). Su schermo stretto parte da %2$d px e si rimpicciolisce quanto basta per stare su una riga sola, senza andare a capo. Il Catalog ID sotto resta sempre a metà del titolo.', 'devil-fruit-archive' ),
 				(int) self::TITLE_SIZE_DEFAULT,
 				(int) round( $value * self::TITLE_SIZE_MOBILE_RATIO )
 			);
@@ -568,40 +789,52 @@ class DFA_Settings {
 	}
 
 	/**
-	 * Campo trasparenza del titolo della scheda singola.
+	 * Visibilità del titolo della scheda esemplare.
 	 */
 	public static function render_single_title_opacity_field() {
-		$settings = get_option( self::OPTION_NAME, array() );
-		$value    = isset( $settings['single_title_opacity'] ) ? (int) $settings['single_title_opacity'] : 100;
-		?>
-		<input type="number" name="<?php echo esc_attr( self::OPTION_NAME ); ?>[single_title_opacity]"
-			value="<?php echo esc_attr( (string) $value ); ?>" min="0" max="100" step="1" class="small-text"> %
-		<p class="description"><?php esc_html_e( 'Quanto è visibile il titolo: 100 pieno, 0 invisibile. Vale solo per la scritta, non per il Catalog ID sotto.', 'devil-fruit-archive' ); ?></p>
-		<?php
+		self::render_opacity_pair(
+			'single_title_opacity',
+			__( 'Quanto è visibile "VEGAPUNK RESEARCH DIVISION": 100 pieno, 0 invisibile. Vale solo per la scritta, non per il Catalog ID sotto.', 'devil-fruit-archive' )
+		);
 	}
 
 	/**
-	 * Variabili CSS con dimensione e trasparenza del titolo, pronte da
-	 * accodare al foglio di stile di frontend.
+	 * Variabili CSS con le scelte di aspetto, pronte da accodare al
+	 * foglio di stile: dimensione e visibilita del titolo e visibilita
+	 * degli sfondi, ciascuna nella versione desktop e in quella mobile.
 	 *
 	 * @return string
 	 */
-	public static function get_title_style_vars() {
-		$settings = get_option( self::OPTION_NAME, array() );
-
-		$size = isset( $settings['single_title_size'] ) ? (int) $settings['single_title_size'] : self::TITLE_SIZE_DEFAULT;
+	public static function get_style_vars() {
+		$size = (int) self::get( 'single_title_size' );
 		$size = max( self::TITLE_SIZE_MIN, min( self::TITLE_SIZE_MAX, $size ) );
 
-		$opacity = isset( $settings['single_title_opacity'] ) ? (int) $settings['single_title_opacity'] : 100;
-		$opacity = max( 0, min( 100, $opacity ) );
-
-		return sprintf(
-			':root{--dfa-title-size:%1$dpx;--dfa-title-size-mobile:%2$dpx;--dfa-title-opacity:%3$s}',
-			$size,
-			(int) round( $size * self::TITLE_SIZE_MOBILE_RATIO ),
-			// Due decimali bastano e evitano notazioni tipo 0.6699999.
-			number_format( $opacity / 100, 2, '.', '' )
+		$vars = array(
+			'--dfa-title-size'        => $size . 'px',
+			'--dfa-title-size-mobile' => (int) round( $size * self::TITLE_SIZE_MOBILE_RATIO ) . 'px',
 		);
+
+		// Le percentuali diventano frazioni: due decimali bastano ed
+		// evitano notazioni tipo 0.6699999.
+		$map = array(
+			'--dfa-title-opacity'             => 'single_title_opacity',
+			'--dfa-title-opacity-mobile'      => 'single_title_opacity_mobile',
+			'--dfa-single-bg-opacity'         => 'single_bg_opacity',
+			'--dfa-single-bg-opacity-mobile'  => 'single_bg_opacity_mobile',
+			'--dfa-archive-bg-opacity'        => 'archive_bg_opacity',
+			'--dfa-archive-bg-opacity-mobile' => 'archive_bg_opacity_mobile',
+		);
+
+		foreach ( $map as $var => $key ) {
+			$vars[ $var ] = number_format( self::opacity( $key ) / 100, 2, '.', '' );
+		}
+
+		$declarations = array();
+		foreach ( $vars as $var => $value ) {
+			$declarations[] = $var . ':' . $value;
+		}
+
+		return ':root{' . implode( ';', $declarations ) . '}';
 	}
 
 	/**

@@ -182,6 +182,7 @@ body.dfa-archive-page {
 	display: block !important;
 	-webkit-mask-image: linear-gradient(to right, #000 55%, transparent 100%);
 	mask-image: linear-gradient(to right, #000 55%, transparent 100%);
+	opacity: var(--dfa-single-bg-opacity-mobile, 1);
 }
 
 
@@ -362,16 +363,32 @@ body.dfa-archive-page {
  * sono i ripieghi: se l'inline style non c'e — impostazioni mai
  * salvate, cache dello stile vecchia — il titolo resta com'era.
  */
+/*
+ * Dimensione e visibilita arrivano dalle impostazioni come variabili
+ * (le stampa class-dfa-template-loader.php). I valori dopo la virgola
+ * sono i ripieghi: se l'inline style non c'e — impostazioni mai
+ * salvate, cache dello stile vecchia — il titolo resta com'era.
+ *
+ * Il titolo sta su UNA RIGA a qualunque larghezza: nowrap glielo impone
+ * e il min() lo rimpicciolisce quanto basta perche ci stia. Il
+ * coefficiente viene da una misura del font vero: "VEGAPUNK RESEARCH
+ * DIVISION" in Saira Condensed 700 con letter-spacing .04em e largo
+ * 12,16 volte la propria dimensione, quindi in (100/12,16) = 8,2vw ci
+ * sta a filo; 8vw lascia un margine di sicurezza e i px sottratti
+ * tengono conto del padding laterale dell'intestazione.
+ */
 .dfa-single__header-title {
-	font: 700 var(--dfa-title-size-mobile, 44px)/1 'Saira Condensed';
+	font: 700 44px/1 'Saira Condensed';
+	font-size: min(var(--dfa-title-size-mobile, 44px), calc(8vw - 4px));
 	letter-spacing: .04em;
 	color: #eef1f3;
 	text-align: center;
+	white-space: nowrap;
 }
 
-/* La trasparenza vale solo sul titolo, non sul Catalog ID sotto. */
+/* La visibilita vale solo sul titolo, non sul Catalog ID sotto. */
 .dfa-single__header-name {
-	opacity: var(--dfa-title-opacity, 1);
+	opacity: var(--dfa-title-opacity-mobile, 1);
 }
 
 /* Catalog ID sotto al titolo, esattamente metà della sua dimensione:
@@ -385,9 +402,6 @@ body.dfa-archive-page {
 	color: rgba(226, 229, 232, .78);
 }
 
-@media (min-width: 700px) {
-	.dfa-single__header-title { font-size: var(--dfa-title-size, 60px); }
-}
 
 .dfa-single__header-rule {
 	width: 100%;
@@ -832,6 +846,7 @@ body.dfa-archive-page {
 	display: block !important;
 	-webkit-mask-image: linear-gradient(to right, transparent 0%, #000 15%, #000 85%, transparent 100%);
 	mask-image: linear-gradient(to right, transparent 0%, #000 15%, #000 85%, transparent 100%);
+	opacity: var(--dfa-archive-bg-opacity-mobile, 1);
 }
 .dfa-archive__bg::after {
 	content: "";
@@ -1238,4 +1253,39 @@ body.dfa-archive-page {
 .dfa-archive .page-numbers.current {
 	border-color: rgba(216, 219, 222, .7);
 	color: #fff;
+}
+
+/* --------------------------------------------------------------------
+   VALORI PER SCHERMI LARGHI (impostazioni desktop)
+
+   Questo blocco sta in FONDO al file di proposito: sovrascrive regole
+   che hanno la sua stessa specificita, e a parita di specificita vince
+   chi viene dopo. Spostarlo piu in alto lo renderebbe inefficace senza
+   che nulla segnali l'errore.
+   -------------------------------------------------------------------- */
+
+@media (min-width: 700px) {
+	.dfa-single__header-title {
+		font-size: min(var(--dfa-title-size, 60px), calc(8vw - 4px));
+	}
+
+	.dfa-single__header-name {
+		opacity: var(--dfa-title-opacity, 1);
+	}
+
+	.dfa-single__bg img {
+		opacity: var(--dfa-single-bg-opacity, 1);
+	}
+
+	.dfa-archive__bg img {
+		opacity: var(--dfa-archive-bg-opacity, 1);
+	}
+}
+
+/* Sopra i 1200px l'intestazione lascia 190px liberi per lato al bottone
+   dell'archivio: lo spazio per il titolo e quello meno 380px. */
+@media (min-width: 1200px) {
+	.dfa-single__header-title {
+		font-size: min(var(--dfa-title-size, 60px), calc(8vw - 32px));
+	}
 }

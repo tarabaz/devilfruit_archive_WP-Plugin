@@ -131,45 +131,85 @@ e viceversa. Il bottone della variante mostra il `Nome della variante`
 
 ## Impostazioni
 
-**Francy Devil Fruit Archive → Impostazioni**:
+**Francy Devil Fruit Archive → Impostazioni**, divise in quattro schede.
 
-- **URL della CTA (DM / contatti)**: impostazione al momento **non
-  utilizzata**. Il bottone "RICHIEDI QUESTO ESEMPLARE" è stato rimosso
-  dalla scheda singola, dove al suo posto c'è l'interruttore della
-  lampada. Il campo resta disponibile per riattivare in futuro una CTA
-  di contatto senza doverla riconfigurare.
-- **Immagine di sfondo archivio**: immagine decorativa in cima alla
-  pagina archivio pubblica (`/archivio/`), dietro al contenuto, che le
-  scorre sopra partendo a 50px dal bordo superiore. È mostrata alla sua
-  **dimensione naturale**, ancorata al centro in orizzontale e in alto
-  in verticale: su schermi più stretti dell'immagine viene ritagliata ai
-  lati, su schermi più larghi resta della sua misura con il fondo scuro
-  attorno. Regola quindi la larghezza del file che carichi in base alla
-  risoluzione che ti interessa coprire. Facoltativa; non compare nello
-  shortcode `[devil_fruit_archive]` usato dentro una pagina del tema.
-- **Sfondo di riserva scheda singola**: usato come sfondo sulle schede
-  degli esemplari che non hanno ancora una `Foto proprietario attuale`
-  caricata.
+### Aspetto
+
+Due gruppi, uno per pagina. Le impostazioni che valgono su entrambi gli
+schermi hanno i campi **Desktop e Mobile sulla stessa riga**: sono la
+stessa cosa vista da due parti, e separarle in due righe le farebbe
+sembrare due impostazioni diverse. Lo spartiacque è 700px di larghezza.
+
+**Pagina archivio**
+
+- **Immagine di sfondo**: immagine decorativa in cima all'archivio
+  pubblico (`/archivio/`), dietro al contenuto, che le scorre sopra
+  partendo a 50px dal bordo. È mostrata alla sua **dimensione
+  naturale**, ancorata al centro in orizzontale e in alto in verticale:
+  su schermi più stretti viene ritagliata ai lati, su schermi più larghi
+  resta della sua misura col fondo scuro attorno. Facoltativa; non
+  compare nello shortcode `[devil_fruit_archive]`.
+- **Visibilità dello sfondo** (desktop / mobile, 0-100%): quanto si vede
+  la foto. I veli e la sfumatura verso il fondo pagina restano
+  invariati: è un controllo in più, non li sostituisce.
+
+**Scheda esemplare**
+
+- **Sfondo di riserva**: usato sulle schede degli esemplari che non
+  hanno ancora una `Foto proprietario attuale`.
+- **Visibilità dello sfondo** (desktop / mobile): come sopra. Su mobile
+  conviene tenerla più alta, perché lì la foto è già molto ridotta dai
+  veli.
 - **Dimensione del titolo** (20-160 px, predefinita 60): quanto è grande
-  "VEGAPUNK RESEARCH DIVISION" nelle schede, **sui monitor**. Su schermo
-  stretto scende nella stessa proporzione di prima (44 su 60, cioè il
-  73%), così non si imposta una misura sola che va bene di là e male di
-  qua. Il Catalog ID sotto resta sempre a metà del titolo, quindi segue
-  da solo. Non tocca il titolo della pagina archivio.
-- **Trasparenza del titolo** (0-100%, predefinita 100): quanto è
-  visibile la scritta. Vale **solo per il titolo**, non per il Catalog
-  ID sotto, che resta pieno.
-- **Seed del catalogo**: vedi sotto.
+  "VEGAPUNK RESEARCH DIVISION", **sui monitor**. Su schermo stretto
+  parte dal 73% di quel valore (44 su 60, la proporzione originale) e
+  **si rimpicciolisce quanto basta per stare su una riga sola**: il
+  titolo non va mai a capo, a nessuna larghezza. Il Catalog ID sotto
+  resta a metà del titolo, quindi segue da solo.
+- **Visibilità del titolo** (desktop / mobile): vale solo per la
+  scritta, non per il Catalog ID sotto.
 
-Dimensione e trasparenza arrivano al CSS come **variabili** accodate al
+Il titolo sta su una riga perché il CSS gli impone `nowrap` e ne calcola
+la dimensione massima dalla larghezza dello schermo. Il coefficiente
+viene da una **misura del font vero**: in Saira Condensed 700 con
+`letter-spacing: .04em` quella scritta è larga 12,16 volte la propria
+dimensione, quindi entra in 8,2vw; il CSS usa 8vw per stare largo.
+Risultato misurato: 21,6px a 320px di schermo, 27,2px a 390px, 44px da
+600px in su, 60px oltre gli 885px — sempre una riga, mai una barra di
+scorrimento orizzontale.
+
+### Footer
+
+Vedi ["Riga in fondo alle pagine"](#riga-in-fondo-alle-pagine) qui sotto.
+
+### Backup
+
+Esportazione a pacchetti e importazione: vedi ["Esporta / Importa
+l'archivio"](#esporta--importa-larchivio-backup-e-trasferimento).
+
+### Avanzate
+
+Il seed del catalogo e l'**URL della CTA**, impostazione al momento
+**non utilizzata**: il bottone "RICHIEDI QUESTO ESEMPLARE" è stato
+rimosso dalla scheda, dove al suo posto c'è l'interruttore della
+lampada. Il campo resta salvato, pronto se in futuro si vorrà rimettere
+una CTA, ma sta qui per non ingombrare le schede che si usano davvero.
+
+### Note tecniche
+
+Dimensione e percentuali arrivano al CSS come **variabili** accodate al
 foglio di stile, non riscrivendone le regole: il file resta statico e
-quindi memorizzabile in cache, e le regole conservano i valori
-originali come ripiego se quelle righe mancano (impostazioni mai
-salvate, cache vecchia).
+quindi memorizzabile in cache, e le regole conservano i valori originali
+come ripiego se quelle righe mancano (impostazioni mai salvate, cache
+vecchia).
 
-Il numero di versione del plugin (bump ad ogni modifica) è mostrato in
-fondo a questa pagina — utile per verificare a colpo d'occhio che un
-aggiornamento sia stato effettivamente caricato sul sito.
+Ogni scheda invia **solo i propri campi**, quindi il salvataggio parte
+dai valori già memorizzati e tocca soltanto quelli ricevuti: altrimenti
+salvare il footer azzererebbe l'aspetto e viceversa.
+
+Il numero di versione del plugin è mostrato in fondo alla pagina — utile
+per verificare a colpo d'occhio che un aggiornamento sia stato
+effettivamente caricato sul sito.
 
 ### Riga in fondo alle pagine
 
