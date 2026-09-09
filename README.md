@@ -168,6 +168,13 @@ sembrare due impostazioni diverse. Lo spartiacque è 700px di larghezza.
   resta a metà del titolo, quindi segue da solo.
 - **Visibilità del titolo** (desktop / mobile): vale solo per la
   scritta, non per il Catalog ID sotto.
+- **Dimensione del Catalog ID** (10-100%, predefinita 50): quanto è
+  grande il "DF-001" sotto al titolo, **in percentuale del titolo** e
+  non in px. Il campo mostra la misura che ne risulta con la dimensione
+  del titolo impostata. È una percentuale perché su schermo stretto il
+  titolo si rimpicciolisce da solo per stare in riga: con una misura
+  fissa il Catalog ID finirebbe per diventare più grande del titolo.
+- **Visibilità del Catalog ID** (desktop / mobile).
 
 Anche il titolo della **pagina archivio** sta su una riga sola, con la
 stessa tecnica: lì però la dimensione non è configurabile e resta
