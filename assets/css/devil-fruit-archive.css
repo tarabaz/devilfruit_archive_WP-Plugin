@@ -356,11 +356,22 @@ body.dfa-archive-page {
 
 /* Titolo identico a quello dell'archivio (.dfa-archive__title), così le
    due pagine condividono la stessa testata. */
+/*
+ * Dimensione e trasparenza arrivano dalle impostazioni come variabili
+ * (le stampa class-dfa-template-loader.php). I valori dopo la virgola
+ * sono i ripieghi: se l'inline style non c'e — impostazioni mai
+ * salvate, cache dello stile vecchia — il titolo resta com'era.
+ */
 .dfa-single__header-title {
-	font: 700 44px/1 'Saira Condensed';
+	font: 700 var(--dfa-title-size-mobile, 44px)/1 'Saira Condensed';
 	letter-spacing: .04em;
 	color: #eef1f3;
 	text-align: center;
+}
+
+/* La trasparenza vale solo sul titolo, non sul Catalog ID sotto. */
+.dfa-single__header-name {
+	opacity: var(--dfa-title-opacity, 1);
 }
 
 /* Catalog ID sotto al titolo, esattamente metà della sua dimensione:
@@ -375,7 +386,7 @@ body.dfa-archive-page {
 }
 
 @media (min-width: 700px) {
-	.dfa-single__header-title { font-size: 60px; }
+	.dfa-single__header-title { font-size: var(--dfa-title-size, 60px); }
 }
 
 .dfa-single__header-rule {
