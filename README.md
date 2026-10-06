@@ -51,6 +51,12 @@ Brand: **FrancyStore3D**.
      La card è interamente in **bianco e nero** (frutto e icona della
      tipologia compresi) e al passaggio del mouse non cambia nulla: non
      si illumina e non si colora, per non far pensare che sia apribile.
+     La fascia COMING SOON ha invece uno sfondo **rosso scuro
+     trasparente**, altrimenti sul nero della card la scritta si
+     confondeva con lo sfondo. Per questo il bianco e nero è applicato
+     ai singoli elementi e non all'intera card: un filtro sul
+     contenitore agisce sul risultato già composto e renderebbe grigia
+     anche la fascia, senza modo di annullarlo dall'interno.
    - `Immagine frutto`: immagine "prodotto" mostrata nel riquadro della
      card nella griglia archivio (al posto della featured image; se non
      caricata quel riquadro resta trasparente e mostra lo sfondo dietro,
@@ -73,8 +79,8 @@ Brand: **FrancyStore3D**.
    - `Proprietario attuale` (testo) + relativa foto (bottone "Seleziona
      immagine", media uploader nativo di WordPress). Questa foto è usata
      come **sfondo a piena pagina della scheda singola** e come sfondo
-     della card nella griglia archivio, lì in bianco e nero (torna a
-     colori al passaggio del mouse sulla card).
+     della card nella griglia archivio, lì a colori (più satura al
+     passaggio del mouse; in bianco e nero solo sui "coming soon").
    - `Ex proprietario` (opzionale): solo testo, popola la riga "EX
      PROPRIETARIO" nella targa. Nessuna immagine dedicata.
 6. Compila il meta box **"Research Note / Osservazioni"** con il testo di
@@ -372,10 +378,13 @@ pacchetto può superare la dimensione massima di caricamento del server
 (`upload_max_filesize` / `post_max_size`). In quel caso l'import segnala
 l'errore: chiedi all'hosting di alzare quei limiti.
 
-Al passaggio del mouse su una card **attiva** il velo nero si schiarisce
-del 10% (opacità da .5 a .45), il personaggio passa a colori e il frutto
-si illumina. La card non si solleva: resta ferma, cambiano solo bordo e
-alone.
+Le card **attive** sono **a colori già a riposo**: il bianco e nero è il
+segno dei "coming soon", e usarlo anche per gli attivi faceva sembrare
+tutta la griglia spenta a colpo d'occhio. Al passaggio del mouse il
+colore si **accentua** invece di accendersi: personaggio più saturo e
+contrastato (`saturate(1.35) contrast(1.05)`), frutto più vivo
+(`brightness(1.12) saturate(1.25)`), velo nero da .45 a .40. La card non
+si solleva: resta ferma, cambiano solo bordo e alone.
 
 ## Griglia archivio e shortcode
 

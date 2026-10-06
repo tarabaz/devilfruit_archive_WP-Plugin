@@ -999,10 +999,28 @@ body.dfa-archive-page {
  */
 .dfa-archive__card--coming {
 	cursor: default;
-	/* Tutta la card in bianco e nero, immagine del frutto e icona della
-	   tipologia comprese: un grayscale sul contenitore vale per ogni
-	   livello, senza doverli elencare uno a uno. */
+}
+
+/*
+ * Bianco e nero elemento per elemento e NON con un grayscale sul
+ * contenitore: quello varrebbe anche per la fascia COMING SOON, che
+ * deve restare rossa. Un filtro sul genitore agisce sul risultato gia
+ * composto, quindi dall'interno non si puo annullare.
+ *
+ * Due classi battono una, percio queste regole vincono sulle generiche
+ * a prescindere dall'ordine nel file.
+ */
+.dfa-archive__card--coming .dfa-archive__card-bg-character img {
 	filter: grayscale(100%);
+}
+.dfa-archive__card--coming .dfa-archive__card-image img {
+	filter: grayscale(100%) brightness(.5) drop-shadow(0 8px 14px rgba(0, 0, 0, .55));
+}
+.dfa-archive__card--coming .dfa-archive__badge-icon {
+	filter: grayscale(100%);
+}
+.dfa-archive__card--coming .dfa-archive__card-veil {
+	background: rgba(0, 0, 0, .5);
 }
 .dfa-archive__card--coming:hover,
 .dfa-archive__card--coming:focus-within {
@@ -1018,13 +1036,16 @@ body.dfa-archive-page {
 	right: 0;
 	z-index: 3;
 	padding: 9px 10px;
-	background: rgba(8, 9, 10, .74);
-	border-bottom: 1px solid rgba(216, 219, 222, .28);
+	/* Rosso scuro trasparente: sul nero della card la fascia si
+	   confondeva con lo sfondo e la scritta passava in secondo piano. */
+	background: rgba(110, 16, 21, .78);
+	border-bottom: 1px solid rgba(255, 138, 138, .32);
 	font: 700 11px/1 'IBM Plex Mono', ui-monospace, monospace;
 	letter-spacing: .3em;
 	text-align: center;
 	text-indent: .3em; /* compensa lo spazio finale del letter-spacing */
-	color: rgba(232, 235, 238, .92);
+	color: #fff;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, .45);
 }
 
 .dfa-archive__card-corner {
@@ -1078,27 +1099,31 @@ body.dfa-archive-page {
 	display: block !important;
 	transform: scale(1.2);
 	transform-origin: left center;
-	filter: grayscale(100%);
+	/* A colori gia a riposo: il bianco e nero e il segno dei "coming
+	   soon", e usarlo anche per gli attivi li faceva sembrare tutti
+	   uguali a colpo d'occhio. */
+	filter: none;
 	transition: filter .3s ease;
 }
+/* Il mouse accentua, non accende: i colori ci sono gia. */
 .dfa-archive__card:hover .dfa-archive__card-bg-character img,
 .dfa-archive__card:focus-within .dfa-archive__card-bg-character img {
-	filter: grayscale(0%);
+	filter: saturate(1.35) contrast(1.05);
 }
 
 .dfa-archive__card-veil {
 	position: absolute !important;
 	inset: 0 !important;
 	z-index: 0 !important;
-	background: rgba(0, 0, 0, .5);
+	background: rgba(0, 0, 0, .45);
 	transition: background .3s ease;
 }
 
-/* Al passaggio del mouse la card attiva si schiarisce del 10%: il velo
-   nero passa da .5 a .45 di opacità (il 10% in meno, non 10 punti). */
+/* Il velo a riposo e gia quello che prima si vedeva solo in hover; il
+   mouse toglie un altro 10% (non 10 punti). */
 .dfa-archive__card:hover .dfa-archive__card-veil,
 .dfa-archive__card:focus-within .dfa-archive__card-veil {
-	background: rgba(0, 0, 0, .45);
+	background: rgba(0, 0, 0, .4);
 }
 
 .dfa-archive__card-overlay {
@@ -1142,13 +1167,13 @@ body.dfa-archive-page {
 	height: 100% !important;
 	object-fit: contain !important;
 	object-position: bottom right !important;
-	filter: brightness(.5) drop-shadow(0 8px 14px rgba(0, 0, 0, .55));
+	filter: brightness(1) drop-shadow(0 8px 14px rgba(0, 0, 0, .55));
 	transition: filter .3s ease;
 }
 
 .dfa-archive__card:hover .dfa-archive__card-image img,
 .dfa-archive__card:focus-within .dfa-archive__card-image img {
-	filter: brightness(1) drop-shadow(0 8px 14px rgba(0, 0, 0, .55));
+	filter: brightness(1.12) saturate(1.25) drop-shadow(0 8px 14px rgba(0, 0, 0, .55));
 }
 
 /*
@@ -1159,14 +1184,16 @@ body.dfa-archive-page {
  * al passaggio del mouse.
  */
 /* Niente "accensione" al passaggio del mouse: personaggio e frutto
-   restano come sono. */
+   restano esattamente come a riposo. Queste hanno la stessa
+   specificita delle generiche in hover, quindi vincono solo perche
+   stanno dopo. */
 .dfa-archive__card--coming:hover .dfa-archive__card-bg-character img,
 .dfa-archive__card--coming:focus-within .dfa-archive__card-bg-character img {
 	filter: grayscale(100%);
 }
 .dfa-archive__card--coming:hover .dfa-archive__card-image img,
 .dfa-archive__card--coming:focus-within .dfa-archive__card-image img {
-	filter: brightness(.5) drop-shadow(0 8px 14px rgba(0, 0, 0, .55));
+	filter: grayscale(100%) brightness(.5) drop-shadow(0 8px 14px rgba(0, 0, 0, .55));
 }
 .dfa-archive__card--coming:hover .dfa-archive__card-veil,
 .dfa-archive__card--coming:focus-within .dfa-archive__card-veil {
